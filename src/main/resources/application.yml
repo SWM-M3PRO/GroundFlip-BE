@@ -24,8 +24,9 @@ logging:
 ---
 
 spring:
-  profiles:
-    active: dev
+  config:
+    activate:
+      on-profile: dev
   jpa:
     hibernate:
       ddl-auto: update
@@ -33,8 +34,9 @@ spring:
 ---
 
 spring:
-  profiles:
-    active: prod
+  config:
+    activate:
+      on-profile: prod
   jpa:
     hibernate:
       ddl-auto: none
@@ -42,8 +44,9 @@ spring:
 ---
 
 spring:
-  profiles:
-    active: test
+  config:
+    activate:
+      on-profile: test
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -53,3 +56,4 @@ spring:
     username: sa
     password:
 
+---
