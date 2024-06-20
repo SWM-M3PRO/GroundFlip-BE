@@ -1,0 +1,1 @@
+package com.m3pro.groundflip.repository;import org.springframework.data.jpa.repository.JpaRepository;import com.m3pro.groundflip.domain.entity.UserCommunity;public interface UserCommunityRepository extends JpaRepository<UserCommunity, Long> {}

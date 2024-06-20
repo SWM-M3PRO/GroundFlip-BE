@@ -1,0 +1,1 @@
+package com.m3pro.groundflip.controller;import org.springframework.web.bind.annotation.RestController;import com.m3pro.groundflip.service.CommunityService;import lombok.RequiredArgsConstructor;@RestController@RequiredArgsConstructorpublic class CommunityController {	private final CommunityService communityService;}
