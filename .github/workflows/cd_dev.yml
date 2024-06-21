@@ -1,0 +1,56 @@
+name: Backend Dev Server CD
+
+#on:
+#  push:
+#    branches: [ "develop" ]
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: JDK 17 설치
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+
+      - name: env 설정
+        run: |
+          echo "DB_URI=${{ secrets.DB_URI }}" >> .env
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "SPRING_PROFILES_ACTIVE=dev" >> .env
+
+      - name: gradlew에 실행 권한 부여
+        run: chmod +x ./gradlew
+
+      - name: 프로젝트 빌드
+        run: ./gradlew clean bootjar
+
+      - name: 압축
+        run: zip -r ./ground_flip.zip .
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION}}
+
+      - name: S3에 업로드
+        run: aws s3 cp ground_flip.zip s3://ground-flip-dev/deploy/ground_flip.zip --region ap-northeast-2
+
+      - name: Code Deploy 로 배포
+        run: >
+          aws deploy create-deployment --application-name ground_flip
+          --deployment-config-name CodeDeployDefault.AllAtOnce
+          --deployment-group-name ground_flip_dev
+          --s3-location bucket=ground-flip-dev,bundleType=zip,key=deploy/ground_flip.zip
