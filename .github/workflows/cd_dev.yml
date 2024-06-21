@@ -1,12 +1,8 @@
 name: Backend Dev Server CD
 
-#on:
-#  push:
-#    branches: [ "develop" ]
 on:
-  pull_request:
-    branches:
-      - develop
+  push:
+    branches: [ "develop" ]
 
 jobs:
   build:
