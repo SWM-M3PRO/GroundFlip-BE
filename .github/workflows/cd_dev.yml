@@ -50,7 +50,7 @@ jobs:
 
       - name: Code Deploy 로 배포
         run: >
-          aws deploy create-deployment --application-name ground_flip_dev
+          aws deploy create-deployment --application-name ground-flip-dev
           --deployment-config-name CodeDeployDefault.AllAtOnce
           --deployment-group-name ground_flip_dev
           --s3-location bucket=ground-flip-dev,bundleType=zip,key=deploy/ground_flip.zip
