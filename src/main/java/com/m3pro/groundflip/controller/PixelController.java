@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class PixelController {
 	private final PixelService pixelService;
 
-	@GetMapping("")
+	@GetMapping("/individual")
 	public Response<List<IndividualPixelResponse>> getNearIndividualPixels(
 		@RequestParam(name = "current-x") int currentX,
 		@RequestParam(name = "current-y") int currentY,
