@@ -8,6 +8,9 @@ on:
 jobs:
   build_and_test:
     runs-on: ubuntu-20.04
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Checkout repository
@@ -30,3 +33,27 @@ jobs:
 
       - name: Test with Gradle
         run: ./gradlew test
+
+      - name: Comment test coverage on PR
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.6.1
+        with:
+          title: 📝 테스트 커버리지 리포트
+          paths: ${{ github.workspace }}/build/jacocoReport/test/jacocoTestReport.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  qodana:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}  # to check out the actual pull request commit, not the merge commit
+          fetch-depth: 0  # a full history is required for pull request analysis
+      - name: 'Qodana Scan'
+        uses: JetBrains/qodana-action@v2024.1
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
