@@ -1,5 +1,7 @@
 package com.m3pro.groundflip.domain.entity;
 
+import java.sql.Date;
+
 import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
 
 import jakarta.persistence.Column;
@@ -16,26 +18,17 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "pixel")
-// , indexes = @Index(name = "index__x__y", columnList = "x, y"))
+@Table(name = "step_record")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Pixel extends BaseTimeEntity {
+public class StepRecord extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "pixel_id")
+	@Column(name = "step_record_id")
 	private Long id;
 
-	private Long x;
+	private Date date;
 
-	private Long y;
-
-	private double latitude;
-
-	private double longitude;
-
-	private String address;
-
-	private Integer addressNumber;
+	private Integer steps;
 }
