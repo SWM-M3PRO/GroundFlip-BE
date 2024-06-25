@@ -8,6 +8,9 @@ on:
 jobs:
   build_and_test:
     runs-on: ubuntu-20.04
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Checkout repository
@@ -30,6 +33,14 @@ jobs:
 
       - name: Test with Gradle
         run: ./gradlew test
+
+      - name: Comment test coverage on PR
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.6.1
+        with:
+          title: 📝 테스트 커버리지 리포트
+          paths: ${{ github.workspace }}/build/jacocoReport/test/jacocoTestReport.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   qodana:
     runs-on: ubuntu-latest
