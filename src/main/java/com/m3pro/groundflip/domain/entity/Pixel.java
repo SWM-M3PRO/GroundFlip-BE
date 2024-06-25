@@ -17,7 +17,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Table(name = "pixel")
-// , indexes = @Index(name = "index__x__y", columnList = "x, y"))
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
