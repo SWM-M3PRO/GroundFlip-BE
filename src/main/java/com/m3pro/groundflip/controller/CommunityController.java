@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.m3pro.groundflip.domain.dto.Response;
-import com.m3pro.groundflip.domain.dto.community.CommunitySearchListResponse;
 import com.m3pro.groundflip.domain.dto.community.CommunityInfoResponse;
+import com.m3pro.groundflip.domain.dto.community.CommunitySearchResponse;
 import com.m3pro.groundflip.service.CommunityService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,9 +24,9 @@ public class CommunityController {
 	@Operation(summary = "그룹 검색", description = "그룹 이름 검색 키워드로 그룹들을 검색")
 	@Parameter(name = "searchKeyword", description = "그룹 검색 키워드", example = "홍익대")
 	@GetMapping("/api/groups")
-	public Response<List<CommunitySearchListResponse>> getAllCommunityByName(@RequestParam String searchKeyword) {
+	public Response<List<CommunitySearchResponse>> getAllCommunityByName(@RequestParam String searchKeyword) {
 		return Response.createSuccess(
-			communityService.findCommunityByName(searchKeyword)
+			communityService.findAllCommunityByName(searchKeyword)
 		);
 	}
 

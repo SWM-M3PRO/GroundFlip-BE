@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.m3pro.groundflip.domain.dto.community.CommunitySearchListResponse;
+import com.m3pro.groundflip.domain.dto.community.CommunitySearchResponse;
 import com.m3pro.groundflip.domain.dto.community.CommunityInfoResponse;
 import com.m3pro.groundflip.domain.entity.Community;
 import com.m3pro.groundflip.repository.CommunityRepository;
@@ -17,9 +17,9 @@ public class CommunityService {
 
 	private final CommunityRepository communityRepository;
 
-	public List<CommunitySearchListResponse> findCommunityByName(String name) {
+	public List<CommunitySearchResponse> findAllCommunityByName(String name) {
 		List<Community> community = communityRepository.findAllByNameLike("%" + name + "%");
-		return community.stream().map(CommunitySearchListResponse::from).toList();
+		return community.stream().map(CommunitySearchResponse::from).toList();
 	}
 
 	public CommunityInfoResponse findCommunityById(Long id) {
