@@ -4,12 +4,11 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.m3pro.groundflip.domain.dto.community.ListResponseCommunity;
-import com.m3pro.groundflip.domain.dto.community.ResponseGetGroup;
+import com.m3pro.groundflip.domain.dto.community.CommunitySearchListResponse;
+import com.m3pro.groundflip.domain.dto.community.CommunityInfoResponse;
 import com.m3pro.groundflip.domain.entity.Community;
 import com.m3pro.groundflip.repository.CommunityRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -18,14 +17,14 @@ public class CommunityService {
 
 	private final CommunityRepository communityRepository;
 
-	public List<ListResponseCommunity> findCommunityByName(String name) {
-		List<Community> community = communityRepository.findByNameLike("%" + name + "%");
-		return community.stream().map(ListResponseCommunity::from).toList();
+	public List<CommunitySearchListResponse> findCommunityByName(String name) {
+		List<Community> community = communityRepository.findAllByNameLike("%" + name + "%");
+		return community.stream().map(CommunitySearchListResponse::from).toList();
 	}
 
-	public ResponseGetGroup findCommunityById(Long id) {
+	public CommunityInfoResponse findCommunityById(Long id) {
 		Community community = communityRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException("Community not found"));
-		return ResponseGetGroup.from(community, 0, 0);
+		return CommunityInfoResponse.from(community, 0, 0);
 	}
 }

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class ResponseGetGroup {
+public class CommunityInfoResponse {
 	private String name;
 	private String pixelColor;
 	private String profileImageUrl;
@@ -19,8 +19,8 @@ public class ResponseGetGroup {
 	private int groupRanking;
 	private int memberCount;
 
-	public static ResponseGetGroup from(Community community, int groupRanking, int memberCount){
-		return ResponseGetGroup.builder()
+	public static CommunityInfoResponse from(Community community, int groupRanking, int memberCount){
+		return CommunityInfoResponse.builder()
 			.name(community.getName())
 			.pixelColor(community.getPixelColor())
 			.profileImageUrl(community.getProfileImageUrl())

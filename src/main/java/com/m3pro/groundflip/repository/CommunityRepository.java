@@ -10,5 +10,5 @@ import com.m3pro.groundflip.domain.entity.Community;
 
 public interface CommunityRepository extends JpaRepository<Community, Long> {
 
-	List<Community> findByNameLike(String name);
+	List<Community> findAllByNameLike(String name);
 }

@@ -11,11 +11,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class ListResponseCommunity {
+public class CommunitySearchListResponse {
 	private String name;
 
-	public static ListResponseCommunity from(Community community) {
-		return ListResponseCommunity.builder()
+	public static CommunitySearchListResponse from(Community community) {
+		return CommunitySearchListResponse.builder()
 			.name(community.getName())
 			.build();
 	}
