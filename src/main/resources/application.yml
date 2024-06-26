@@ -1,6 +1,12 @@
 server:
   port: 8080
 
+springdoc:
+  swagger-ui:
+    path: /api/usage
+  api-docs:
+    path: /api/usage
+
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
