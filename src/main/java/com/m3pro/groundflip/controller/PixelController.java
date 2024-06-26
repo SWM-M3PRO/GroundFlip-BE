@@ -11,6 +11,9 @@ import com.m3pro.groundflip.domain.dto.Response;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelResponse;
 import com.m3pro.groundflip.service.PixelService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -19,6 +22,12 @@ import lombok.RequiredArgsConstructor;
 public class PixelController {
 	private final PixelService pixelService;
 
+	@Operation(summary = "개인전 픽셀 조회", description = "특정 좌표를 중심으로 반경 내 개인전 픽셀 정보를 조회 API")
+	@Parameters({
+		@Parameter(name = "current-latitude", description = "원의 중심 좌표의 위도", example = "37.503717"),
+		@Parameter(name = "current-longitude", description = "원의 중심 좌표의 경도", example = "127.044317"),
+		@Parameter(name = "radius", description = "미터 단위의 반경", example = "1000"),
+	})
 	@GetMapping("/individual-mode")
 	public Response<List<IndividualPixelResponse>> getNearIndividualPixels(
 		@RequestParam(name = "current-latitude") double currentLatitude,
