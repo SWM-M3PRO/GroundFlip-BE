@@ -46,7 +46,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-
+springdoc:
+  api-docs:
+    enabled: false
 ---
 
 spring:
