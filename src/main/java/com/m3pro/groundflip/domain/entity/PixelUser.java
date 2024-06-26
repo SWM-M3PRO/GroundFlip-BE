@@ -21,19 +21,23 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "user_community")
+@Table(name = "pixel_user")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class UserCommunity extends BaseTimeEntity {
+public class PixelUser extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "user_community_id")
+	@Column(name = "pixel_user_id")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "pixel_id")
+	private Pixel pixel;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "community_id")

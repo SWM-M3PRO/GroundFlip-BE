@@ -1,5 +1,7 @@
 package com.m3pro.groundflip.domain.entity;
 
+import java.time.LocalDateTime;
+
 import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
 
 import jakarta.persistence.Column;
@@ -35,4 +37,6 @@ public class Community extends BaseTimeEntity {
 	private String backgroundImageUrl;
 
 	private String description;
+	
+	private LocalDateTime deletedAt;
 }
