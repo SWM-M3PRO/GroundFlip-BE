@@ -16,6 +16,7 @@ public class IndividualPixelResponse {
 	private double y;
 
 	public static IndividualPixelResponse from(Pixel pixel) {
-		return new IndividualPixelResponse(pixel.getLatitude(), pixel.getLongitude(), pixel.getX(), pixel.getY());
+		return new IndividualPixelResponse(pixel.getCoordinate().getX(), pixel.getCoordinate().getY(), pixel.getX(),
+			pixel.getY());
 	}
 }
