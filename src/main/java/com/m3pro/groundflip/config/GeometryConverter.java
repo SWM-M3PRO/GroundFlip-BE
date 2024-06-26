@@ -13,9 +13,6 @@ public class GeometryConverter {
 
 	public static org.locationtech.jts.geom.Point convertGeomToJts(Object geolattePoint) {
 		Point<G2D> point = (Point<G2D>)geolattePoint;
-		if (geolattePoint == null) {
-			return null;
-		}
 
 		G2D position = point.getPosition();
 		Coordinate coordinate = new Coordinate(position.getLon(), position.getLat());
