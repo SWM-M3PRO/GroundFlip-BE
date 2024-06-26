@@ -17,11 +17,12 @@ import lombok.RequiredArgsConstructor;
 public class PixelService {
 	private final GeometryFactory geometryFactory;
 	private final PixelRepository pixelRepository;
+	private static final int WGS84_SRID = 4326;
 
 	public List<IndividualPixelResponse> getNearIndividualPixelsByCoordinate(double currentLatitude,
 		double currentLongitude, int radius) {
 		Point point = geometryFactory.createPoint(new Coordinate(currentLongitude, currentLatitude));
-		point.setSRID(4326);
+		point.setSRID(WGS84_SRID);
 
 		return pixelRepository.findAllIndividualPixelsByCoordinate(point, radius).stream()
 			.map(IndividualPixelResponse::from)
