@@ -21,11 +21,11 @@ public class PixelController {
 
 	@GetMapping("/individual")
 	public Response<List<IndividualPixelResponse>> getNearIndividualPixels(
-		@RequestParam(name = "current-x") int currentX,
-		@RequestParam(name = "current-y") int currentY,
-		@RequestParam(name = "x-range", required = false, defaultValue = "20") int xRange,
-		@RequestParam(name = "y-range", required = false, defaultValue = "10") int yRange) {
-		return Response.createSuccess(pixelService.getNearIndividualPixels(currentX, currentY, xRange, yRange));
+		@RequestParam(name = "current-latitude") double currentLatitude,
+		@RequestParam(name = "current-longitude") double currentLongitude,
+		@RequestParam(name = "radius") int radius) {
+		return Response.createSuccess(
+			pixelService.getNearIndividualPixelsByCoordinate(currentLatitude, currentLongitude, radius));
 	}
 
 }
