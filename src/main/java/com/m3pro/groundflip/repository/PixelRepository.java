@@ -2,6 +2,7 @@ package com.m3pro.groundflip.repository;
 
 import java.util.List;
 
+import org.locationtech.jts.geom.Point;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,9 +10,44 @@ import org.springframework.data.repository.query.Param;
 import com.m3pro.groundflip.domain.entity.Pixel;
 
 public interface PixelRepository extends JpaRepository<Pixel, Long> {
-	@Query(value = "select pixel from Pixel pixel "
-		+ "where pixel.x between :currentX - :xRange / 2 and :currentX + :xRange / 2 "
-		+ "and pixel.y between :currentY - :yRange / 2 and :currentY + :yRange / 2 ")
-	List<Pixel> findAllNearPixels(@Param("currentX") int currentX, @Param("currentY") int currentY,
-		@Param("xRange") int xRange, @Param("yRange") int yRange);
+	@Query(value = """
+		WITH PixelsInRange AS (
+		    SELECT
+		        p.pixel_id,
+		        p.coordinate,
+		        p.x,
+		        p.y
+		    FROM
+		        pixel p
+		    WHERE
+		        ST_CONTAINS((ST_Buffer(:center, :radius)), p.coordinate)
+		),
+		RecentVisits AS (
+		    SELECT
+		        pu.pixel_id,
+		        pu.user_id,
+		        pu.created_at,
+		        ROW_NUMBER() OVER (PARTITION BY pu.pixel_id ORDER BY pu.created_at DESC) AS rn
+		    FROM
+		        pixel_user pu
+		    JOIN
+		        PixelsInRange pir ON pu.pixel_id = pir.pixel_id
+		)
+		SELECT
+		    pir.pixel_id AS pixelId,
+		    pir.coordinate,
+		    rv.user_id AS userId,
+		    pir.x,
+		    pir.y
+		FROM
+		    PixelsInRange pir
+		JOIN
+		    RecentVisits rv ON pir.pixel_id = rv.pixel_id
+		WHERE
+		    rv.rn = 1
+		""", nativeQuery = true)
+	List<Object[]> findAllIndividualPixelsByCoordinate(
+		@Param("center") Point center,
+		@Param("radius") int radius);
+
 }
