@@ -1,5 +1,9 @@
 package com.m3pro.groundflip.domain.dto.pixel;
 
+import org.locationtech.jts.geom.Point;
+
+import com.m3pro.groundflip.config.GeometryConverter;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,4 +30,16 @@ public class IndividualHistoryPixelResponse {
 
 	@Schema(description = "픽셀 가로 상대 좌표", example = "210")
 	private long y;
+
+	public static IndividualHistoryPixelResponse from(Object[] queryResult) {
+		Point coordinate = GeometryConverter.convertGeomToJts(queryResult[1]);
+
+		return IndividualHistoryPixelResponse.builder()
+			.pixelId((long)queryResult[0])
+			.latitude(coordinate.getY())
+			.longitude(coordinate.getX())
+			.x((long)queryResult[2])
+			.y((long)queryResult[3])
+			.build();
+	}
 }
