@@ -18,11 +18,13 @@ import com.m3pro.groundflip.service.PixelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/pixels")
+@Tag(name = "pixels", description = "픽셀 API")
 public class PixelController {
 	private final PixelService pixelService;
 
@@ -46,6 +48,7 @@ public class PixelController {
 		@Parameter(name = "current-latitude", description = "원의 중심 좌표의 위도", example = "37.503717"),
 		@Parameter(name = "current-longitude", description = "원의 중심 좌표의 경도", example = "127.044317"),
 		@Parameter(name = "radius", description = "미터 단위의 반경", example = "1000"),
+		@Parameter(name = "user-id", description = "찾고자 하는 사용자의 id", example = "1"),
 	})
 	@GetMapping("/individual-history")
 	public Response<List<IndividualHistoryPixelResponse>> getNearIndividualHistoryPixels(
