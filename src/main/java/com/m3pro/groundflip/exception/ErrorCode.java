@@ -8,7 +8,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum ErrorCode {
-	DUPLICATED_USER(HttpStatus.BAD_REQUEST, "중복된 회원입니다");
+	DUPLICATED_USER(HttpStatus.BAD_REQUEST, "중복된 회원입니다."),
+	PIXEL_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 픽셀입니다.");
 
 	private final HttpStatus httpStatus;
 	private final String message;

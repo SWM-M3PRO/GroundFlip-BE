@@ -10,7 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
+import com.m3pro.groundflip.domain.entity.Pixel;
 import com.m3pro.groundflip.domain.entity.PixelUser;
+import com.m3pro.groundflip.exception.AppException;
+import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.CommunityRepository;
 import com.m3pro.groundflip.repository.PixelRepository;
 import com.m3pro.groundflip.repository.PixelUserRepository;
@@ -47,13 +50,16 @@ public class PixelService {
 	public void occupyPixel(PixelOccupyRequest pixelOccupyRequest) {
 		Long communityId = pixelOccupyRequest.getCommunityId();
 
+		Pixel targetPixel = pixelRepository.findById(pixelOccupyRequest.getPixelId())
+			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
+
 		if (pixelOccupyRequest.getCommunityId() == null) {
 			communityId = -1L;
 		}
 
 		PixelUser pixelUser = PixelUser.builder()
+			.pixel(targetPixel)
 			.community(communityRepository.getReferenceById(communityId))
-			.pixel(pixelRepository.getReferenceById(pixelOccupyRequest.getPixelId()))
 			.user(userRepository.getReferenceById(pixelOccupyRequest.getUserId()))
 			.build();
 
