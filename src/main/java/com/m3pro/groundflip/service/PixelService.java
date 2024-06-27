@@ -8,6 +8,7 @@ import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.m3pro.groundflip.domain.dto.pixel.IndividualHistoryPixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
 import com.m3pro.groundflip.domain.entity.Pixel;
@@ -43,6 +44,16 @@ public class PixelService {
 
 		return pixelRepository.findAllIndividualPixelsByCoordinate(point, radius).stream()
 			.map(IndividualPixelResponse::from)
+			.toList();
+	}
+
+	public List<IndividualHistoryPixelResponse> getNearIndividualHistoryPixelsByCoordinate(double currentLatitude,
+		double currentLongitude, int radius, Long userId) {
+		Point point = geometryFactory.createPoint(new Coordinate(currentLongitude, currentLatitude));
+		point.setSRID(WGS84_SRID);
+
+		return pixelRepository.findAllIndividualPixelsHistoryByCoordinate(point, radius, userId).stream()
+			.map(IndividualHistoryPixelResponse::from)
 			.toList();
 	}
 
