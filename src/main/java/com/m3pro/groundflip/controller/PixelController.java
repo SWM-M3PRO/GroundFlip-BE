@@ -1,6 +1,5 @@
 package com.m3pro.groundflip.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,8 +51,11 @@ public class PixelController {
 	public Response<List<IndividualHistoryPixelResponse>> getNearIndividualHistoryPixels(
 		@RequestParam(name = "current-latitude") double currentLatitude,
 		@RequestParam(name = "current-longitude") double currentLongitude,
-		@RequestParam(name = "radius") int radius) {
-		return Response.createSuccess(new ArrayList<>());
+		@RequestParam(name = "radius") int radius,
+		@RequestParam(name = "user-id") Long userId) {
+		return Response.createSuccess(
+			pixelService.getNearIndividualHistoryPixelsByCoordinate(currentLatitude, currentLongitude, radius, userId)
+		);
 	}
 
 	@Operation(summary = "픽셀 차지", description = "특정 픽셀의 id, 사용자 id, 커뮤니티 id를 사용해 소유권을 바꾸는 API ")
