@@ -3,12 +3,15 @@ package com.m3pro.groundflip.controller;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.m3pro.groundflip.domain.dto.Response;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelResponse;
+import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
 import com.m3pro.groundflip.service.PixelService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,6 +38,13 @@ public class PixelController {
 		@RequestParam(name = "radius") int radius) {
 		return Response.createSuccess(
 			pixelService.getNearIndividualPixelsByCoordinate(currentLatitude, currentLongitude, radius));
+	}
+
+	@Operation(summary = "픽셀 차지", description = "특정 픽셀의 id, 사용자 id, 커뮤니티 id를 사용해 소유권을 바꾸는 API ")
+	@PostMapping("")
+	public Response<?> occupyPixel(@RequestBody PixelOccupyRequest pixelOccupyRequest) {
+		pixelService.occupyPixel(pixelOccupyRequest);
+		return Response.createSuccessWithNoData();
 	}
 
 }

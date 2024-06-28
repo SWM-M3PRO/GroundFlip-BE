@@ -44,4 +44,5 @@ public class PixelUser extends BaseTimeEntity {
 	private Community community;
 
 	private LocalDateTime deletedAt;
+
 }
