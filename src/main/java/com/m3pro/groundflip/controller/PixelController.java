@@ -19,6 +19,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -36,9 +39,9 @@ public class PixelController {
 	})
 	@GetMapping("/individual-mode")
 	public Response<List<IndividualPixelResponse>> getNearIndividualPixels(
-		@RequestParam(name = "current-latitude") double currentLatitude,
-		@RequestParam(name = "current-longitude") double currentLongitude,
-		@RequestParam(name = "radius") int radius) {
+		@RequestParam(name = "current-latitude") @Min(-90) @Max(90) double currentLatitude,
+		@RequestParam(name = "current-longitude") @Min(-180) @Max(180) double currentLongitude,
+		@RequestParam(name = "radius") @Min(0) int radius) {
 		return Response.createSuccess(
 			pixelService.getNearIndividualPixelsByCoordinate(currentLatitude, currentLongitude, radius));
 	}
@@ -52,10 +55,10 @@ public class PixelController {
 	})
 	@GetMapping("/individual-history")
 	public Response<List<IndividualHistoryPixelResponse>> getNearIndividualHistoryPixels(
-		@RequestParam(name = "current-latitude") double currentLatitude,
-		@RequestParam(name = "current-longitude") double currentLongitude,
-		@RequestParam(name = "radius") int radius,
-		@RequestParam(name = "user-id") Long userId) {
+		@RequestParam(name = "current-latitude") @Min(-90) @Max(90) double currentLatitude,
+		@RequestParam(name = "current-longitude") @Min(-180) @Max(180) double currentLongitude,
+		@RequestParam(name = "radius") @Min(0) int radius,
+		@RequestParam(name = "user-id") @NotNull() Long userId) {
 		return Response.createSuccess(
 			pixelService.getNearIndividualHistoryPixelsByCoordinate(currentLatitude, currentLongitude, radius, userId)
 		);
