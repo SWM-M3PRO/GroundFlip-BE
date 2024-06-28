@@ -61,7 +61,7 @@ public class PixelService {
 	public void occupyPixel(PixelOccupyRequest pixelOccupyRequest) {
 		Long communityId = pixelOccupyRequest.getCommunityId();
 
-		Pixel targetPixel = pixelRepository.findById(pixelOccupyRequest.getPixelId())
+		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
 
 		if (pixelOccupyRequest.getCommunityId() == null) {

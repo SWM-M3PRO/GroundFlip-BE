@@ -1,6 +1,7 @@
 package com.m3pro.groundflip.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.locationtech.jts.geom.Point;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -77,4 +78,6 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
 		@Param("center") Point center,
 		@Param("radius") int radius,
 		@Param("user_id") Long userId);
+
+	Optional<Pixel> findByXAndY(Long x, Long y);
 }
