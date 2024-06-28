@@ -10,7 +10,6 @@ import org.springframework.data.repository.query.Param;
 import com.m3pro.groundflip.domain.entity.Pixel;
 
 public interface PixelRepository extends JpaRepository<Pixel, Long> {
-	@SuppressWarnings("checkstyle:RegexpSinglelineJava")
 	@Query(value = """
 		WITH PixelsInRange AS (
 		    SELECT
