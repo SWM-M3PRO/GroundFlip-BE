@@ -3,9 +3,9 @@ server:
 
 springdoc:
   swagger-ui:
-    path: /api/usage
+    path: /api/docs
   api-docs:
-    path: /api/usage
+    path: /api/docs
 
 spring:
   datasource:
