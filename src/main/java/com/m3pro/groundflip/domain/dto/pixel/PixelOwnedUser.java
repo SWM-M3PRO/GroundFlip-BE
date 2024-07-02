@@ -20,11 +20,15 @@ public class PixelOwnedUser {
 
 	public static PixelOwnedUser from(PixelOwnerUser pixelOwnerUser, PixelCount currentPixelCount,
 		PixelCount accumulatePixelCount) {
-		return PixelOwnedUser.builder()
-			.nickname(pixelOwnerUser.getNickname())
-			.profileImageUrl(pixelOwnerUser.getProfileImage())
-			.accumulatePixelCount(accumulatePixelCount.getCount())
-			.currentPixelCount(currentPixelCount.getCount())
-			.build();
+		if (pixelOwnerUser == null) {
+			return null;
+		} else {
+			return PixelOwnedUser.builder()
+				.nickname(pixelOwnerUser.getNickname())
+				.profileImageUrl(pixelOwnerUser.getProfileImage())
+				.accumulatePixelCount(accumulatePixelCount.getCount())
+				.currentPixelCount(currentPixelCount.getCount())
+				.build();
+		}
 	}
 }

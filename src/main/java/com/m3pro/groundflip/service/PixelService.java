@@ -65,18 +65,27 @@ public class PixelService {
 			throw new AppException(ErrorCode.PIXEL_NOT_FOUND);
 		}
 
-		PixelOwnerUser pixelOwnerUser = pixelUserRepository.findCurrentOwnerByPixelId(pixelId);
 		List<VisitedUser> visitedUsers = pixelUserRepository.findAllVisitedUserByPixelId(pixelId);
-		PixelCount accumulatePixelCount = pixelUserRepository.findAccumulatePixelCountByUserId(
-			pixelOwnerUser.getUserId());
-		PixelCount currentPixelCount = pixelUserRepository.findCurrentPixelCountByUserId(
-			pixelOwnerUser.getUserId());
+		PixelOwnedUser pixelOwnedUser = getPixelOwnerUserInfo(pixelId);
 
 		return IndividualPixelInfoResponse.from(
 			pixel.get(),
-			PixelOwnedUser.from(pixelOwnerUser, currentPixelCount, accumulatePixelCount),
+			pixelOwnedUser,
 			visitedUsers.stream().map(VisitedUserInfo::from).toList()
 		);
+	}
+
+	private PixelOwnedUser getPixelOwnerUserInfo(Long pixelId) {
+		PixelOwnerUser pixelOwnerUser = pixelUserRepository.findCurrentOwnerByPixelId(pixelId);
+		if (pixelOwnerUser == null) {
+			return null;
+		} else {
+			PixelCount accumulatePixelCount = pixelUserRepository.findAccumulatePixelCountByUserId(
+				pixelOwnerUser.getUserId());
+			PixelCount currentPixelCount = pixelUserRepository.findCurrentPixelCountByUserId(
+				pixelOwnerUser.getUserId());
+			return PixelOwnedUser.from(pixelOwnerUser, currentPixelCount, accumulatePixelCount);
+		}
 	}
 
 	@Transactional
