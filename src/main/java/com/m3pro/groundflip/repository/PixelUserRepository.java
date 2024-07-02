@@ -29,4 +29,12 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 		""", nativeQuery = true)
 	List<Object[]> findCurrentOwnerByPixelId(
 		@Param("pixel_id") int pixelId);
+
+	@Query(value = """
+		SELECT COUNT(DISTINCT pu.pixel_id) as unique_pixel_count
+		FROM pixel_user pu
+		WHERE pu.user_id = :user_id;
+		""", nativeQuery = true)
+	List<Object[]> findAccumulatePixelCountByUserId(
+		@Param("user_id") int userId);
 }
