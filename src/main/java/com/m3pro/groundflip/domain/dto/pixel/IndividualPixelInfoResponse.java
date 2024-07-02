@@ -19,16 +19,16 @@ public class IndividualPixelInfoResponse {
 	private String address;
 	private Integer addressNumber;
 	private Integer visitCount;
-	private PixelOwnedUser ownUser;
+	private PixelOwnerUserResponse pixelOwnerUser;
 	private List<VisitedUserInfo> visitList;
 
-	public static IndividualPixelInfoResponse from(Pixel pixel, PixelOwnedUser pixelOwnedUser,
+	public static IndividualPixelInfoResponse from(Pixel pixel, PixelOwnerUserResponse pixelOwnerUserResponse,
 		List<VisitedUserInfo> visitedUserList) {
 		return IndividualPixelInfoResponse.builder()
 			.address(pixel.getAddress())
 			.addressNumber(pixel.getAddressNumber())
 			.visitCount(visitedUserList.size())
-			.ownUser(pixelOwnedUser)
+			.pixelOwnerUser(pixelOwnerUserResponse)
 			.visitList(visitedUserList)
 			.build();
 	}

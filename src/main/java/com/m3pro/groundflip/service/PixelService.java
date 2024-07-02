@@ -13,7 +13,7 @@ import com.m3pro.groundflip.domain.dto.pixel.IndividualHistoryPixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
-import com.m3pro.groundflip.domain.dto.pixel.PixelOwnedUser;
+import com.m3pro.groundflip.domain.dto.pixel.PixelOwnerUserResponse;
 import com.m3pro.groundflip.domain.dto.pixel.VisitedUserInfo;
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelCount;
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelOwnerUser;
@@ -66,16 +66,16 @@ public class PixelService {
 		}
 
 		List<VisitedUser> visitedUsers = pixelUserRepository.findAllVisitedUserByPixelId(pixelId);
-		PixelOwnedUser pixelOwnedUser = getPixelOwnerUserInfo(pixelId);
+		PixelOwnerUserResponse pixelOwnerUserResponse = getPixelOwnerUserInfo(pixelId);
 
 		return IndividualPixelInfoResponse.from(
 			pixel.get(),
-			pixelOwnedUser,
+			pixelOwnerUserResponse,
 			visitedUsers.stream().map(VisitedUserInfo::from).toList()
 		);
 	}
 
-	private PixelOwnedUser getPixelOwnerUserInfo(Long pixelId) {
+	private PixelOwnerUserResponse getPixelOwnerUserInfo(Long pixelId) {
 		PixelOwnerUser pixelOwnerUser = pixelUserRepository.findCurrentOwnerByPixelId(pixelId);
 		if (pixelOwnerUser == null) {
 			return null;
@@ -84,7 +84,7 @@ public class PixelService {
 				pixelOwnerUser.getUserId());
 			PixelCount currentPixelCount = pixelUserRepository.findCurrentPixelCountByUserId(
 				pixelOwnerUser.getUserId());
-			return PixelOwnedUser.from(pixelOwnerUser, currentPixelCount, accumulatePixelCount);
+			return PixelOwnerUserResponse.from(pixelOwnerUser, currentPixelCount, accumulatePixelCount);
 		}
 	}
 

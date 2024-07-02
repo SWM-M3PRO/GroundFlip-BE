@@ -12,18 +12,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-public class PixelOwnedUser {
+public class PixelOwnerUserResponse {
 	private String nickname;
 	private String profileImageUrl;
 	private Integer currentPixelCount;
 	private Integer accumulatePixelCount;
 
-	public static PixelOwnedUser from(PixelOwnerUser pixelOwnerUser, PixelCount currentPixelCount,
+	public static PixelOwnerUserResponse from(PixelOwnerUser pixelOwnerUser, PixelCount currentPixelCount,
 		PixelCount accumulatePixelCount) {
 		if (pixelOwnerUser == null) {
 			return null;
 		} else {
-			return PixelOwnedUser.builder()
+			return PixelOwnerUserResponse.builder()
 				.nickname(pixelOwnerUser.getNickname())
 				.profileImageUrl(pixelOwnerUser.getProfileImage())
 				.accumulatePixelCount(accumulatePixelCount.getCount())
