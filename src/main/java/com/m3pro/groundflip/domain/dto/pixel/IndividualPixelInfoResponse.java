@@ -2,6 +2,8 @@ package com.m3pro.groundflip.domain.dto.pixel;
 
 import java.util.List;
 
+import com.m3pro.groundflip.domain.entity.Pixel;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,4 +21,15 @@ public class IndividualPixelInfoResponse {
 	private Integer visitCount;
 	private PixelOwnedUser ownUser;
 	private List<VisitedUserInfo> visitList;
+
+	public static IndividualPixelInfoResponse from(Pixel pixel, PixelOwnedUser pixelOwnedUser,
+		List<VisitedUserInfo> visitedUserList) {
+		return IndividualPixelInfoResponse.builder()
+			.address(pixel.getAddress())
+			.addressNumber(pixel.getAddressNumber())
+			.visitCount(visitedUserList.size())
+			.ownUser(pixelOwnedUser)
+			.visitList(visitedUserList)
+			.build();
+	}
 }

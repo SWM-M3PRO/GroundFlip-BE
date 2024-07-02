@@ -20,7 +20,7 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 		        group by pu.user_id;
 		""", nativeQuery = true)
 	List<VisitedUser> findAllVisitedUserByPixelId(
-		@Param("pixel_id") int pixelId);
+		@Param("pixel_id") Long pixelId);
 
 	@Query(value = """
 		select pu.user_id as userId, u.nickname as nickname, u.profile_image as profileImage from pixel_user pu
@@ -31,7 +31,7 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 		        limit 1;
 		""", nativeQuery = true)
 	PixelOwnerUser findCurrentOwnerByPixelId(
-		@Param("pixel_id") int pixelId);
+		@Param("pixel_id") Long pixelId);
 
 	@Query(value = """
 		SELECT COUNT(DISTINCT pu.pixel_id) as count
@@ -39,7 +39,7 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 		WHERE pu.user_id = :user_id;
 		""", nativeQuery = true)
 	PixelCount findAccumulatePixelCountByUserId(
-		@Param("user_id") int userId);
+		@Param("user_id") Long userId);
 
 	@Query(value = """
 		SELECT count(user_id) as count
@@ -57,5 +57,5 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 		where res.user_id = :user_id
 		""", nativeQuery = true)
 	PixelCount findCurrentPixelCountByUserId(
-		@Param("user_id") int userId);
+		@Param("user_id") Long userId);
 }
