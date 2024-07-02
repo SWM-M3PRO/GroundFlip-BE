@@ -49,7 +49,7 @@ class PixelServiceTest {
 	}
 
 	@Test
-	@DisplayName("[getIndividualPixelInfo] 없는 pixelId 를 넣을 경우 PIXEL_NOT_FOUND 에러")
+	@DisplayName("[getIndividualPixelInfo] 정상적으로 픽셀에 대한 정보가 있는 경우")
 	void getIndividualPixelInfoSuccess() {
 		// Given
 		Long pixelId = 1L;
