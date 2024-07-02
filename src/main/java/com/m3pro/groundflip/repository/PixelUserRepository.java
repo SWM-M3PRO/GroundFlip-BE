@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.m3pro.groundflip.domain.dto.pixelUser.PixelCount;
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelOwnerUser;
 import com.m3pro.groundflip.domain.dto.pixelUser.VisitedUser;
 import com.m3pro.groundflip.domain.entity.PixelUser;
@@ -33,15 +34,15 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 		@Param("pixel_id") int pixelId);
 
 	@Query(value = """
-		SELECT COUNT(DISTINCT pu.pixel_id) as unique_pixel_count
+		SELECT COUNT(DISTINCT pu.pixel_id) as count
 		FROM pixel_user pu
 		WHERE pu.user_id = :user_id;
 		""", nativeQuery = true)
-	List<Object[]> findAccumulatePixelCountByUserId(
+	PixelCount findAccumulatePixelCountByUserId(
 		@Param("user_id") int userId);
 
 	@Query(value = """
-		SELECT count(user_id)
+		SELECT count(user_id) as count
 		FROM (SELECT pu.*
 		FROM pixel_user pu
 		         JOIN (
@@ -55,6 +56,6 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 		                      FROM pixel_user pu WHERE pu.user_id = :user_id)) res
 		where res.user_id = :user_id
 		""", nativeQuery = true)
-	List<Object[]> findCurrentPixelCountByUserId(
+	PixelCount findCurrentPixelCountByUserId(
 		@Param("user_id") int userId);
 }
