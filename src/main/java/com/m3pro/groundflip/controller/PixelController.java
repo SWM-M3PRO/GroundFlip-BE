@@ -72,7 +72,7 @@ public class PixelController {
 		@Parameter(description = "찾고자 하는 pixelId", required = true)
 		@PathVariable Long pixelId) {
 		return Response.createSuccess(
-			new IndividualPixelInfoResponse()
+			pixelService.getIndividualPixelInfo(pixelId)
 		);
 	}
 
