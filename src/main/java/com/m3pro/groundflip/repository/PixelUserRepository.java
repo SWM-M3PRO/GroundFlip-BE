@@ -37,4 +37,22 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 		""", nativeQuery = true)
 	List<Object[]> findAccumulatePixelCountByUserId(
 		@Param("user_id") int userId);
+
+	@Query(value = """
+		SELECT count(user_id)
+		FROM (SELECT pu.*
+		FROM pixel_user pu
+		         JOIN (
+		    SELECT pixel_id, MAX(created_at) AS latest_created_at
+		    FROM pixel_user
+		    WHERE pixel_id IN (SELECT DISTINCT pu.pixel_id as unique_pixel_count 
+		                       FROM pixel_user pu WHERE pu.user_id = :user_id)
+		    GROUP BY pixel_id
+		) latest ON pu.pixel_id = latest.pixel_id AND pu.created_at = latest.latest_created_at
+		WHERE pu.pixel_id IN (SELECT DISTINCT pu.pixel_id as unique_pixel_count 
+		                      FROM pixel_user pu WHERE pu.user_id = :user_id)) res
+		where res.user_id = :user_id
+		""", nativeQuery = true)
+	List<Object[]> findCurrentPixelCountByUserId(
+		@Param("user_id") int userId);
 }
