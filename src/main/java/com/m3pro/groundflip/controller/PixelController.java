@@ -2,6 +2,7 @@ package com.m3pro.groundflip.controller;
 
 import java.util.List;
 
+import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -73,6 +74,19 @@ public class PixelController {
 		@PathVariable Long pixelId) {
 		return Response.createSuccess(
 			pixelService.getIndividualPixelInfo(pixelId)
+		);
+	}
+
+	@Operation(summary = "개인 기록 픽셀 정보 조회", description = "픽셀의 개인 기록 정보를 조회 API")
+	@GetMapping("/individual-history/{pixelId}")
+	public Response<IndividualHistoryPixelInfoResponse> getIndividualPixelInfo(
+			@Parameter(description = "찾고자 하는 pixelId", required = true)
+			@PathVariable Long pixelId,
+			@Parameter(description = "조회하고자 하는 userId", required = true)
+			@RequestParam(name = "user-id") Long userId
+			) {
+		return Response.createSuccess(
+				pixelService.getIndividualHistoryPixelInfo(pixelId, userId)
 		);
 	}
 
