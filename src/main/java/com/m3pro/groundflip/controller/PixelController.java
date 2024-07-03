@@ -3,6 +3,7 @@ package com.m3pro.groundflip.controller;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.m3pro.groundflip.domain.dto.Response;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualHistoryPixelResponse;
+import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
 import com.m3pro.groundflip.service.PixelService;
@@ -61,6 +63,16 @@ public class PixelController {
 		@RequestParam(name = "user-id") @NotNull() Long userId) {
 		return Response.createSuccess(
 			pixelService.getNearIndividualHistoryPixelsByCoordinate(currentLatitude, currentLongitude, radius, userId)
+		);
+	}
+
+	@Operation(summary = "개인전 픽셀 정보 조회", description = "특정 개인전 픽셀의 정보를 조회 API")
+	@GetMapping("/individual-mode/{pixelId}")
+	public Response<IndividualPixelInfoResponse> getIndividualPixelInfo(
+		@Parameter(description = "찾고자 하는 pixelId", required = true)
+		@PathVariable Long pixelId) {
+		return Response.createSuccess(
+			pixelService.getIndividualPixelInfo(pixelId)
 		);
 	}
 

@@ -35,6 +35,8 @@ public class User extends BaseTimeEntity {
 	@Pattern(regexp = "[가-힣a-zA-Z0-9]{3,10}", message = "닉네임은 한글, 영어, 숫자를 조합해 3글자 이상, 10글자 이하입니다.")
 	private String nickname;
 
+	private String profileImage;
+
 	private Date birthYear;
 
 	private Gender gender;
