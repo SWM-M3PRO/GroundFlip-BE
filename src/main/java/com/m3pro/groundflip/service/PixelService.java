@@ -112,7 +112,7 @@ public class PixelService {
 
 		User user = userRepository.getReferenceById(userId);
 
-		List<PixelUser> visitHistory = pixelUserRepository.findAllByPixelAndUser(pixel, user);
+		List<PixelUser> visitHistory = pixelUserRepository.findAllByPixelAndUserOrderByCreatedAt(pixel, user);
 
 		return new IndividualHistoryPixelInfoResponse(pixel.getAddress(), pixel.getAddressNumber(), visitHistory.size(), visitHistory.stream().map(BaseTimeEntity::getCreatedAt).toList());
 	}
