@@ -1,20 +1,19 @@
 package com.m3pro.groundflip.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import com.m3pro.groundflip.domain.dto.pixel.*;
+import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
+import com.m3pro.groundflip.domain.entity.User;
+import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.m3pro.groundflip.domain.dto.pixel.IndividualHistoryPixelResponse;
-import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelInfoResponse;
-import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelResponse;
-import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
-import com.m3pro.groundflip.domain.dto.pixel.PixelOwnerUserResponse;
-import com.m3pro.groundflip.domain.dto.pixel.VisitedUserInfo;
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelCount;
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelOwnerUser;
 import com.m3pro.groundflip.domain.dto.pixelUser.VisitedUser;
@@ -106,5 +105,18 @@ public class PixelService {
 			.build();
 
 		pixelUserRepository.save(pixelUser);
+	}
+
+	public IndividualHistoryPixelInfoResponse getIndividualHistoryPixelInfo(Long pixelId, Long userId) {
+		Pixel pixel = pixelRepository.findById(pixelId)
+				.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
+
+		User user = userRepository.getReferenceById(userId);
+
+		List<LocalDateTime> visitList = pixelUserRepository.findAllByPixelAndUserOrderByCreatedAt(pixel, user).stream()
+				.map(BaseTimeEntity::getCreatedAt)
+				.toList();
+
+		return new IndividualHistoryPixelInfoResponse(pixel.getAddress(), pixel.getAddressNumber(), visitList.size(), visitList);
 	}
 }
