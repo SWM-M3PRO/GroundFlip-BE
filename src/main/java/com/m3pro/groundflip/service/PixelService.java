@@ -1,5 +1,6 @@
 package com.m3pro.groundflip.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -112,8 +113,10 @@ public class PixelService {
 
 		User user = userRepository.getReferenceById(userId);
 
-		List<PixelUser> visitHistory = pixelUserRepository.findAllByPixelAndUserOrderByCreatedAt(pixel, user);
+		List<LocalDateTime> visitList = pixelUserRepository.findAllByPixelAndUserOrderByCreatedAt(pixel, user).stream()
+				.map(BaseTimeEntity::getCreatedAt)
+				.toList();
 
-		return new IndividualHistoryPixelInfoResponse(pixel.getAddress(), pixel.getAddressNumber(), visitHistory.size(), visitHistory.stream().map(BaseTimeEntity::getCreatedAt).toList());
+		return new IndividualHistoryPixelInfoResponse(pixel.getAddress(), pixel.getAddressNumber(), visitList.size(), visitList);
 	}
 }
