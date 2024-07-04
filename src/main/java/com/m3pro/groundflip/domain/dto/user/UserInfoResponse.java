@@ -2,6 +2,7 @@ package com.m3pro.groundflip.domain.dto.user;
 
 import java.util.Date;
 
+import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.enums.Gender;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -36,4 +37,15 @@ public class UserInfoResponse {
 
 	@Schema(description = "사용자 성별", example = "남성")
 	private Gender gender;
+
+	public static UserInfoResponse from(User user, Long communityId, String communityName) {
+		return UserInfoResponse.builder()
+			.userId(user.getId())
+			.nickname(user.getNickname())
+			.profileImageUrl(user.getProfileImage())
+			.gender(user.getGender())
+			.communityId(communityId)
+			.communityName(communityName)
+			.build();
+	}
 }
