@@ -9,6 +9,7 @@ import lombok.Getter;
 @Getter
 public enum ErrorCode {
 	DUPLICATED_USER(HttpStatus.BAD_REQUEST, "중복된 회원입니다."),
+	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),
 	PIXEL_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 픽셀입니다."),
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러 입니다");
 
