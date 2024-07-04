@@ -23,4 +23,4 @@ echo "> Build Docker image"
 docker build -t "$APP_NAME" "$REPOSITORY"
 
 echo "> Run the Docker container"
-docker run -d -p 80:8080 --env-file /home/ubuntu/ground_flip/.env --name "$APP_NAME" "$APP_NAME"
+docker run -d -p 8080:8080 --env-file /home/ubuntu/ground_flip/.env --name "$APP_NAME" "$APP_NAME"
