@@ -44,6 +44,7 @@ public class UserInfoResponse {
 			.nickname(user.getNickname())
 			.profileImageUrl(user.getProfileImage())
 			.gender(user.getGender())
+			.birthYear(user.getBirthYear())
 			.communityId(communityId)
 			.communityName(communityName)
 			.build();
