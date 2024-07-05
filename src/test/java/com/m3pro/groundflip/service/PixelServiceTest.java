@@ -215,7 +215,7 @@ class PixelServiceTest {
 
         // When
         when(pixelRepository.findById(pixelId)).thenReturn(Optional.of(pixel));
-        when(pixelUserRepository.findAllByPixelAndUserOrderByCreatedAt(pixel, user)).thenReturn(visitHistory);
+        when(pixelUserRepository.findAllVisitHistoryByPixelAndUser(pixel, user)).thenReturn(visitHistory);
         when(userRepository.getReferenceById(userId)).thenReturn(user);
 
         // Then
@@ -275,7 +275,7 @@ class PixelServiceTest {
 
         // When
         when(pixelRepository.findById(pixelId)).thenReturn(Optional.of(pixel));
-        when(pixelUserRepository.findAllByPixelAndUserOrderByCreatedAt(pixel, user1)).thenReturn(visitHistoryUser1);
+        when(pixelUserRepository.findAllVisitHistoryByPixelAndUser(pixel, user1)).thenReturn(visitHistoryUser1);
         when(userRepository.getReferenceById(userId1)).thenReturn(user1);
 
         // Then
