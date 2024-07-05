@@ -3,6 +3,7 @@ package com.m3pro.groundflip.repository;
 import java.util.List;
 import java.util.Optional;
 
+import com.m3pro.groundflip.domain.dto.pixel.IndividualModePixelResponse;
 import org.locationtech.jts.geom.Point;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -36,7 +37,8 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
 		)
 		SELECT
 		    pir.pixel_id AS pixelId,
-		    pir.coordinate,
+		    ST_Latitude(pir.coordinate) AS latitude,
+		    ST_Longitude(pir.coordinate) AS longitude,
 		    rv.user_id AS userId,
 		    pir.x,
 		    pir.y
@@ -47,7 +49,7 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
 		WHERE
 		    rv.rn = 1
 		""", nativeQuery = true)
-	List<Object[]> findAllIndividualPixelsByCoordinate(
+	List<IndividualModePixelResponse> findAllIndividualPixelsByCoordinate(
 		@Param("center") Point center,
 		@Param("radius") int radius);
 

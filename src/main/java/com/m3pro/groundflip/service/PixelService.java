@@ -38,14 +38,12 @@ public class PixelService {
 	private final CommunityRepository communityRepository;
 	private final UserRepository userRepository;
 
-	public List<IndividualPixelResponse> getNearIndividualPixelsByCoordinate(double currentLatitude,
-		double currentLongitude, int radius) {
+	public List<IndividualModePixelResponse> getNearIndividualModePixelsByCoordinate(double currentLatitude,
+																					 double currentLongitude, int radius) {
 		Point point = geometryFactory.createPoint(new Coordinate(currentLongitude, currentLatitude));
 		point.setSRID(WGS84_SRID);
 
-		return pixelRepository.findAllIndividualPixelsByCoordinate(point, radius).stream()
-			.map(IndividualPixelResponse::from)
-			.toList();
+		return pixelRepository.findAllIndividualPixelsByCoordinate(point, radius);
 	}
 
 	public List<IndividualHistoryPixelResponse> getNearIndividualHistoryPixelsByCoordinate(double currentLatitude,
