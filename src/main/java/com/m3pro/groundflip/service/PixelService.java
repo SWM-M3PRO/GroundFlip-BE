@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.m3pro.groundflip.domain.dto.pixel.*;
-import com.m3pro.groundflip.domain.dto.pixel.NaverAPI.NaverAPIResult;
+import com.m3pro.groundflip.domain.dto.pixel.NaverAPI.NaverReverseGeoCodingApiResult;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
@@ -105,13 +105,7 @@ public class PixelService {
 		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
 
-		if (targetPixel.getAddress() == null) {
-			List<String> naverAPIResult = getNaverAPIResult(targetPixel.getCoordinate().getX(),
-				targetPixel.getCoordinate().getY());
-			String address = String.join(" ", naverAPIResult);
-			targetPixel.updateAddress(address);
-
-		}
+		updatePixelAddress(targetPixel);
 
 		if (pixelOccupyRequest.getCommunityId() == null) {
 			communityId = -1L;
@@ -124,6 +118,15 @@ public class PixelService {
 			.build();
 
 		pixelUserRepository.save(pixelUser);
+	}
+
+	public void updatePixelAddress(Pixel targetPixel) {
+		if (targetPixel.getAddress() == null) {
+			List<String> naverAPIResult = getNaverAPIResult(targetPixel.getCoordinate().getX(),
+				targetPixel.getCoordinate().getY());
+			String address = String.join(" ", naverAPIResult);
+			targetPixel.updateAddress(address);
+		}
 	}
 
 	public IndividualHistoryPixelInfoResponse getIndividualHistoryPixelInfo(Long pixelId, Long userId) {
@@ -157,15 +160,14 @@ public class PixelService {
 		String apiKeyId = System.getenv("X-NCP-APIGW-API-KEY-ID");
 		String apiKey = System.getenv("X-NCP-APIGW-API-KEY");
 
-
 		RequestEntity<Void> req = RequestEntity
 			.get(uri)
 			.header("X-NCP-APIGW-API-KEY-ID", apiKeyId)
 			.header("X-NCP-APIGW-API-KEY", apiKey)
 			.build();
 
-		ResponseEntity<NaverAPIResult> result = restTemplate.exchange(req, NaverAPIResult.class);
-
+		ResponseEntity<NaverReverseGeoCodingApiResult> result = restTemplate.exchange(req,
+			NaverReverseGeoCodingApiResult.class);
 
 		return result.getBody().getAreaNames();
 	}
