@@ -2,11 +2,12 @@ package com.m3pro.groundflip.controller;
 
 import java.util.List;
 
+import com.m3pro.groundflip.domain.dto.pixel.NaverAPI.NaverAPIResult;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,7 +16,6 @@ import com.m3pro.groundflip.domain.dto.Response;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualHistoryPixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelResponse;
-import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
 import com.m3pro.groundflip.service.PixelService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,9 +26,11 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/api/pixels")
 @Tag(name = "pixels", description = "픽셀 API")
 public class PixelController {
@@ -72,6 +74,7 @@ public class PixelController {
 	public Response<IndividualPixelInfoResponse> getIndividualPixelInfo(
 		@Parameter(description = "찾고자 하는 pixelId", required = true)
 		@PathVariable Long pixelId) {
+		log.info("info log = {}",pixelId);
 		return Response.createSuccess(
 			pixelService.getIndividualPixelInfo(pixelId)
 		);
@@ -80,21 +83,23 @@ public class PixelController {
 	@Operation(summary = "개인 기록 픽셀 정보 조회", description = "픽셀의 개인 기록 정보를 조회 API")
 	@GetMapping("/individual-history/{pixelId}")
 	public Response<IndividualHistoryPixelInfoResponse> getIndividualPixelInfo(
-			@Parameter(description = "찾고자 하는 pixelId", required = true)
-			@PathVariable Long pixelId,
-			@Parameter(description = "조회하고자 하는 userId", required = true)
-			@RequestParam(name = "user-id") Long userId
-			) {
+		@Parameter(description = "찾고자 하는 pixelId", required = true)
+		@PathVariable Long pixelId,
+		@Parameter(description = "조회하고자 하는 userId", required = true)
+		@RequestParam(name = "user-id") Long userId
+	) {
+		log.info("info log = {}",pixelId);
 		return Response.createSuccess(
-				pixelService.getIndividualHistoryPixelInfo(pixelId, userId)
+			pixelService.getIndividualHistoryPixelInfo(pixelId, userId)
 		);
 	}
 
-	@Operation(summary = "픽셀 차지", description = "특정 픽셀의 id, 사용자 id, 커뮤니티 id를 사용해 소유권을 바꾸는 API ")
-	@PostMapping("")
-	public Response<?> occupyPixel(@RequestBody PixelOccupyRequest pixelOccupyRequest) {
-		pixelService.occupyPixel(pixelOccupyRequest);
-		return Response.createSuccessWithNoData();
+
+	@GetMapping(value = "/naver", produces = "application/json; charset=UTF-8")
+	public NaverAPIResult getNaverPixelAddress() {
+		return pixelService.getNaverAPIResult(128.12345,37.98776);
+		// log.info("log info log info {}", pixelService.getPixelAddress());
+		// return pixelService.getPixelAddress();
 	}
 
 }
