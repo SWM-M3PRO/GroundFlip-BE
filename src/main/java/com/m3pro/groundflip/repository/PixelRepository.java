@@ -3,6 +3,7 @@ package com.m3pro.groundflip.repository;
 import java.util.List;
 import java.util.Optional;
 
+import com.m3pro.groundflip.domain.dto.pixel.IndividualHistoryPixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualModePixelResponse;
 import org.locationtech.jts.geom.Point;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -37,8 +38,8 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
 		)
 		SELECT
 		    pir.pixel_id AS pixelId,
-		    ST_Latitude(pir.coordinate) AS latitude,
-		    ST_Longitude(pir.coordinate) AS longitude,
+		    ST_LATITUDE(pir.coordinate) AS latitude,
+		    ST_LONGITUDE(pir.coordinate) AS longitude,
 		    rv.user_id AS userId,
 		    pir.x,
 		    pir.y
@@ -66,8 +67,9 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
 		        ST_CONTAINS((ST_Buffer(:center, :radius)), p.coordinate)
 		)
 		 SELECT
-			distinct (pu.pixel_id),
-			pir.coordinate,
+			DISTINCT (pu.pixel_id) AS pixelId,
+			ST_LATITUDE(pir.coordinate) AS latitude,
+			ST_LONGITUDE(pir.coordinate) AS longitude,
 			pir.x,
 		    pir.y
 		FROM
@@ -76,7 +78,7 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
 			PixelsInRange pir ON pu.pixel_id = pir.pixel_id
 		WHERE pu.user_id = :user_id
 		""", nativeQuery = true)
-	List<Object[]> findAllIndividualPixelsHistoryByCoordinate(
+	List<IndividualHistoryPixelResponse> findAllIndividualPixelsHistoryByCoordinate(
 		@Param("center") Point center,
 		@Param("radius") int radius,
 		@Param("user_id") Long userId);

@@ -47,13 +47,12 @@ public class PixelService {
 	}
 
 	public List<IndividualHistoryPixelResponse> getNearIndividualHistoryPixelsByCoordinate(double currentLatitude,
-		double currentLongitude, int radius, Long userId) {
+																						   double currentLongitude, int radius, Long userId) {
 		Point point = geometryFactory.createPoint(new Coordinate(currentLongitude, currentLatitude));
 		point.setSRID(WGS84_SRID);
 
-		return pixelRepository.findAllIndividualPixelsHistoryByCoordinate(point, radius, userId).stream()
-			.map(IndividualHistoryPixelResponse::from)
-			.toList();
+		return pixelRepository.findAllIndividualPixelsHistoryByCoordinate(point, radius, userId);
+
 	}
 
 	public IndividualPixelInfoResponse getIndividualPixelInfo(Long pixelId) {
