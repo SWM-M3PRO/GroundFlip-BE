@@ -2,6 +2,7 @@ package com.m3pro.groundflip.controller;
 
 import java.util.List;
 
+import com.m3pro.groundflip.domain.dto.pixel.*;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,10 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.m3pro.groundflip.domain.dto.Response;
-import com.m3pro.groundflip.domain.dto.pixel.IndividualHistoryPixelResponse;
-import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelInfoResponse;
-import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelResponse;
-import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
 import com.m3pro.groundflip.service.PixelService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,12 +38,12 @@ public class PixelController {
 		@Parameter(name = "radius", description = "미터 단위의 반경", example = "1000"),
 	})
 	@GetMapping("/individual-mode")
-	public Response<List<IndividualPixelResponse>> getNearIndividualPixels(
+	public Response<List<IndividualModePixelResponse>> getNearIndividualPixels(
 		@RequestParam(name = "current-latitude") @Min(-90) @Max(90) double currentLatitude,
 		@RequestParam(name = "current-longitude") @Min(-180) @Max(180) double currentLongitude,
 		@RequestParam(name = "radius") @Min(0) int radius) {
 		return Response.createSuccess(
-			pixelService.getNearIndividualPixelsByCoordinate(currentLatitude, currentLongitude, radius));
+			pixelService.getNearIndividualModePixelsByCoordinate(currentLatitude, currentLongitude, radius));
 	}
 
 	@Operation(summary = "개인기록 픽셀 조회", description = "특정 좌표를 중심으로 반경 내 개인 기록 픽셀 정보를 조회 API")

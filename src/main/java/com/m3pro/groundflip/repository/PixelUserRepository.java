@@ -66,5 +66,12 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 	PixelCount findCurrentPixelCountByUserId(
 		@Param("user_id") Long userId);
 
-	List<PixelUser> findAllByPixelAndUserOrderByCreatedAt(Pixel pixel, User user);
+	@Query(value = """
+		SELECT pu
+		FROM PixelUser pu
+		WHERE pu.pixel = :pixel AND pu.user = :user
+		GROUP BY DATE(pu.createdAt)
+		ORDER BY pu.createdAt DESC
+	""")
+	List<PixelUser> findAllVisitHistoryByPixelAndUser(@Param("pixel") Pixel pixel, @Param("user") User user);
 }
