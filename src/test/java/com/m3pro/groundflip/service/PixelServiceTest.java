@@ -9,10 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
-import com.m3pro.groundflip.domain.entity.PixelUser;
-import com.m3pro.groundflip.domain.entity.User;
-import com.m3pro.groundflip.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,14 +18,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelInfoResponse;
+import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelCount;
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelOwnerUser;
 import com.m3pro.groundflip.domain.dto.pixelUser.VisitedUser;
 import com.m3pro.groundflip.domain.entity.Pixel;
+import com.m3pro.groundflip.domain.entity.PixelUser;
+import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.PixelRepository;
 import com.m3pro.groundflip.repository.PixelUserRepository;
+import com.m3pro.groundflip.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class PixelServiceTest {
