@@ -110,7 +110,7 @@ public class PixelService {
 
 		User user = userRepository.getReferenceById(userId);
 
-		List<LocalDateTime> visitList = pixelUserRepository.findAllByPixelAndUserOrderByCreatedAt(pixel, user).stream()
+		List<LocalDateTime> visitList = pixelUserRepository.findAllVisitHistoryByPixelAndUser(pixel, user).stream()
 				.map(BaseTimeEntity::getCreatedAt)
 				.toList();
 
