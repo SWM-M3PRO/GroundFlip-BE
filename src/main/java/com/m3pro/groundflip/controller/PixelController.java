@@ -2,12 +2,14 @@ package com.m3pro.groundflip.controller;
 
 import java.util.List;
 
-import com.m3pro.groundflip.domain.dto.pixel.NaverAPI.NaverAPIResult;
+import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -74,7 +76,7 @@ public class PixelController {
 	public Response<IndividualPixelInfoResponse> getIndividualPixelInfo(
 		@Parameter(description = "찾고자 하는 pixelId", required = true)
 		@PathVariable Long pixelId) {
-		log.info("info log = {}",pixelId);
+		log.info("info log = {}", pixelId);
 		return Response.createSuccess(
 			pixelService.getIndividualPixelInfo(pixelId)
 		);
@@ -88,18 +90,18 @@ public class PixelController {
 		@Parameter(description = "조회하고자 하는 userId", required = true)
 		@RequestParam(name = "user-id") Long userId
 	) {
-		log.info("info log = {}",pixelId);
+		log.info("info log = {}", pixelId);
 		return Response.createSuccess(
 			pixelService.getIndividualHistoryPixelInfo(pixelId, userId)
 		);
 	}
 
-
-	@GetMapping(value = "/naver", produces = "application/json; charset=UTF-8")
-	public NaverAPIResult getNaverPixelAddress() {
-		return pixelService.getNaverAPIResult(128.12345,37.98776);
-		// log.info("log info log info {}", pixelService.getPixelAddress());
-		// return pixelService.getPixelAddress();
+	@Operation(summary = "픽셀 차지", description = "특정 픽셀의 id, 사용자 id, 커뮤니티 id를 사용해 소유권을 바꾸는 API ")
+	@PostMapping("")
+	public Response<?> occupyPixel(@RequestBody PixelOccupyRequest pixelOccupyRequest) {
+		log.info("실행합니당");
+		pixelService.occupyPixel(pixelOccupyRequest);
+		return Response.createSuccessWithNoData();
 	}
 
 }
