@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 public class IndividualHistoryPixelInfoResponse {
     private String address;
-    private int addressNumber;
-    private int visitCount;
+    private Integer addressNumber;
+    private Integer visitCount;
     private List<LocalDateTime> visitList;
 }
