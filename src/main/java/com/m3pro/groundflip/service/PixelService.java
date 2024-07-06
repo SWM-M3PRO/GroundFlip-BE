@@ -1,18 +1,27 @@
 package com.m3pro.groundflip.service;
 
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import com.m3pro.groundflip.domain.dto.pixel.*;
+import com.m3pro.groundflip.domain.dto.pixel.NaverAPI.NaverReverseGeoCodingApiResult;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
+
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelCount;
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelOwnerUser;
@@ -27,9 +36,11 @@ import com.m3pro.groundflip.repository.PixelUserRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PixelService {
 	private static final int WGS84_SRID = 4326;
 	private final GeometryFactory geometryFactory;
@@ -37,6 +48,11 @@ public class PixelService {
 	private final PixelUserRepository pixelUserRepository;
 	private final CommunityRepository communityRepository;
 	private final UserRepository userRepository;
+
+	@Value("${naver.apiKeyId}")
+	String apiKeyId;
+	@Value("${naver.apiKey}")
+	String apiKey;
 
 	public List<IndividualModePixelResponse> getNearIndividualModePixelsByCoordinate(double currentLatitude,
 																					 double currentLongitude, int radius) {
@@ -57,6 +73,7 @@ public class PixelService {
 
 	public IndividualPixelInfoResponse getIndividualPixelInfo(Long pixelId) {
 		Optional<Pixel> pixel = pixelRepository.findById(pixelId);
+
 		if (pixel.isEmpty()) {
 			throw new AppException(ErrorCode.PIXEL_NOT_FOUND);
 		}
@@ -91,6 +108,8 @@ public class PixelService {
 		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
 
+		updatePixelAddress(targetPixel);
+
 		if (pixelOccupyRequest.getCommunityId() == null) {
 			communityId = -1L;
 		}
@@ -104,16 +123,58 @@ public class PixelService {
 		pixelUserRepository.save(pixelUser);
 	}
 
+	public void updatePixelAddress(Pixel targetPixel) {
+		if (targetPixel.getAddress() == null) {
+			List<String> naverAPIResult = getNaverAPIResult(targetPixel.getCoordinate().getX(),
+				targetPixel.getCoordinate().getY());
+			String address = String.join(" ", naverAPIResult);
+			targetPixel.updateAddress(address);
+		}
+	}
+
 	public IndividualHistoryPixelInfoResponse getIndividualHistoryPixelInfo(Long pixelId, Long userId) {
 		Pixel pixel = pixelRepository.findById(pixelId)
-				.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
+			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
 
 		User user = userRepository.getReferenceById(userId);
 
 		List<LocalDateTime> visitList = pixelUserRepository.findAllVisitHistoryByPixelAndUser(pixel, user).stream()
-				.map(BaseTimeEntity::getCreatedAt)
-				.toList();
+			.map(BaseTimeEntity::getCreatedAt)
+			.toList();
 
-		return new IndividualHistoryPixelInfoResponse(pixel.getAddress(), pixel.getAddressNumber(), visitList.size(), visitList);
+		return new IndividualHistoryPixelInfoResponse(pixel.getAddress(), pixel.getAddressNumber(), visitList.size(),
+			visitList);
 	}
+
+	public List<String> getNaverAPIResult(double longitude, double latitude) {
+		String coordinate = String.format("%f, %f", longitude, latitude);
+		String url = "https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc";
+
+		RestTemplate restTemplate = new RestTemplate();
+
+		URI uri = UriComponentsBuilder.fromHttpUrl(url)
+			.queryParam("coords", coordinate)
+			.queryParam("orders", "admcode")
+			.queryParam("output", "json")
+			.encode(StandardCharsets.UTF_8)
+			.build()
+			.toUri();
+
+		RequestEntity<Void> req = RequestEntity
+			.get(uri)
+			.header("X-NCP-APIGW-API-KEY-ID", apiKeyId)
+			.header("X-NCP-APIGW-API-KEY", apiKey)
+			.build();
+
+		ResponseEntity<NaverReverseGeoCodingApiResult> result = restTemplate.exchange(req,
+			NaverReverseGeoCodingApiResult.class);
+
+		NaverReverseGeoCodingApiResult body = result.getBody();
+		if(body != null){
+			return result.getBody().getAreaNames();
+		}else{
+			return null;
+		}
+	}
+
 }

@@ -36,4 +36,8 @@ public class Pixel extends BaseTimeEntity {
 	private String address;
 
 	private Integer addressNumber;
+
+	public void updateAddress(String address){
+		this.address = address;
+	}
 }
