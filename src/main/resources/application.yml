@@ -67,5 +67,7 @@ spring:
     url: jdbc:h2:mem:test;
     username: sa
     password:
-
+naver:
+  apiKeyId: test-value
+  apiKey: test-value
 ---
