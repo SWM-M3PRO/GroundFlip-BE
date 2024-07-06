@@ -76,7 +76,6 @@ public class PixelController {
 	public Response<IndividualPixelInfoResponse> getIndividualPixelInfo(
 		@Parameter(description = "찾고자 하는 pixelId", required = true)
 		@PathVariable Long pixelId) {
-		log.info("info log = {}", pixelId);
 		return Response.createSuccess(
 			pixelService.getIndividualPixelInfo(pixelId)
 		);
@@ -90,7 +89,6 @@ public class PixelController {
 		@Parameter(description = "조회하고자 하는 userId", required = true)
 		@RequestParam(name = "user-id") Long userId
 	) {
-		log.info("info log = {}", pixelId);
 		return Response.createSuccess(
 			pixelService.getIndividualHistoryPixelInfo(pixelId, userId)
 		);

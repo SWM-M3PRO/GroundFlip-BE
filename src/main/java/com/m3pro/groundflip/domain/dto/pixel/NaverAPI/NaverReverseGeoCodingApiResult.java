@@ -24,19 +24,25 @@ public class NaverReverseGeoCodingApiResult {
 
 	public List<String> getAreaNames() {
 		List<String> areaNames = new ArrayList<>();
-		String area1;
-		String area2;
-		String area3;
+		String area1 = "대한민국";
+		String area2 = "";
+		String area3 = "";
 
-		if (this.results.isEmpty()) {
-			area1 = "대한민국";
-			area2 = "";
-			area3 = "";
-		} else {
-			area1 = this.results.get(0).getRegion().getArea1().getName();
-			area2 = this.results.get(0).getRegion().getArea2().getName();
-			area3 = this.results.get(0).getRegion().getArea3().getName();
+		if(!this.results.isEmpty()) {
+			Region region = this.results.get(0).getRegion();
+			if(region != null){
+				if(region.getArea1() != null && region.getArea1().getName() != null){
+					area1 = region.getArea1().getName();
+				}
+				if(region.getArea2() != null && region.getArea2().getName() != null){
+					area2 = region.getArea2().getName();
+				}
+				if(region.getArea3() != null && region.getArea3().getName() != null){
+					area3 = region.getArea3().getName();
+				}
+			}
 		}
+
 		areaNames.add(area1);
 		areaNames.add(area2);
 		areaNames.add(area3);

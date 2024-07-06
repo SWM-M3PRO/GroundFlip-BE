@@ -24,8 +24,21 @@ public class IndividualPixelInfoResponse {
 
 	public static IndividualPixelInfoResponse from(Pixel pixel, PixelOwnerUserResponse pixelOwnerUserResponse,
 		List<VisitedUserInfo> visitedUserList) {
+		String realAddress;
+
+		if (pixel.getAddress() != null) {
+			String[] addressArr = pixel.getAddress().split(" ");
+			if (addressArr[0].equals("대한민국")) {
+				realAddress = addressArr[0];
+			} else {
+				realAddress = addressArr[1] + addressArr[2];
+			}
+		} else {
+			realAddress = null;
+		}
+
 		return IndividualPixelInfoResponse.builder()
-			.address(pixel.getAddress())
+			.address(realAddress)
 			.addressNumber(pixel.getAddressNumber())
 			.visitCount(visitedUserList.size())
 			.pixelOwnerUser(pixelOwnerUserResponse)

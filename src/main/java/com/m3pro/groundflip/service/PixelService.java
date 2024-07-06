@@ -15,6 +15,7 @@ import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,11 @@ public class PixelService {
 	private final PixelUserRepository pixelUserRepository;
 	private final CommunityRepository communityRepository;
 	private final UserRepository userRepository;
+
+	@Value("${naver.apiKeyId}")
+	String apiKeyId;
+	@Value("${naver.apiKey}")
+	String apiKey;
 
 	public List<IndividualPixelResponse> getNearIndividualPixelsByCoordinate(double currentLatitude,
 		double currentLongitude, int radius) {
@@ -157,9 +163,6 @@ public class PixelService {
 			.build()
 			.toUri();
 
-		String apiKeyId = System.getenv("X-NCP-APIGW-API-KEY-ID");
-		String apiKey = System.getenv("X-NCP-APIGW-API-KEY");
-
 		RequestEntity<Void> req = RequestEntity
 			.get(uri)
 			.header("X-NCP-APIGW-API-KEY-ID", apiKeyId)
@@ -169,7 +172,12 @@ public class PixelService {
 		ResponseEntity<NaverReverseGeoCodingApiResult> result = restTemplate.exchange(req,
 			NaverReverseGeoCodingApiResult.class);
 
-		return result.getBody().getAreaNames();
+		NaverReverseGeoCodingApiResult body = result.getBody();
+		if(body != null){
+			return result.getBody().getAreaNames();
+		}else{
+			return null;
+		}
 	}
 
 }

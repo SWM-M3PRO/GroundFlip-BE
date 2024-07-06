@@ -1,3 +1,7 @@
+naver:
+  apiKeyId: ${X-NCP-APIGW-API-KEY-ID}
+  apiKey: ${X-NCP-APIGW-API-KEY}
+
 server:
   port: 8080
 
