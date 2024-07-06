@@ -69,7 +69,7 @@ class PixelServiceTest {
     void getIndividualPixelInfoSuccess() {
         // Given
         Long pixelId = 1L;
-        String address = "서울";
+        String address = "서울특별시 은평구 녹번동";
         int addressNumber = 1;
 
         Pixel pixel = Pixel.builder()
@@ -142,7 +142,7 @@ class PixelServiceTest {
         IndividualPixelInfoResponse response = pixelService.getIndividualPixelInfo(pixelId);
 
         // Then
-        assertThat(response.getAddress()).isEqualTo(address);
+        assertThat(response.getAddress()).isEqualTo("은평구 녹번동");
         assertThat(response.getAddressNumber()).isEqualTo(addressNumber);
         assertThat(response.getVisitCount()).isEqualTo(visitedUsers.size());
         assertThat(response.getVisitList().get(0).getNickname()).isEqualTo("JohnDoe");
@@ -155,7 +155,7 @@ class PixelServiceTest {
     void getIndividualPixelInfoNoVisitedUser() {
         // Given
         Long pixelId = 1L;
-        String address = "서울";
+        String address = "서울특별시 은평구 녹번동";
         int addressNumber = 1;
 
         Pixel pixel = Pixel.builder()
@@ -175,7 +175,7 @@ class PixelServiceTest {
         IndividualPixelInfoResponse response = pixelService.getIndividualPixelInfo(pixelId);
 
         // Then
-        assertThat(response.getAddress()).isEqualTo(address);
+        assertThat(response.getAddress()).isEqualTo("은평구 녹번동");
         assertThat(response.getAddressNumber()).isEqualTo(addressNumber);
         assertThat(response.getVisitCount()).isEqualTo(0);
         assertThat(response.getPixelOwnerUser()).isNull();
@@ -187,7 +187,7 @@ class PixelServiceTest {
         final int NUMBER_OF_HISTORY = 3;
         // Given
         Long pixelId = 10000L;
-        String address = "은평구";
+        String address = "서울특별시 은평구 녹번동";
         int addressNumber = 1;
 
         Pixel pixel = Pixel.builder()
