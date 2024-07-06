@@ -24,6 +24,8 @@ jobs:
           echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "SPRING_PROFILES_ACTIVE=dev" >> .env
+          echo "X-NCP-APIGW-API-KEY-ID=${{ secrets.NAVER_APIKEYID }}" >> .env
+          echo "X-NCP-APIGW-API-KEY=${{ secrets.NAVER_APIKEY }}" >> .env
 
       - name: gradlew에 실행 권한 부여
         run: chmod +x ./gradlew
