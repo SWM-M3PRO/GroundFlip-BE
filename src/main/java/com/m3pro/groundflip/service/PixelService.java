@@ -177,4 +177,10 @@ public class PixelService {
 		}
 	}
 
+	public PixelCountResponse getPixelCount(Long userId) {
+		return PixelCountResponse.builder()
+				.currentPixelCount(pixelUserRepository.findCurrentPixelCountByUserId(userId).getCount())
+				.accumulatePixelCount(pixelUserRepository.findAccumulatePixelCountByUserId(userId).getCount())
+				.build();
+	}
 }

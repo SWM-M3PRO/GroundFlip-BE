@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.m3pro.groundflip.domain.dto.pixel.PixelCountResponse;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -299,5 +301,26 @@ class PixelServiceTest {
 
         // Then
         assertEquals(ErrorCode.PIXEL_NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("픽셀 갯수가 정상적으로 불러와지는지 확인")
+    void getPixelCountSuccess() {
+        // Given
+        Long userId = 1L;
+
+        PixelCount currentPixelCount = () -> 3;
+
+        PixelCount accumulatePixelCount = () -> 5;
+
+        when(pixelUserRepository.findCurrentPixelCountByUserId(userId)).thenReturn(currentPixelCount);
+        when(pixelUserRepository.findAccumulatePixelCountByUserId(userId)).thenReturn(accumulatePixelCount);
+
+        // When
+        PixelCountResponse pixelCount = pixelService.getPixelCount(userId);
+
+        // Then
+        assertEquals(pixelCount.getCurrentPixelCount(), currentPixelCount.getCount());
+        assertEquals(pixelCount.getAccumulatePixelCount(), accumulatePixelCount.getCount());
     }
 }
