@@ -1,3 +1,8 @@
+oauth:
+  kakao:
+    url:
+      user: https://kapi.kakao.com/v2/user/me
+
 naver:
   apiKeyId: ${X-NCP-APIGW-API-KEY-ID}
   apiKey: ${X-NCP-APIGW-API-KEY}
