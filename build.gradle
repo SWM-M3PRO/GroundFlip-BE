@@ -32,6 +32,7 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
     implementation group: 'org.hibernate', name: 'hibernate-spatial', version: '6.4.2.Final'
     implementation group: 'org.n52.jackson', name: 'jackson-datatype-jts', version: '1.2.10'
+    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'

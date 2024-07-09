@@ -2,6 +2,13 @@ naver:
   apiKeyId: ${X-NCP-APIGW-API-KEY-ID}
   apiKey: ${X-NCP-APIGW-API-KEY}
 
+jwt:
+  secret: ${JWT_SECRET_KEY}
+  # 10일
+  access-token-time: 864000000
+  # 30일
+  refresh-token-time: 2592000000
+
 server:
   port: 8080
 
