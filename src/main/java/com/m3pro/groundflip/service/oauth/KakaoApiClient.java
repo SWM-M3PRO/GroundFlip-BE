@@ -1,4 +1,4 @@
-package com.m3pro.groundflip.service;
+package com.m3pro.groundflip.service.oauth;
 
 import com.m3pro.groundflip.domain.dto.auth.KaKaoUserInfoResponse;
 import com.m3pro.groundflip.domain.dto.auth.OauthUserInfoResponse;
