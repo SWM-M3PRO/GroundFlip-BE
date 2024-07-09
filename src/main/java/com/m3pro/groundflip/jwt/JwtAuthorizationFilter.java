@@ -34,7 +34,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = parseBearerToken(request);
-        if (jwtProvider.validateToken(token)) {
+        if (jwtProvider.isTokenValid(token)) {
             setAuthentication(token);
         }
 
@@ -51,7 +51,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return WHITE_LIST_TMP.stream().anyMatch(path::startsWith);
+        return WHITE_LIST.stream().anyMatch(path::startsWith);
     }
 
     private String parseBearerToken(HttpServletRequest request) {

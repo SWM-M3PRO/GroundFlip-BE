@@ -36,7 +36,7 @@ public class JwtProvider {
                 .compact();
     }
 
-    public boolean validateToken(String token) {
+    public boolean isTokenValid(String token) {
         if (!StringUtils.hasText(token)) {
             throw new AppException(ErrorCode.JWT_NOT_EXISTS);
         }
