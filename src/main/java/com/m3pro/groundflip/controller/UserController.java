@@ -1,5 +1,7 @@
 package com.m3pro.groundflip.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,11 +37,12 @@ public class UserController {
 
 	@Operation(summary = "사용자 걸음수 저장", description = "id, 걸음수, 날짜를 저장한다")
 	@PostMapping("/step")
-	public Response<Long> postUserStep(
+	public ResponseEntity<Void> postUserStep(
 		@Parameter(description = "걸음수 저장 userId", required = true)
 		@RequestBody UserStepInfo userStepInfo
 	) {
-		return Response.createSuccess(userService.postUserStep(userStepInfo));
+		userService.postUserStep(userStepInfo);
+		return ResponseEntity.status(HttpStatus.CREATED).build();
 	}
 
 }

@@ -35,6 +35,6 @@ public class StepRecord extends BaseTimeEntity {
 	private Integer steps;
 
 	@ManyToOne
-	@JoinColumn(name = "user_id")//, referencedColumnName = "user_id")//, insertable = false, updatable = false)
+	@JoinColumn(name = "user_id")
 	private User user;
 }
