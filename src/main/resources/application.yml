@@ -1,5 +1,7 @@
 oauth:
   kakao:
+    app:
+      id: ${KAKAO_APP_ID}
     url:
       user: https://kapi.kakao.com/v2/user/me
 
@@ -83,6 +85,11 @@ spring:
 naver:
   apiKeyId: test-value
   apiKey: test-value
+
+oauth:
+  kakao:
+    app:
+      id: 123456
 
 jwt:
   secret: test-value
