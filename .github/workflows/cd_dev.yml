@@ -33,7 +33,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: 프로젝트 빌드
-        run: ./gradlew clean bootjar
+        run: ./gradlew clean bootjar -x test
 
       - name: 압축
         run: zip -r ./ground_flip.zip .

@@ -1,0 +1,51 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url:  jdbc:mysql://localhost:3306/groundflip_test
+    username: root
+    password: root
+
+  jpa:
+    database-platform: org.hibernate.spatial.dialect.mysql.MySQL56InnoDBSpatialDialect
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    sql: debug
+    org.hibernate.orm.jdbc.bind: trace
+
+oauth:
+  kakao:
+    app:
+      id: 123456
+    url:
+      validation: https://kapi.kakao.com/v1/user/access_token_info
+      user: https://kapi.kakao.com/v2/user/me
+
+naver:
+  apiKeyId: test-value
+  apiKey: test-value
+
+jwt:
+  secret: test-value
+  # 10일
+  access-token-time: 864000000
+  # 30일
+  refresh-token-time: 2592000000
+
+server:
+  port: 8080
+
+springdoc:
+  swagger-ui:
+    path: /api/docs
+  api-docs:
+    path: /api/docs
