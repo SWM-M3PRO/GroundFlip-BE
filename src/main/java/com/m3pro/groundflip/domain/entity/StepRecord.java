@@ -2,11 +2,11 @@ package com.m3pro.groundflip.domain.entity;
 
 import java.sql.Date;
 
+import com.m3pro.groundflip.domain.dto.StepRecord.UserStepInfo;
 import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -35,7 +35,7 @@ public class StepRecord extends BaseTimeEntity {
 
 	private Integer steps;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne
+	@JoinColumn(name = "user_id")//, referencedColumnName = "user_id")//, insertable = false, updatable = false)
 	private User user;
-
 }

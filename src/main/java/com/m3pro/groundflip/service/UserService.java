@@ -1,6 +1,7 @@
 package com.m3pro.groundflip.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ import com.m3pro.groundflip.repository.StepRecordRepository;
 import com.m3pro.groundflip.repository.UserCommunityRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -39,8 +41,22 @@ public class UserService {
 		}
 	}
 
-	public Long postUserStep(UserStepInfo userStepInfo){
-		return stepRecordRepository.save(UserStepInfo.of(userStepInfo)).getId();
+	@Transactional
+	public Long postUserStep(UserStepInfo userStepInfo) {
+		Optional<User> user = userRepository.findById(userStepInfo.getUserId());
+
+		if (user.isPresent()) {
+			StepRecord savedStepRecord = stepRecordRepository.save(
+				StepRecord.builder()
+					.user(user.get())
+					.steps(userStepInfo.getSteps())
+					.date(userStepInfo.getDate())
+					.build()
+			);
+			return savedStepRecord.getId();
+		} else {
+			throw new AppException(ErrorCode.USER_NOT_FOUND);
+		}
 	}
 
 }

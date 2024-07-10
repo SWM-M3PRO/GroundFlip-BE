@@ -1,7 +1,5 @@
 package com.m3pro.groundflip.controller;
 
-import java.util.List;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,14 +38,8 @@ public class UserController {
 	public Response<Long> postUserStep(
 		@Parameter(description = "걸음수 저장 userId", required = true)
 		@RequestBody UserStepInfo userStepInfo
-	){
+	) {
 		return Response.createSuccess(userService.postUserStep(userStepInfo));
 	}
-
-	// @Operation(summary = "사용자 걸음수 저장", description = "id, 걸음수, 날짜를 저장한다")
-	// @GetMapping("/step")
-	// public Response<List<UserStepInfo>> getUserStep(){
-	// 	return Response.createSuccess(userService.getUserStep());
-	// }
 
 }
