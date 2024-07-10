@@ -29,10 +29,10 @@ public class JwtProvider {
     private String createToken(Long userId, long validTime) {
         Date now = new Date();
         return Jwts.builder()
-                .signWith(SignatureAlgorithm.RS256, jwtSecretKey)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + validTime))
                 .claim("userId", userId)
+                .signWith(SignatureAlgorithm.HS256, jwtSecretKey)
                 .compact();
     }
 

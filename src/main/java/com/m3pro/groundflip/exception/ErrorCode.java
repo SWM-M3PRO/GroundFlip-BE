@@ -13,6 +13,9 @@ public enum ErrorCode {
 	PIXEL_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 픽셀입니다."),
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러 입니다"),
 
+	// 권한 관련 에러
+	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "권한이 없습니다"),
+
 	// JWT 관련 에러
 	JWT_NOT_EXISTS(HttpStatus.UNAUTHORIZED, "요청에 JWT가 존재하지 않습니다."),
 	INVALID_JWT(HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT입니다."),

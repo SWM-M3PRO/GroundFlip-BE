@@ -3,6 +3,7 @@ oauth:
     app:
       id: ${KAKAO_APP_ID}
     url:
+      validation: https://kapi.kakao.com/v1/user/access_token_info
       user: https://kapi.kakao.com/v2/user/me
 
 naver:

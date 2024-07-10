@@ -5,9 +5,11 @@ import com.m3pro.groundflip.domain.dto.auth.LoginResponse;
 import com.m3pro.groundflip.domain.dto.auth.OauthUserInfoResponse;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.enums.Provider;
+import com.m3pro.groundflip.exception.AppException;
+import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.jwt.JwtProvider;
 import com.m3pro.groundflip.repository.UserRepository;
-import com.m3pro.groundflip.service.oauth.RequestOauthUserInfoService;
+import com.m3pro.groundflip.service.oauth.OauthService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +19,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final RequestOauthUserInfoService oauthUserInfoService;
+    private final OauthService oauthUserInfoService;
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
 
@@ -26,7 +28,7 @@ public class AuthService {
         Long userId;
         boolean isSignUp;
 
-        OauthUserInfoResponse oauthUserInfo = oauthUserInfoService.request(provider, loginRequest.getAccessToken());
+        OauthUserInfoResponse oauthUserInfo = oauthUserInfoService.requestUserInfo(provider, loginRequest.getAccessToken());
         Optional<User> loginUser = userRepository.findByProviderAndEmail(provider, oauthUserInfo.getEmail());
 
         if (loginUser.isPresent()) {
