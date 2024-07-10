@@ -1,6 +1,5 @@
 package com.m3pro.groundflip.domain.entity;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 

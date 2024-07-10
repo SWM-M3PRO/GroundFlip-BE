@@ -2,7 +2,6 @@ package com.m3pro.groundflip.domain.entity;
 
 import java.sql.Date;
 
-import com.m3pro.groundflip.domain.dto.StepRecord.UserStepInfo;
 import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
 
 import jakarta.persistence.Column;

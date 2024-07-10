@@ -1,10 +1,8 @@
 package com.m3pro.groundflip.domain.dto.StepRecord;
 
 import com.m3pro.groundflip.domain.entity.StepRecord;
-import com.m3pro.groundflip.domain.entity.User;
 
 import java.sql.Date;
-import java.util.Optional;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
