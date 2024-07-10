@@ -51,7 +51,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return WHITE_LIST.stream().anyMatch(path::startsWith);
+        return WHITE_LIST_TMP.stream().anyMatch(path::startsWith);
     }
 
     private String parseBearerToken(HttpServletRequest request) {

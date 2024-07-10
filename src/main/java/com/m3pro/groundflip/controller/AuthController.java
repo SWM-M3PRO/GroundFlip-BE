@@ -1,8 +1,9 @@
 package com.m3pro.groundflip.controller;
 
 import com.m3pro.groundflip.domain.dto.Response;
-import com.m3pro.groundflip.domain.dto.auth.KakaoLoginRequest;
+import com.m3pro.groundflip.domain.dto.auth.LoginRequest;
 import com.m3pro.groundflip.domain.dto.auth.LoginResponse;
+import com.m3pro.groundflip.enums.Provider;
 import com.m3pro.groundflip.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +18,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/kakao/login")
-    public Response<LoginResponse> loginKaKao(@RequestBody KakaoLoginRequest kakaoLoginRequest) {
-        return Response.createSuccess(authService.loginKakao(kakaoLoginRequest));
+    public Response<LoginResponse> loginKaKao(@RequestBody LoginRequest loginRequest) {
+        return Response.createSuccess(authService.login(Provider.KAKAO, loginRequest));
     }
 }

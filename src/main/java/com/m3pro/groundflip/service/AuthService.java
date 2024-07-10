@@ -1,6 +1,6 @@
 package com.m3pro.groundflip.service;
 
-import com.m3pro.groundflip.domain.dto.auth.KakaoLoginRequest;
+import com.m3pro.groundflip.domain.dto.auth.LoginRequest;
 import com.m3pro.groundflip.domain.dto.auth.LoginResponse;
 import com.m3pro.groundflip.domain.dto.auth.OauthUserInfoResponse;
 import com.m3pro.groundflip.domain.entity.User;
@@ -22,18 +22,18 @@ public class AuthService {
     private final UserRepository userRepository;
 
     @Transactional
-    public LoginResponse loginKakao(KakaoLoginRequest kakaoLoginRequest) {
+    public LoginResponse login(Provider provider, LoginRequest loginRequest) {
         Long userId;
         boolean isSignUp;
 
-        OauthUserInfoResponse kaKaoUserInfo = oauthUserInfoService.request(Provider.KAKAO, kakaoLoginRequest.getAccessToken());
-        Optional<User> loginUser = userRepository.findByProviderAndEmail(Provider.KAKAO, kaKaoUserInfo.getEmail());
+        OauthUserInfoResponse oauthUserInfo = oauthUserInfoService.request(provider, loginRequest.getAccessToken());
+        Optional<User> loginUser = userRepository.findByProviderAndEmail(provider, oauthUserInfo.getEmail());
 
         if (loginUser.isPresent()) {
             userId = loginUser.get().getId();
             isSignUp = false;
         } else {
-            userId = registerKakaoUser(kaKaoUserInfo.getEmail()).getId();
+            userId = registerUser(provider, oauthUserInfo.getEmail()).getId();
             isSignUp = true;
         }
 
@@ -42,10 +42,10 @@ public class AuthService {
         return new LoginResponse(accessToken, refreshToken, isSignUp);
     }
 
-    private User registerKakaoUser(String email) {
+    private User registerUser(Provider provider, String email) {
         User registerUser = User.builder()
                 .email(email)
-                .provider(Provider.KAKAO)
+                .provider(provider)
                 .build();
         return userRepository.save(registerUser);
     }
