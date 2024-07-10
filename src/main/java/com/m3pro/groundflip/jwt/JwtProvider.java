@@ -29,7 +29,7 @@ public class JwtProvider {
     private String createToken(Long userId, long validTime) {
         Date now = new Date();
         return Jwts.builder()
-                .signWith(SignatureAlgorithm.HS512, jwtSecretKey)
+                .signWith(SignatureAlgorithm.RS256, jwtSecretKey)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + validTime))
                 .claim("userId", userId)
