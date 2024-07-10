@@ -26,6 +26,8 @@ jobs:
           echo "SPRING_PROFILES_ACTIVE=dev" >> .env
           echo "X-NCP-APIGW-API-KEY-ID=${{ secrets.NAVER_APIKEYID }}" >> .env
           echo "X-NCP-APIGW-API-KEY=${{ secrets.NAVER_APIKEY }}" >> .env
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
+          echo "KAKAO_APP_ID=${{ secrets.KAKAO_APP_ID }}" >> .env
 
       - name: gradlew에 실행 권한 부여
         run: chmod +x ./gradlew

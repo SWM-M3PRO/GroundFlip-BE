@@ -1,6 +1,21 @@
+oauth:
+  kakao:
+    app:
+      id: ${KAKAO_APP_ID}
+    url:
+      validation: https://kapi.kakao.com/v1/user/access_token_info
+      user: https://kapi.kakao.com/v2/user/me
+
 naver:
   apiKeyId: ${X-NCP-APIGW-API-KEY-ID}
   apiKey: ${X-NCP-APIGW-API-KEY}
+
+jwt:
+  secret: ${JWT_SECRET_KEY}
+  # 10일
+  access-token-time: 864000000
+  # 30일
+  refresh-token-time: 2592000000
 
 server:
   port: 8080
@@ -67,7 +82,16 @@ spring:
     url: jdbc:h2:mem:test;
     username: sa
     password:
+
 naver:
   apiKeyId: test-value
   apiKey: test-value
+
+oauth:
+  kakao:
+    app:
+      id: 123456
+
+jwt:
+  secret: test-value
 ---
