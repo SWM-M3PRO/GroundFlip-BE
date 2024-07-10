@@ -41,17 +41,18 @@ public class UserService {
 	}
 
 	@Transactional
-	public void postUserStep(UserStepInfo userStepInfo) {
+	public Long postUserStep(UserStepInfo userStepInfo) {
 		User user = userRepository.findById(userStepInfo.getUserId())
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
 
-		stepRecordRepository.save(
+		StepRecord savedStepRecord = stepRecordRepository.save(
 			StepRecord.builder()
 				.user(user)
 				.steps(userStepInfo.getSteps())
 				.date(userStepInfo.getDate())
 				.build()
 		);
+		return savedStepRecord.getId();
 
 	}
 

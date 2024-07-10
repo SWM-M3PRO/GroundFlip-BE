@@ -37,12 +37,11 @@ public class UserController {
 
 	@Operation(summary = "사용자 걸음수 저장", description = "id, 걸음수, 날짜를 저장한다")
 	@PostMapping("/step")
-	public ResponseEntity<Void> postUserStep(
+	public Response<Long> postUserStep(
 		@Parameter(description = "걸음수 저장 userId", required = true)
 		@RequestBody UserStepInfo userStepInfo
 	) {
-		userService.postUserStep(userStepInfo);
-		return ResponseEntity.status(HttpStatus.CREATED).build();
+		return Response.createSuccess(userService.postUserStep(userStepInfo));
 	}
 
 }
