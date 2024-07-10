@@ -1,6 +1,8 @@
 package com.m3pro.groundflip.domain.entity;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
 import com.m3pro.groundflip.enums.Gender;
@@ -11,6 +13,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
@@ -47,4 +50,7 @@ public class User extends BaseTimeEntity {
 	private String email;
 
 	private Date deletedAt;
+
+	@OneToMany
+	private List<StepRecord> stepRecords;
 }
