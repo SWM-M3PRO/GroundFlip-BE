@@ -18,8 +18,8 @@ import lombok.NoArgsConstructor;
 @Schema(title = "개인 걸음수 정보")
 public class UserStepInfo {
 
-	@Schema(description = "걸음수 소유 유저id", example = "3")
-	private User user;
+	@Schema(description = "걸음수 id", example = "4")
+	Long id;
 
 	@Schema(description = "걸음수 기록 날짜", example = "2024-07-05 12:53:11")
 	private Date date;
@@ -27,12 +27,15 @@ public class UserStepInfo {
 	@Schema(description = "걸음수", example = "1557")
 	private Integer steps;
 
+	@Schema(description = "유저id", example = "3")
+	private User user;
+
 
 	public static StepRecord of(UserStepInfo userStepInfo) {
 		return StepRecord.builder()
-			.user(userStepInfo.getUser())
 			.date(userStepInfo.getDate())
 			.steps(userStepInfo.getSteps())
+			.user(userStepInfo.getUser())
 			.build();
 	}
 }
