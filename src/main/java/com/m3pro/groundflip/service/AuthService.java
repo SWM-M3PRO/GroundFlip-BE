@@ -10,6 +10,7 @@ import com.m3pro.groundflip.domain.dto.auth.OauthUserInfoResponse;
 import com.m3pro.groundflip.domain.dto.auth.Tokens;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.enums.Provider;
+import com.m3pro.groundflip.enums.UserStatus;
 import com.m3pro.groundflip.jwt.JwtProvider;
 import com.m3pro.groundflip.repository.UserRepository;
 import com.m3pro.groundflip.service.oauth.OauthService;
@@ -50,6 +51,7 @@ public class AuthService {
 		User registerUser = User.builder()
 			.email(email)
 			.provider(provider)
+			.status(UserStatus.PENDING)
 			.build();
 		return userRepository.save(registerUser);
 	}
