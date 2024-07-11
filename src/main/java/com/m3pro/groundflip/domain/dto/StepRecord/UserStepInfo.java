@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Schema(title = "개인 걸음수 정보")
 public class UserStepInfo {
 
-	@Schema(description = "걸음수 기록 날짜", example = "2024-07-05 12:53:11")
+	@Schema(description = "걸음수 기록 날짜", example = "2024-07-05")
 	private Date date;
 
 	@Schema(description = "걸음수", example = "1557")
@@ -26,11 +26,4 @@ public class UserStepInfo {
 	@Schema(description = "유저id", example = "3")
 	private Long userId;
 
-	public static UserStepInfo from(StepRecord stepRecord) {
-		return UserStepInfo.builder()
-			.date(stepRecord.getDate())
-			.steps(stepRecord.getSteps())
-			.userId(stepRecord.getUser().getId())
-			.build();
-	}
 }
