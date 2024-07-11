@@ -36,7 +36,7 @@ public class AuthService {
 
 		if (loginUser.isPresent()) {
 			userId = loginUser.get().getId();
-			isSignUp = false;
+			isSignUp = loginUser.get().getStatus() == UserStatus.PENDING;
 		} else {
 			userId = registerUser(provider, oauthUserInfo.getEmail()).getId();
 			isSignUp = true;
