@@ -23,4 +23,5 @@ public class UserStepInfo {
 
 	@Schema(description = "유저id", example = "3")
 	private Long userId;
+
 }
