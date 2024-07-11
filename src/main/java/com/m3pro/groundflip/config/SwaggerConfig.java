@@ -7,7 +7,6 @@ import org.springframework.http.HttpHeaders;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 
 @Configuration
@@ -21,9 +20,6 @@ public class SwaggerConfig {
 			.in(SecurityScheme.In.HEADER)
 			.name(HttpHeaders.AUTHORIZATION);
 
-		SecurityRequirement addSecurityItem = new SecurityRequirement();
-		addSecurityItem.addList("Authorization");
-
 		return new OpenAPI()
 			.info(new Info()
 				.title("Ground Flip API")
@@ -32,7 +28,5 @@ public class SwaggerConfig {
 			.components(new Components()
 				.addSecuritySchemes("Authorization", bearerAuth
 				));
-		// .addSecurityItem(addSecurityItem);
-
 	}
 }
