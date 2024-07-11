@@ -13,8 +13,8 @@ public interface StepRecordRepository extends JpaRepository<StepRecord, Long> {
 	@Query("SELECT sr.steps FROM StepRecord sr "
 		+ "WHERE sr.user.id = :userId AND sr.date BETWEEN :startDate AND :endDate")
 	List<Integer> findByUserIdStartEndDate(
-		@Param("userId") Long userId,
-		@Param("startDate") Date startDate,
-		@Param("endDate") Date endDate
+		Long userId,
+		Date startDate,
+		Date endDate
 	);
 }
