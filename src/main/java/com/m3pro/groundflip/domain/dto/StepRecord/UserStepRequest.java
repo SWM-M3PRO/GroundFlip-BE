@@ -1,6 +1,6 @@
 package com.m3pro.groundflip.domain.dto.StepRecord;
 
-import java.sql.Date;
+import java.util.Date;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -13,14 +13,15 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 @Schema(title = "개인 걸음수 정보")
-public class UserStepInfo {
+public class UserStepRequest {
 
-	@Schema(description = "걸음수 기록 날짜", example = "2024-07-05")
-	private Date date;
-
-	@Schema(description = "걸음수", example = "1557")
-	private Integer steps;
-
-	@Schema(description = "유저id", example = "3")
+	@Schema(description = "user Id", example = "3")
 	private Long userId;
+
+	@Schema(description = "시작 날짜", example = "2023-08-02")
+	private Date startDate;
+
+	@Schema(description = "종료 날짜", example = "2023-08-09")
+	private Date endDate;
+
 }
