@@ -43,7 +43,7 @@ public class UserService {
 	@Transactional
 	public Long postUserStep(UserStepInfo userStepInfo) {
 		User user = userRepository.findById(userStepInfo.getUserId())
-			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
+			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
 		StepRecord savedStepRecord = stepRecordRepository.save(
 			StepRecord.builder()
