@@ -8,15 +8,19 @@ import org.springframework.web.bind.annotation.RestController;
 import com.m3pro.groundflip.domain.dto.Response;
 import com.m3pro.groundflip.domain.dto.auth.LoginRequest;
 import com.m3pro.groundflip.domain.dto.auth.LoginResponse;
+import com.m3pro.groundflip.domain.dto.auth.ReissueRequest;
+import com.m3pro.groundflip.domain.dto.auth.Tokens;
 import com.m3pro.groundflip.enums.Provider;
 import com.m3pro.groundflip.service.AuthService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
+@Tag(name = "auth", description = "인증 인가 API")
 public class AuthController {
 	private final AuthService authService;
 
@@ -24,6 +28,12 @@ public class AuthController {
 	@PostMapping("/kakao/login")
 	public Response<LoginResponse> loginKaKao(@RequestBody LoginRequest loginRequest) {
 		return Response.createSuccess(authService.login(Provider.KAKAO, loginRequest));
+	}
+
+	@Operation(summary = "access token 재발급", description = "만료된 access token 을 refresh token으로 재발급 하는 API")
+	@PostMapping("/reissue")
+	public Response<Tokens> reissueToken(@RequestBody ReissueRequest reissueRequest) {
+		return Response.createSuccess(new Tokens());
 	}
 }
 
