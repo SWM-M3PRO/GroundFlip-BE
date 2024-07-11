@@ -50,15 +50,8 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 
 	@Query(value = """
 		SELECT COUNT(*) AS count
-		FROM pixel_user pu
-		JOIN (
-		    SELECT MAX(pixel_user_id) AS latest_pixel_user_id
-		    FROM pixel_user
-		    GROUP BY pixel_id
-		) latest_visits
-		ON
-		pu.pixel_user_id = latest_visits.latest_pixel_user_id
-		WHERE pu.user_id = :user_id
+		FROM pixel p
+		WHERE p.user_id = :user_id
 		""", nativeQuery = true)
 	PixelCount findCurrentPixelCountByUserId(
 		@Param("user_id") Long userId);
