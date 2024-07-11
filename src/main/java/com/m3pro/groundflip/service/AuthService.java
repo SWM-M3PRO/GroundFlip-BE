@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import com.m3pro.groundflip.domain.dto.auth.LoginRequest;
 import com.m3pro.groundflip.domain.dto.auth.LoginResponse;
 import com.m3pro.groundflip.domain.dto.auth.OauthUserInfoResponse;
-import com.m3pro.groundflip.domain.dto.auth.Tokens;
+import com.m3pro.groundflip.domain.dto.auth.ReissueReponse;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.enums.Provider;
 import com.m3pro.groundflip.enums.UserStatus;
@@ -56,11 +56,11 @@ public class AuthService {
 		return userRepository.save(registerUser);
 	}
 
-	public Tokens reissueToken(String refreshToken) {
+	public ReissueReponse reissueToken(String refreshToken) {
 		jwtProvider.isTokenValid(refreshToken);
 		Long parsedUserId = jwtProvider.parseUserId(refreshToken);
 		String reissuedAccessToken = jwtProvider.createAccessToken(parsedUserId);
 		String reissuedRefreshToken = jwtProvider.createRefreshToken(parsedUserId);
-		return new Tokens(reissuedAccessToken, reissuedRefreshToken);
+		return new ReissueReponse(reissuedAccessToken, reissuedRefreshToken);
 	}
 }
