@@ -113,14 +113,16 @@ public class PixelService {
 	public void occupyPixel(PixelOccupyRequest pixelOccupyRequest) {
 		Long communityId = pixelOccupyRequest.getCommunityId();
 
+		if (pixelOccupyRequest.getCommunityId() == null) {
+			communityId = -1L;
+		}
+
 		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
 
 		updatePixelAddress(targetPixel);
 
-		if (pixelOccupyRequest.getCommunityId() == null) {
-			communityId = -1L;
-		}
+		targetPixel.updateUserId(pixelOccupyRequest.getUserId());
 
 		PixelUser pixelUser = PixelUser.builder()
 			.pixel(targetPixel)
