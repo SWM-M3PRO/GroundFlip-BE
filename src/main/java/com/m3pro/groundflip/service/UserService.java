@@ -41,18 +41,18 @@ public class UserService {
 	}
 
 	@Transactional
-	public Long postUserStep(UserStepInfo userStepInfo) {
+	public void postUserStep(UserStepInfo userStepInfo) {
 		User user = userRepository.findById(userStepInfo.getUserId())
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-		StepRecord savedStepRecord = stepRecordRepository.save(
+		stepRecordRepository.save(
 			StepRecord.builder()
 				.user(user)
 				.steps(userStepInfo.getSteps())
 				.date(userStepInfo.getDate())
 				.build()
 		);
-		return savedStepRecord.getId();
+
 
 	}
 
