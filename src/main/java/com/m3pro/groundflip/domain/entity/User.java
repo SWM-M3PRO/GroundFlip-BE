@@ -14,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import lombok.AccessLevel;
@@ -41,8 +42,10 @@ public class User extends BaseTimeEntity {
 
 	private Date birthYear;
 
+	@Enumerated(EnumType.STRING)
 	private Gender gender;
 
+	@Enumerated(EnumType.STRING)
 	private Provider provider;
 
 	@Email
