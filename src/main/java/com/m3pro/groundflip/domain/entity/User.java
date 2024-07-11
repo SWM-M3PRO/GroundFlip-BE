@@ -5,6 +5,7 @@ import java.util.Date;
 import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
 import com.m3pro.groundflip.enums.Gender;
 import com.m3pro.groundflip.enums.Provider;
+import com.m3pro.groundflip.enums.UserStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,7 +15,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import lombok.AccessLevel;
@@ -47,6 +47,9 @@ public class User extends BaseTimeEntity {
 
 	@Enumerated(EnumType.STRING)
 	private Provider provider;
+
+	@Enumerated(EnumType.STRING)
+	private UserStatus status;
 
 	@Email
 	private String email;

@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
-@Schema(title = "로그인 요청 Body")
-public class LoginRequest {
-	@Schema(description = "프로바이더로부터 받은 액세스 토큰", example = "dslafjkdsrtjlejldfkajlasljdf")
-	private String accessToken;
+@Schema(title = "토큰 재발급 요청 Body")
+public class ReissueRequest {
+	@Schema(description = "refresh token", example = "dslafjkdsrtjlejldfkajlasljdf")
+	private String refreshToken;
 }
 

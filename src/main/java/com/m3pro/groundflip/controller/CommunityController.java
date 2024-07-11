@@ -15,11 +15,13 @@ import com.m3pro.groundflip.service.CommunityService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/groups")
+@SecurityRequirement(name = "Authorization")
 public class CommunityController {
 	private final CommunityService communityService;
 
