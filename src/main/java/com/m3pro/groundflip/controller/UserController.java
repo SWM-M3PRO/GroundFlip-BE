@@ -14,6 +14,7 @@ import com.m3pro.groundflip.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/api/users")
 @Tag(name = "users", description = "사용자 API")
+@SecurityRequirement(name = "Authorization")
 public class UserController {
 	private final UserService userService;
 

@@ -22,6 +22,7 @@ import com.m3pro.groundflip.service.PixelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -34,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequestMapping("/api/pixels")
 @Tag(name = "pixels", description = "픽셀 API")
+@SecurityRequirement(name = "Authorization")
 public class PixelController {
 	private final PixelService pixelService;
 
