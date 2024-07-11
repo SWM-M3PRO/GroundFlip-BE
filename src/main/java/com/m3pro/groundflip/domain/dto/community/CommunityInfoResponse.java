@@ -19,7 +19,7 @@ public class CommunityInfoResponse {
 	private int groupRanking;
 	private int memberCount;
 
-	public static CommunityInfoResponse from(Community community, int groupRanking, int memberCount){
+	public static CommunityInfoResponse from(Community community, int groupRanking, int memberCount) {
 		return CommunityInfoResponse.builder()
 			.name(community.getName())
 			.pixelColor(community.getPixelColor())
@@ -29,5 +29,4 @@ public class CommunityInfoResponse {
 			.memberCount(memberCount)
 			.build();
 	}
-
 }

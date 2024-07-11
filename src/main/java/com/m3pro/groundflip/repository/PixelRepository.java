@@ -3,13 +3,13 @@ package com.m3pro.groundflip.repository;
 import java.util.List;
 import java.util.Optional;
 
-import com.m3pro.groundflip.domain.dto.pixel.IndividualHistoryPixelResponse;
-import com.m3pro.groundflip.domain.dto.pixel.IndividualModePixelResponse;
 import org.locationtech.jts.geom.Point;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.m3pro.groundflip.domain.dto.pixel.IndividualHistoryPixelResponse;
+import com.m3pro.groundflip.domain.dto.pixel.IndividualModePixelResponse;
 import com.m3pro.groundflip.domain.entity.Pixel;
 
 public interface PixelRepository extends JpaRepository<Pixel, Long> {
