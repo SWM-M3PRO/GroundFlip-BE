@@ -49,4 +49,5 @@ public class UserInfoResponse {
 			.communityName(communityName)
 			.build();
 	}
+
 }
