@@ -33,7 +33,7 @@ public class AuthController {
 	@Operation(summary = "access token 재발급", description = "만료된 access token 을 refresh token으로 재발급 하는 API")
 	@PostMapping("/reissue")
 	public Response<Tokens> reissueToken(@RequestBody ReissueRequest reissueRequest) {
-		return Response.createSuccess(new Tokens());
+		return Response.createSuccess(authService.reissueToken(reissueRequest.getRefreshToken()));
 	}
 }
 
