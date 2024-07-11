@@ -49,14 +49,6 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 		@Param("user_id") Long userId);
 
 	@Query(value = """
-		SELECT COUNT(*) AS count
-		FROM pixel p
-		WHERE p.user_id = :user_id
-		""", nativeQuery = true)
-	PixelCount findCurrentPixelCountByUserId(
-		@Param("user_id") Long userId);
-
-	@Query(value = """
 			SELECT pu
 			FROM PixelUser pu
 			WHERE pu.pixel = :pixel AND pu.user = :user

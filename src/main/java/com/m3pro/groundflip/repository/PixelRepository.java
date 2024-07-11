@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.m3pro.groundflip.domain.dto.pixel.IndividualHistoryPixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualModePixelResponse;
+import com.m3pro.groundflip.domain.dto.pixelUser.PixelCount;
 import com.m3pro.groundflip.domain.entity.Pixel;
 
 public interface PixelRepository extends JpaRepository<Pixel, Long> {
@@ -60,4 +61,12 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
 		@Param("user_id") Long userId);
 
 	Optional<Pixel> findByXAndY(Long x, Long y);
+
+	@Query(value = """
+		SELECT COUNT(*) AS count
+		FROM pixel p
+		WHERE p.user_id = :user_id
+		""", nativeQuery = true)
+	PixelCount findCurrentPixelCountByUserId(
+		@Param("user_id") Long userId);
 }
