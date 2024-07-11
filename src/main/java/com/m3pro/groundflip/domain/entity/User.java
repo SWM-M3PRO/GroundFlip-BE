@@ -50,6 +50,4 @@ public class User extends BaseTimeEntity {
 
 	private Date deletedAt;
 
-	@OneToMany(mappedBy = "user")
-	private List<StepRecord> stepRecords;
 }
