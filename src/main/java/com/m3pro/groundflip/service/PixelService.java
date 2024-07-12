@@ -6,12 +6,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import com.m3pro.groundflip.domain.dto.pixel.*;
-import com.m3pro.groundflip.domain.dto.pixel.NaverAPI.NaverReverseGeoCodingApiResult;
-import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
-import com.m3pro.groundflip.domain.entity.User;
-import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
-
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
@@ -23,11 +17,22 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.m3pro.groundflip.domain.dto.pixel.IndividualHistoryPixelResponse;
+import com.m3pro.groundflip.domain.dto.pixel.IndividualModePixelResponse;
+import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelInfoResponse;
+import com.m3pro.groundflip.domain.dto.pixel.NaverAPI.NaverReverseGeoCodingApiResult;
+import com.m3pro.groundflip.domain.dto.pixel.PixelCountResponse;
+import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
+import com.m3pro.groundflip.domain.dto.pixel.PixelOwnerUserResponse;
+import com.m3pro.groundflip.domain.dto.pixel.VisitedUserInfo;
+import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelCount;
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelOwnerUser;
 import com.m3pro.groundflip.domain.dto.pixelUser.VisitedUser;
 import com.m3pro.groundflip.domain.entity.Pixel;
 import com.m3pro.groundflip.domain.entity.PixelUser;
+import com.m3pro.groundflip.domain.entity.User;
+import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.CommunityRepository;
@@ -54,16 +59,19 @@ public class PixelService {
 	@Value("${naver.apiKey}")
 	String apiKey;
 
-	public List<IndividualModePixelResponse> getNearIndividualModePixelsByCoordinate(double currentLatitude,
-																					 double currentLongitude, int radius) {
+	public List<IndividualModePixelResponse> getNearIndividualModePixelsByCoordinate(
+		double currentLatitude,
+		double currentLongitude,
+		int radius
+	) {
 		Point point = geometryFactory.createPoint(new Coordinate(currentLongitude, currentLatitude));
 		point.setSRID(WGS84_SRID);
 
-		return pixelRepository.findAllIndividualPixelsByCoordinate(point, radius);
+		return pixelRepository.findAllIndividualModePixelsByCoordinate(point, radius);
 	}
 
 	public List<IndividualHistoryPixelResponse> getNearIndividualHistoryPixelsByCoordinate(double currentLatitude,
-																						   double currentLongitude, int radius, Long userId) {
+		double currentLongitude, int radius, Long userId) {
 		Point point = geometryFactory.createPoint(new Coordinate(currentLongitude, currentLatitude));
 		point.setSRID(WGS84_SRID);
 
@@ -95,7 +103,7 @@ public class PixelService {
 		} else {
 			PixelCount accumulatePixelCount = pixelUserRepository.findAccumulatePixelCountByUserId(
 				pixelOwnerUser.getUserId());
-			PixelCount currentPixelCount = pixelUserRepository.findCurrentPixelCountByUserId(
+			PixelCount currentPixelCount = pixelRepository.findCurrentPixelCountByUserId(
 				pixelOwnerUser.getUserId());
 			return PixelOwnerUserResponse.from(pixelOwnerUser, currentPixelCount, accumulatePixelCount);
 		}
@@ -105,14 +113,16 @@ public class PixelService {
 	public void occupyPixel(PixelOccupyRequest pixelOccupyRequest) {
 		Long communityId = pixelOccupyRequest.getCommunityId();
 
+		if (pixelOccupyRequest.getCommunityId() == null) {
+			communityId = -1L;
+		}
+
 		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
 
 		updatePixelAddress(targetPixel);
 
-		if (pixelOccupyRequest.getCommunityId() == null) {
-			communityId = -1L;
-		}
+		targetPixel.updateUserId(pixelOccupyRequest.getUserId());
 
 		PixelUser pixelUser = PixelUser.builder()
 			.pixel(targetPixel)
@@ -170,17 +180,17 @@ public class PixelService {
 			NaverReverseGeoCodingApiResult.class);
 
 		NaverReverseGeoCodingApiResult body = result.getBody();
-		if(body != null){
+		if (body != null) {
 			return result.getBody().getAreaNames();
-		}else{
+		} else {
 			return null;
 		}
 	}
 
 	public PixelCountResponse getPixelCount(Long userId) {
 		return PixelCountResponse.builder()
-				.currentPixelCount(pixelUserRepository.findCurrentPixelCountByUserId(userId).getCount())
-				.accumulatePixelCount(pixelUserRepository.findAccumulatePixelCountByUserId(userId).getCount())
-				.build();
+			.currentPixelCount(pixelRepository.findCurrentPixelCountByUserId(userId).getCount())
+			.accumulatePixelCount(pixelUserRepository.findAccumulatePixelCountByUserId(userId).getCount())
+			.build();
 	}
 }

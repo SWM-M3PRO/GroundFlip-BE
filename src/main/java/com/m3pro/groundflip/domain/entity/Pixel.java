@@ -37,7 +37,14 @@ public class Pixel extends BaseTimeEntity {
 
 	private Integer addressNumber;
 
-	public void updateAddress(String address){
+	@Column(name = "user_id")
+	private Long userId;
+
+	public void updateAddress(String address) {
 		this.address = address;
+	}
+
+	public void updateUserId(Long userId) {
+		this.userId = userId;
 	}
 }
