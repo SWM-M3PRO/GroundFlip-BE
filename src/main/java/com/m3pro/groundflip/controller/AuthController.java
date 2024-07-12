@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.m3pro.groundflip.domain.dto.Response;
 import com.m3pro.groundflip.domain.dto.auth.LoginRequest;
 import com.m3pro.groundflip.domain.dto.auth.LoginResponse;
+import com.m3pro.groundflip.domain.dto.auth.LogoutRequest;
 import com.m3pro.groundflip.domain.dto.auth.ReissueReponse;
 import com.m3pro.groundflip.domain.dto.auth.ReissueRequest;
 import com.m3pro.groundflip.enums.Provider;
@@ -34,6 +35,12 @@ public class AuthController {
 	@PostMapping("/reissue")
 	public Response<ReissueReponse> reissueToken(@RequestBody ReissueRequest reissueRequest) {
 		return Response.createSuccess(authService.reissueToken(reissueRequest.getRefreshToken()));
+	}
+
+	@Operation(summary = "로그아웃", description = "로그아웃 하는 API access token과 refresh token 을 body에 담아 보내고 서버에서 토큰을 만료시킨다.")
+	@PostMapping("/reissue")
+	public Response<?> logout(@RequestBody LogoutRequest logoutRequest) {
+		return Response.createSuccessWithNoData();
 	}
 }
 
