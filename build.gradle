@@ -30,6 +30,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     // 스웨거 기본 설정을 위한 의존성
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
