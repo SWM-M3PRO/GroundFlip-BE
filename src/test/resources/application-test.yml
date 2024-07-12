@@ -5,7 +5,7 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url:  jdbc:mysql://localhost:3306/groundflip_test
+    url: jdbc:mysql://localhost:3306/groundflip_test
     username: root
     password: root
 
@@ -16,7 +16,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
+  data:
+    redis:
+      host: localhost
+      port: 6379
 logging:
   level:
     sql: debug
