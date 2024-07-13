@@ -1,7 +1,5 @@
 package com.m3pro.groundflip.domain.dto.user;
 
-import java.util.Date;
-
 import com.m3pro.groundflip.enums.Gender;
 
 import io.swagger.v3.oas.annotations.media.Schema;
