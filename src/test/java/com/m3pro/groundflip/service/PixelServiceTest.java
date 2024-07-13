@@ -52,14 +52,15 @@ class PixelServiceTest {
 	}
 
 	@Test
-	@DisplayName("[getIndividualPixelInfo] 없는 pixelId 를 넣을 경우 PIXEL_NOT_FOUND 에러")
-	void getIndividualPixelInfoPixelNotFound() {
+	@DisplayName("[getIndividualModePixelInfo] 없는 pixelId 를 넣을 경우 PIXEL_NOT_FOUND 에러")
+	void getIndividualPixelInfoModePixelNotFound() {
 		// Given
 		Long pixelId = 1L;
 		when(pixelRepository.findById(pixelId)).thenReturn(Optional.empty());
 
 		// When
-		AppException exception = assertThrows(AppException.class, () -> pixelService.getIndividualPixelInfo(pixelId));
+		AppException exception = assertThrows(AppException.class,
+			() -> pixelService.getIndividualModePixelInfo(pixelId));
 
 		// Then
 		assertEquals(ErrorCode.PIXEL_NOT_FOUND, exception.getErrorCode());
@@ -67,10 +68,11 @@ class PixelServiceTest {
 	}
 
 	@Test
-	@DisplayName("[getIndividualPixelInfo] 정상적으로 픽셀에 대한 정보가 있는 경우")
-	void getIndividualPixelInfoSuccess() {
+	@DisplayName("[getIndividualPixelModeInfo] 정상적으로 픽셀에 대한 정보가 있는 경우")
+	void getIndividualModePixelInfoSuccess() {
 		// Given
 		Long pixelId = 1L;
+		Long ownerId = 1L;
 		String address = "서울특별시 은평구 녹번동";
 		int addressNumber = 1;
 
@@ -78,6 +80,7 @@ class PixelServiceTest {
 			.id(pixelId)
 			.address(address)
 			.addressNumber(addressNumber)
+			.userId(ownerId)
 			.build();
 
 		List<VisitedUser> visitedUsers = List.of(
@@ -103,45 +106,26 @@ class PixelServiceTest {
 				}
 			}
 		);
-		PixelOwnerUser pixelOwnerUser = new PixelOwnerUser() {
-			@Override
-			public Long getUserId() {
-				return 100L;
-			}
 
-			@Override
-			public String getNickname() {
-				return "JohnDoe";
-			}
+		User ownerUser = User.builder()
+			.id(ownerId)
+			.profileImage("www.test.com")
+			.nickname("test")
+			.build();
 
-			@Override
-			public String getProfileImage() {
-				return "profileImage.png";
-			}
-		};
-		PixelCount accumulatePixelCount = new PixelCount() {
-			@Override
-			public int getCount() {
-				return 10;
-			}
-		};
-		PixelCount currentPixelCount = new PixelCount() {
-			@Override
-			public int getCount() {
-				return 5;
-			}
-		};
+		PixelCount accumulatePixelCount = () -> 10;
+		PixelCount currentPixelCount = () -> 5;
 
 		when(pixelRepository.findById(pixelId)).thenReturn(Optional.of(pixel));
 		when(pixelUserRepository.findAllVisitedUserByPixelId(pixelId)).thenReturn(visitedUsers);
-		when(pixelUserRepository.findCurrentOwnerByPixelId(pixelId)).thenReturn(pixelOwnerUser);
-		when(pixelUserRepository.findAccumulatePixelCountByUserId(pixelOwnerUser.getUserId())).thenReturn(
+		when(userRepository.findById(ownerId)).thenReturn(Optional.of(ownerUser));
+		when(pixelUserRepository.findAccumulatePixelCountByUserId(ownerId)).thenReturn(
 			accumulatePixelCount);
-		when(pixelRepository.findCurrentPixelCountByUserId(pixelOwnerUser.getUserId())).thenReturn(
+		when(pixelRepository.findCurrentPixelCountByUserId(ownerId)).thenReturn(
 			currentPixelCount);
 
 		// When
-		IndividualPixelInfoResponse response = pixelService.getIndividualPixelInfo(pixelId);
+		IndividualPixelInfoResponse response = pixelService.getIndividualModePixelInfo(pixelId);
 
 		// Then
 		assertThat(response.getAddress()).isEqualTo("은평구 녹번동");
@@ -149,12 +133,12 @@ class PixelServiceTest {
 		assertThat(response.getVisitCount()).isEqualTo(visitedUsers.size());
 		assertThat(response.getVisitList().get(0).getNickname()).isEqualTo("JohnDoe");
 		assertThat(response.getPixelOwnerUser().getCurrentPixelCount()).isEqualTo(currentPixelCount.getCount());
-		assertThat(response.getPixelOwnerUser().getNickname()).isEqualTo(pixelOwnerUser.getNickname());
+		assertThat(response.getPixelOwnerUser().getNickname()).isEqualTo("test");
 	}
 
 	@Test
-	@DisplayName("[getIndividualPixelInfo] pixelId에 해당하는 픽셀에 방문한 사람이 없는 경우")
-	void getIndividualPixelInfoNoVisitedUser() {
+	@DisplayName("[getIndividualModePixelInfo] pixelId에 해당하는 픽셀에 방문한 사람이 없는 경우")
+	void getIndividualModePixelInfoNoVisitedUser() {
 		// Given
 		Long pixelId = 1L;
 		String address = "서울특별시 은평구 녹번동";
@@ -171,10 +155,9 @@ class PixelServiceTest {
 
 		when(pixelRepository.findById(pixelId)).thenReturn(Optional.of(pixel));
 		when(pixelUserRepository.findAllVisitedUserByPixelId(pixelId)).thenReturn(visitedUsers);
-		when(pixelUserRepository.findCurrentOwnerByPixelId(pixelId)).thenReturn(pixelOwnerUser);
 
 		// When
-		IndividualPixelInfoResponse response = pixelService.getIndividualPixelInfo(pixelId);
+		IndividualPixelInfoResponse response = pixelService.getIndividualModePixelInfo(pixelId);
 
 		// Then
 		assertThat(response.getAddress()).isEqualTo("은평구 녹번동");
@@ -297,7 +280,8 @@ class PixelServiceTest {
 		when(pixelRepository.findById(pixelId)).thenReturn(Optional.empty());
 
 		// When
-		AppException exception = assertThrows(AppException.class, () -> pixelService.getIndividualPixelInfo(pixelId));
+		AppException exception = assertThrows(AppException.class,
+			() -> pixelService.getIndividualModePixelInfo(pixelId));
 
 		// Then
 		assertEquals(ErrorCode.PIXEL_NOT_FOUND, exception.getErrorCode());
