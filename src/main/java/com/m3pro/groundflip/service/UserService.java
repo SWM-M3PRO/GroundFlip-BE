@@ -9,7 +9,6 @@ import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.domain.entity.UserCommunity;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
-import com.m3pro.groundflip.repository.StepRecordRepository;
 import com.m3pro.groundflip.repository.UserCommunityRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 
@@ -20,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 	private final UserRepository userRepository;
 	private final UserCommunityRepository userCommunityRepository;
-	private final StepRecordRepository stepRecordRepository;
 
 	public UserInfoResponse getUserInfo(Long userId) {
 		User user = userRepository.findById(userId)
