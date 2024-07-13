@@ -38,8 +38,9 @@ public class AuthController {
 	}
 
 	@Operation(summary = "로그아웃", description = "로그아웃 하는 API access token과 refresh token 을 body에 담아 보내고 서버에서 토큰을 만료시킨다.")
-	@PostMapping("/reissue")
+	@PostMapping("/logout")
 	public Response<?> logout(@RequestBody LogoutRequest logoutRequest) {
+		authService.logout(logoutRequest);
 		return Response.createSuccessWithNoData();
 	}
 }
