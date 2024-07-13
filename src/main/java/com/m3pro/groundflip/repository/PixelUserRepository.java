@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelCount;
-import com.m3pro.groundflip.domain.dto.pixelUser.PixelOwnerUser;
 import com.m3pro.groundflip.domain.dto.pixelUser.VisitedUser;
 import com.m3pro.groundflip.domain.entity.Pixel;
 import com.m3pro.groundflip.domain.entity.PixelUser;
@@ -25,19 +24,6 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 		GROUP BY pu.user_id;
 		""", nativeQuery = true)
 	List<VisitedUser> findAllVisitedUserByPixelId(
-		@Param("pixel_id") Long pixelId);
-
-	@Query(value = """
-		SELECT pu.user_id AS userId,
-		       u.nickname AS nickname,
-		       u.profile_image AS profileImage 
-		FROM pixel_user pu 
-		JOIN user u ON pu.user_id = u.user_id 
-		WHERE pu.pixel_id = :pixel_id 
-		ORDER BY pu.created_at DESC 
-		LIMIT 1
-		""", nativeQuery = true)
-	PixelOwnerUser findCurrentOwnerByPixelId(
 		@Param("pixel_id") Long pixelId);
 
 	@Query(value = """

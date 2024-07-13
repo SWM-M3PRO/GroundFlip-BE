@@ -4,7 +4,6 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -27,7 +26,6 @@ import com.m3pro.groundflip.domain.dto.pixel.PixelOwnerUserResponse;
 import com.m3pro.groundflip.domain.dto.pixel.VisitedUserInfo;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelCount;
-import com.m3pro.groundflip.domain.dto.pixelUser.PixelOwnerUser;
 import com.m3pro.groundflip.domain.dto.pixelUser.VisitedUser;
 import com.m3pro.groundflip.domain.entity.Pixel;
 import com.m3pro.groundflip.domain.entity.PixelUser;
@@ -79,33 +77,33 @@ public class PixelService {
 
 	}
 
-	public IndividualPixelInfoResponse getIndividualPixelInfo(Long pixelId) {
-		Optional<Pixel> pixel = pixelRepository.findById(pixelId);
-
-		if (pixel.isEmpty()) {
-			throw new AppException(ErrorCode.PIXEL_NOT_FOUND);
-		}
+	public IndividualPixelInfoResponse getIndividualModePixelInfo(Long pixelId) {
+		Pixel pixel = pixelRepository.findById(pixelId)
+			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
 
 		List<VisitedUser> visitedUsers = pixelUserRepository.findAllVisitedUserByPixelId(pixelId);
-		PixelOwnerUserResponse pixelOwnerUserResponse = getPixelOwnerUserInfo(pixelId);
+		PixelOwnerUserResponse pixelOwnerUserResponse = getPixelOwnerUserInfo(pixel);
 
 		return IndividualPixelInfoResponse.from(
-			pixel.get(),
+			pixel,
 			pixelOwnerUserResponse,
 			visitedUsers.stream().map(VisitedUserInfo::from).toList()
 		);
 	}
 
-	private PixelOwnerUserResponse getPixelOwnerUserInfo(Long pixelId) {
-		PixelOwnerUser pixelOwnerUser = pixelUserRepository.findCurrentOwnerByPixelId(pixelId);
-		if (pixelOwnerUser == null) {
+	private PixelOwnerUserResponse getPixelOwnerUserInfo(Pixel pixel) {
+		Long ownerUserId = pixel.getUserId();
+		if (ownerUserId == null) {
 			return null;
 		} else {
-			PixelCount accumulatePixelCount = pixelUserRepository.findAccumulatePixelCountByUserId(
-				pixelOwnerUser.getUserId());
-			PixelCount currentPixelCount = pixelRepository.findCurrentPixelCountByUserId(
-				pixelOwnerUser.getUserId());
-			return PixelOwnerUserResponse.from(pixelOwnerUser, currentPixelCount, accumulatePixelCount);
+			PixelCount accumulatePixelCount = pixelUserRepository.findAccumulatePixelCountByUserId(ownerUserId);
+			PixelCount currentPixelCount = pixelRepository.findCurrentPixelCountByUserId(ownerUserId);
+			User ownerUser = userRepository.findById(ownerUserId)
+				.orElseThrow(() -> {
+					log.error("pixel {} 의 소유자가 {} 인데 존재하지 않음.", pixel.getId(), ownerUserId);
+					return new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
+				});
+			return PixelOwnerUserResponse.from(ownerUser, currentPixelCount, accumulatePixelCount);
 		}
 	}
 
