@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelCountResponse;
+import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelCount;
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelOwnerUser;
@@ -28,6 +29,7 @@ import com.m3pro.groundflip.domain.entity.PixelUser;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
+import com.m3pro.groundflip.repository.CommunityRepository;
 import com.m3pro.groundflip.repository.PixelRepository;
 import com.m3pro.groundflip.repository.PixelUserRepository;
 import com.m3pro.groundflip.repository.UserRepository;
@@ -41,6 +43,8 @@ class PixelServiceTest {
 	private PixelUserRepository pixelUserRepository;
 	@Mock
 	private UserRepository userRepository;
+	@Mock
+	private CommunityRepository communityRepository;
 	@InjectMocks
 	private PixelService pixelService;
 
@@ -68,7 +72,7 @@ class PixelServiceTest {
 	}
 
 	@Test
-	@DisplayName("[getIndividualPixelModeInfo] 정상적으로 픽셀에 대한 정보가 있는 경우")
+	@DisplayName("[getIndividualModePixelInfo] 정상적으로 픽셀에 대한 정보가 있는 경우")
 	void getIndividualModePixelInfoSuccess() {
 		// Given
 		Long pixelId = 1L;
@@ -288,7 +292,7 @@ class PixelServiceTest {
 	}
 
 	@Test
-	@DisplayName("픽셀 갯수가 정상적으로 불러와지는지 확인")
+	@DisplayName("[getPixelCount] 픽셀 갯수가 정상적으로 불러와지는지 확인")
 	void getPixelCountSuccess() {
 		// Given
 		Long userId = 1L;
@@ -306,5 +310,22 @@ class PixelServiceTest {
 		// Then
 		assertEquals(pixelCount.getCurrentPixelCount(), currentPixelCount.getCount());
 		assertEquals(pixelCount.getAccumulatePixelCount(), accumulatePixelCount.getCount());
+	}
+
+	@Test
+	@DisplayName("[occupyPixel] 픽셀을 정상적으로 차지한다.")
+	void occupyPixel() {
+		// Given
+		PixelOccupyRequest pixelOccupyRequest = new PixelOccupyRequest(5L, 78611L, 222L, 233L);
+		Pixel pixel = Pixel.builder()
+			.x(222L)
+			.y(233L)
+			.address("대한민국")
+			.build();
+		when(pixelRepository.findByXAndY(222L, 233L)).thenReturn(Optional.of(pixel));
+		// When
+		pixelService.occupyPixel(pixelOccupyRequest);
+		//Then
+		verify(pixelUserRepository, times(1)).save(any());
 	}
 }
