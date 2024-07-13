@@ -85,9 +85,10 @@ public class JwtProvider {
 	}
 
 	public void expireToken(String token) {
-		Long expirationSecs = parseExpirationSecs(token);
-		if (expirationSecs > 0) {
+		try {
+			isTokenValid(token);
 			blackListedTokenRepository.save(new BlacklistedToken(token, parseExpirationSecs(token)));
+		} catch (Exception ignored) {
 		}
 	}
 }
