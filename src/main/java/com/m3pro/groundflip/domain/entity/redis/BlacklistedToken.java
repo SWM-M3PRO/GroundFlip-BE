@@ -5,9 +5,11 @@ import org.springframework.data.redis.core.TimeToLive;
 
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @RedisHash("token")
 @AllArgsConstructor
+@NoArgsConstructor
 public class BlacklistedToken {
 	@Id
 	private String id;
