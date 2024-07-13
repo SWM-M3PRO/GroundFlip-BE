@@ -58,7 +58,7 @@ public class AuthService {
 	}
 
 	public ReissueReponse reissueToken(String refreshToken) {
-		jwtProvider.isTokenValid(refreshToken);
+		jwtProvider.validateToken(refreshToken);
 		jwtProvider.expireToken(refreshToken);
 		Long parsedUserId = jwtProvider.parseUserId(refreshToken);
 		String reissuedAccessToken = jwtProvider.createAccessToken(parsedUserId);

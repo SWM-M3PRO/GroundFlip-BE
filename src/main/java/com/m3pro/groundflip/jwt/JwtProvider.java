@@ -48,7 +48,7 @@ public class JwtProvider {
 			.compact();
 	}
 
-	public boolean isTokenValid(String token) {
+	public void validateToken(String token) {
 		if (!StringUtils.hasText(token)) {
 			throw new AppException(ErrorCode.JWT_NOT_EXISTS);
 		}
@@ -62,7 +62,6 @@ public class JwtProvider {
 		if (isTokenBlackListed(token)) {
 			throw new AppException(ErrorCode.INVALID_JWT);
 		}
-		return true;
 	}
 
 	public Long parseUserId(String token) {
@@ -86,7 +85,7 @@ public class JwtProvider {
 
 	public void expireToken(String token) {
 		try {
-			isTokenValid(token);
+			validateToken(token);
 			blackListedTokenRepository.save(new BlacklistedToken(token, parseExpirationSecs(token)));
 		} catch (Exception ignored) {
 		}
