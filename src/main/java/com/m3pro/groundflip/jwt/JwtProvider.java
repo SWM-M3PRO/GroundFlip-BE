@@ -59,6 +59,9 @@ public class JwtProvider {
 		} catch (ExpiredJwtException e) {
 			throw new AppException(ErrorCode.JWT_EXPIRED);
 		}
+		if (isTokenBlackListed(token)) {
+			throw new AppException(ErrorCode.INVALID_JWT);
+		}
 		return true;
 	}
 
@@ -67,7 +70,7 @@ public class JwtProvider {
 		return claims.get("userId", Long.class);
 	}
 
-	public Long parseExpirationSecs(String token) {
+	private Long parseExpirationSecs(String token) {
 		long expirationTimeMillis = Jwts.parser()
 			.setSigningKey(jwtSecretKey)
 			.parseClaimsJws(token)
@@ -75,6 +78,10 @@ public class JwtProvider {
 			.getExpiration()
 			.getTime();
 		return (expirationTimeMillis - System.currentTimeMillis()) / 1000;
+	}
+
+	private boolean isTokenBlackListed(String token) {
+		return blackListedTokenRepository.existsById(token);
 	}
 
 	public void expireToken(String token) {
