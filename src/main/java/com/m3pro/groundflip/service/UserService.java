@@ -1,5 +1,8 @@
 package com.m3pro.groundflip.service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -40,18 +43,34 @@ public class UserService {
 	public void putUserInfo(Long userId, UserInfoRequest userInfoRequest) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-		String updateNickname = userInfoRequest.getNickname();
 
-		if (!user.getNickname().equals(updateNickname) && userRepository.findByNickname(updateNickname).isPresent()) {
+		if(checkNicknameExists(userInfoRequest, user)){
 			throw new AppException(ErrorCode.DUPLICATED_NICKNAME);
 		}
 
 		user.updateGender(userInfoRequest.getGender());
-		user.updateBirthYear(userInfoRequest.getBirthYear());
+		user.updateBirthYear(convertToDate(userInfoRequest.getBirthYear()));
 		user.updateNickName(userInfoRequest.getNickname());
-		//user.updateProfileImage(userInfoRequest.getProfileImageUrl());
+		user.updateProfileImage(userInfoRequest.getProfileImageUrl());
 		user.updateStatus(UserStatus.COMPLETE);
 		userRepository.save(user);
 	}
 
+	public Date convertToDate(int year) {
+		LocalDate localDate = LocalDate.of(year, 1, 1);
+		Date updateDate = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+		return updateDate;
+	}
+
+	public boolean checkNicknameExists(UserInfoRequest userInfoRequest, User user) {
+		boolean duplicate = false;
+		if(userInfoRequest.getNickname().equals(user.getNickname())) {
+			duplicate = true;
+		}
+		if(userRepository.findByNickname(userInfoRequest.getNickname()).isPresent()) {
+			duplicate = true;
+		}
+		return duplicate;
+
+	}
 }

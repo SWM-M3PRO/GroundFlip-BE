@@ -35,7 +35,7 @@ public class UserController {
 		return Response.createSuccess(userService.getUserInfo(userId));
 	}
 
-	@Operation(summary = "사용자 정보 수정", description = "닉네임, id, 출생년도, 성별, 프로필 사진, 그룹이름, 그룹 id 를 수정한다.")
+	@Operation(summary = "사용자 정보 수정", description = "닉네임, id, 출생년도, 성별, 프로필 사진을 수정한다.")
 	@PutMapping("/{userId}")
 	public Response<?> putUserInfo(
 		@Parameter(description = "찾고자 하는 userId", required = true)

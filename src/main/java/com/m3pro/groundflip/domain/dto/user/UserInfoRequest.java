@@ -24,7 +24,7 @@ public class UserInfoRequest {
 	private String profileImageUrl;
 
 	@Schema(description = "사용자 출생년도", example = "2000")
-	private Date birthYear;
+	private int birthYear;
 
 	@Schema(description = "사용자 성별 (MALE, FEMALE)", example = "MALE")
 	private Gender gender;
