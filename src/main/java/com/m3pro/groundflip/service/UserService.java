@@ -44,7 +44,7 @@ public class UserService {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-		if (checkNicknameExists(userInfoRequest, user)) {
+		if (checkNicknameExists(userInfoRequest)) {
 			throw new AppException(ErrorCode.DUPLICATED_NICKNAME);
 		}
 
@@ -61,11 +61,7 @@ public class UserService {
 		return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 	}
 
-	public boolean checkNicknameExists(UserInfoRequest userInfoRequest, User user) {
-		boolean duplicate = false;
-		if(userRepository.findByNickname(userInfoRequest.getNickname()).isPresent()) {
-			duplicate = true;
-		}
-		return duplicate;
+	public boolean checkNicknameExists(UserInfoRequest userInfoRequest) {
+		return userRepository.findByNickname(userInfoRequest.getNickname()).isPresent();
 	}
 }
