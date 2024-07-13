@@ -43,7 +43,7 @@ public class UserService {
 		String updateNickname = userInfoRequest.getNickname();
 
 		if (!user.getNickname().equals(updateNickname) && userRepository.findByNickname(updateNickname).isPresent()) {
-			throw new AppException(ErrorCode.DUPLICATED_USER);
+			throw new AppException(ErrorCode.DUPLICATED_NICKNAME);
 		}
 
 		user.updateGender(userInfoRequest.getGender());
