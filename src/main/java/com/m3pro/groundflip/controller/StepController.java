@@ -50,6 +50,6 @@ public class StepController {
 		@RequestParam(name = "start-date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
 		@RequestParam(name = "end-date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate) {
 
-		return Response.createSuccess(stepService.getUserStep(userId, startDate, endDate));
+		return Response.createSuccess(stepService.getUserStepWhileWeek(userId, startDate, endDate));
 	}
 }

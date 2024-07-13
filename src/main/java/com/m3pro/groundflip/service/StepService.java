@@ -40,10 +40,10 @@ public class StepService {
 		);
 	}
 
-	public List<Integer> getUserStep(Long userId, Date startDate, Date endDate) {
-		List<StepRecord> stepRecord = stepRecordRepository.findByUserIdAndDateBetween(userId, startDate, endDate);
+	public List<Integer> getUserStepWhileWeek(Long userId, Date startDate, Date endDate) {
+		List<StepRecord> stepRecordList = stepRecordRepository.findByUserIdAndDateBetween(userId, startDate, endDate);
 
-		Map<Date, Integer> stepsMap = stepRecord.stream()
+		Map<Date, Integer> stepsMap = stepRecordList.stream()
 			.collect(Collectors.toMap(StepRecord::getDate, StepRecord::getSteps));
 
 		List<Integer> result = new ArrayList<>();
