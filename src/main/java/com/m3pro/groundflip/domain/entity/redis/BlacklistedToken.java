@@ -12,16 +12,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BlacklistedToken {
 	@Id
-	private String id;
-
 	private String token;
+
+	private String status;
 
 	@TimeToLive
 	private Long timeToLive;
 
 	public BlacklistedToken(String token, Long timeToLive) {
-		this.id = token;
-		this.token = "logout";
+		this.token = token;
+		this.status = "logout";
 		this.timeToLive = timeToLive;
 	}
 }
