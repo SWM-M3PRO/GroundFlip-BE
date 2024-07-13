@@ -2,6 +2,7 @@ package com.m3pro.groundflip.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -80,11 +81,7 @@ public class PixelService {
 
 	@Transactional
 	public void occupyPixel(PixelOccupyRequest pixelOccupyRequest) {
-		Long communityId = pixelOccupyRequest.getCommunityId();
-
-		if (pixelOccupyRequest.getCommunityId() == null) {
-			communityId = -1L;
-		}
+		Long communityId = Optional.ofNullable(pixelOccupyRequest.getCommunityId()).orElse(-1L);
 
 		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
@@ -102,7 +99,7 @@ public class PixelService {
 		pixelUserRepository.save(pixelUser);
 	}
 
-	public void updatePixelAddress(Pixel targetPixel) {
+	private void updatePixelAddress(Pixel targetPixel) {
 		if (targetPixel.getAddress() == null) {
 			String address = reverseGeoCodingService.getAddressFromCoordinates(targetPixel.getCoordinate().getX(),
 				targetPixel.getCoordinate().getY());
