@@ -1,7 +1,11 @@
 package com.m3pro.groundflip.service;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -37,6 +41,32 @@ public class StepService {
 	}
 
 	public List<Integer> getUserStep(Long userId, Date startDate, Date endDate) {
-		return stepRecordRepository.findByUserIdStartEndDate(userId, startDate, endDate);
+		List<StepRecord> stepRecord = stepRecordRepository.findByUserIdAndDateBetween(userId, startDate, endDate);
+
+		Map<Date, Integer> stepsMap = stepRecord.stream()
+			.collect(Collectors.toMap(StepRecord::getDate, StepRecord::getSteps));
+
+		List<Integer> result = new ArrayList<>();
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(startDate);
+
+		while (!calendar.getTime().after(endDate)) {
+			Date currentDate = truncateTime(calendar.getTime());
+			int steps = stepsMap.getOrDefault(currentDate, 0);
+			result.add(steps);
+			calendar.add(Calendar.DATE, 1);
+		}
+
+		return result;
+	}
+
+	private Date truncateTime(Date date) {
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		return calendar.getTime();
 	}
 }
