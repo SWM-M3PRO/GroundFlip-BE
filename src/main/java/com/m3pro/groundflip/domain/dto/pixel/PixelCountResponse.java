@@ -16,5 +16,5 @@ public class PixelCountResponse {
 	private Integer currentPixelCount;
 
 	@Schema(description = "지금까지 차지한 픽셀 개수", example = "5")
-	private Integer accumulatePixelCount;
+	private Long accumulatePixelCount;
 }

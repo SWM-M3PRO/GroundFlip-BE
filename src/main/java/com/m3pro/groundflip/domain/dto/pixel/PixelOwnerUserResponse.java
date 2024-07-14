@@ -17,10 +17,10 @@ public class PixelOwnerUserResponse {
 	private String nickname;
 	private String profileImageUrl;
 	private Integer currentPixelCount;
-	private Integer accumulatePixelCount;
+	private Long accumulatePixelCount;
 
 	public static PixelOwnerUserResponse from(User pixelOwnerUser, PixelCount currentPixelCount,
-		PixelCount accumulatePixelCount) {
+		Long accumulatePixelCount) {
 		if (pixelOwnerUser == null) {
 			return null;
 		} else {
@@ -28,7 +28,7 @@ public class PixelOwnerUserResponse {
 				.userId(pixelOwnerUser.getId())
 				.nickname(pixelOwnerUser.getNickname())
 				.profileImageUrl(pixelOwnerUser.getProfileImage())
-				.accumulatePixelCount(accumulatePixelCount.getCount())
+				.accumulatePixelCount(accumulatePixelCount)
 				.currentPixelCount(currentPixelCount.getCount())
 				.build();
 		}

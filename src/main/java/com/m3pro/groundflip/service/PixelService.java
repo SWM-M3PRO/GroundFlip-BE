@@ -124,7 +124,7 @@ public class PixelService {
 	public PixelCountResponse getPixelCount(Long userId) {
 		return PixelCountResponse.builder()
 			.currentPixelCount(pixelRepository.findCurrentPixelCountByUserId(userId).getCount())
-			.accumulatePixelCount(pixelUserRepository.findAccumulatePixelCountByUserId(userId).getCount())
+			.accumulatePixelCount(pixelUserRepository.countAccumulatePixelByUserId(userId))
 			.build();
 	}
 
@@ -133,7 +133,7 @@ public class PixelService {
 		if (ownerUserId == null) {
 			return null;
 		} else {
-			PixelCount accumulatePixelCount = pixelUserRepository.findAccumulatePixelCountByUserId(ownerUserId);
+			Long accumulatePixelCount = pixelUserRepository.countAccumulatePixelByUserId(ownerUserId);
 			PixelCount currentPixelCount = pixelRepository.findCurrentPixelCountByUserId(ownerUserId);
 			User ownerUser = userRepository.findById(ownerUserId)
 				.orElseThrow(() -> {
