@@ -21,6 +21,6 @@ public class TestController {
 	@GetMapping("/exception")
 	@ResponseStatus(HttpStatus.ACCEPTED)
 	public Response<String> exception() {
-		throw new AppException(ErrorCode.DUPLICATED_USER);
+		throw new AppException(ErrorCode.DUPLICATED_NICKNAME);
 	}
 }
