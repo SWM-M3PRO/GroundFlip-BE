@@ -52,6 +52,7 @@ jobs:
           title: 📝 테스트 커버리지 리포트
           paths: ${{ github.workspace }}/build/jacocoReport/test/jacocoTestReport.xml
           token: ${{ secrets.GITHUB_TOKEN }}
+          update-comment: true
 
   qodana:
     runs-on: ubuntu-latest
