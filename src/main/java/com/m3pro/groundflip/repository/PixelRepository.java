@@ -15,16 +15,16 @@ import com.m3pro.groundflip.domain.entity.Pixel;
 public interface PixelRepository extends JpaRepository<Pixel, Long> {
 	@Query(value = """
 		SELECT
-		    pixel.pixel_id AS pixelId,
-		    ST_LATITUDE(pixel.coordinate) AS latitude,
-		    ST_LONGITUDE(pixel.coordinate) AS longitude,
-		    pixel.user_id AS userId,
-		    pixel.x,
-		    pixel.y
+			pixel.pixel_id AS pixelId,
+			ST_LATITUDE(pixel.coordinate) AS latitude,
+			ST_LONGITUDE(pixel.coordinate) AS longitude,
+			pixel.user_id AS userId,
+			pixel.x,
+			pixel.y
 		FROM
-		    pixel
+			pixel
 		WHERE
-		    ST_CONTAINS((ST_Buffer(:center, :radius)), pixel.coordinate) AND pixel.user_id IS NOT NULL
+			ST_CONTAINS((ST_Buffer(:center, :radius)), pixel.coordinate) AND pixel.user_id IS NOT NULL
 		""", nativeQuery = true)
 	List<IndividualModePixelResponse> findAllIndividualModePixelsByCoordinate(
 		@Param("center") Point center,
@@ -32,22 +32,22 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
 
 	@Query(value = """
 		WITH PixelsInRange AS (
-		    SELECT
-		        p.pixel_id,
-		        p.coordinate,
-		        p.x,
-		        p.y
-		    FROM
-		        pixel p
-		    WHERE
-		        ST_CONTAINS((ST_Buffer(:center, :radius)), p.coordinate)
+				SELECT
+				p.pixel_id,
+				p.coordinate,
+				p.x,
+				p.y
+			FROM
+				pixel p
+			WHERE
+				ST_CONTAINS((ST_Buffer(:center, :radius)), p.coordinate)
 		)
-		 SELECT
+		SELECT
 			DISTINCT (pu.pixel_id) AS pixelId,
 			ST_LATITUDE(pir.coordinate) AS latitude,
 			ST_LONGITUDE(pir.coordinate) AS longitude,
 			pir.x,
-		    pir.y
+			pir.y
 		FROM
 			pixel_user pu
 		JOIN
