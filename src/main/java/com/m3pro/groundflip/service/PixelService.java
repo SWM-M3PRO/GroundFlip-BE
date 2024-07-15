@@ -18,7 +18,6 @@ import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
 import com.m3pro.groundflip.domain.dto.pixel.PixelOwnerUserResponse;
 import com.m3pro.groundflip.domain.dto.pixel.VisitedUserInfo;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
-import com.m3pro.groundflip.domain.dto.pixelUser.PixelCount;
 import com.m3pro.groundflip.domain.dto.pixelUser.VisitedUser;
 import com.m3pro.groundflip.domain.entity.Pixel;
 import com.m3pro.groundflip.domain.entity.PixelUser;
@@ -123,7 +122,7 @@ public class PixelService {
 
 	public PixelCountResponse getPixelCount(Long userId) {
 		return PixelCountResponse.builder()
-			.currentPixelCount(pixelRepository.findCurrentPixelCountByUserId(userId).getCount())
+			.currentPixelCount(pixelRepository.countCurrentPixelByUserId(userId))
 			.accumulatePixelCount(pixelUserRepository.countAccumulatePixelByUserId(userId))
 			.build();
 	}
@@ -134,7 +133,7 @@ public class PixelService {
 			return null;
 		} else {
 			Long accumulatePixelCount = pixelUserRepository.countAccumulatePixelByUserId(ownerUserId);
-			PixelCount currentPixelCount = pixelRepository.findCurrentPixelCountByUserId(ownerUserId);
+			Long currentPixelCount = pixelRepository.countCurrentPixelByUserId(ownerUserId);
 			User ownerUser = userRepository.findById(ownerUserId)
 				.orElseThrow(() -> {
 					log.error("pixel {} 의 소유자가 {} 인데 존재하지 않음.", pixel.getId(), ownerUserId);

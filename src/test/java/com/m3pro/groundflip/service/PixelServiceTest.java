@@ -124,8 +124,7 @@ class PixelServiceTest {
 		when(pixelUserRepository.findAllVisitedUserByPixelId(pixelId)).thenReturn(visitedUsers);
 		when(userRepository.findById(ownerId)).thenReturn(Optional.of(ownerUser));
 		when(pixelUserRepository.countAccumulatePixelByUserId(ownerId)).thenReturn(10L);
-		when(pixelRepository.findCurrentPixelCountByUserId(ownerId)).thenReturn(
-			currentPixelCount);
+		when(pixelRepository.countCurrentPixelByUserId(ownerId)).thenReturn(5L);
 
 		// When
 		IndividualPixelInfoResponse response = pixelService.getIndividualModePixelInfo(pixelId);
@@ -135,7 +134,7 @@ class PixelServiceTest {
 		assertThat(response.getAddressNumber()).isEqualTo(addressNumber);
 		assertThat(response.getVisitCount()).isEqualTo(visitedUsers.size());
 		assertThat(response.getVisitList().get(0).getNickname()).isEqualTo("JohnDoe");
-		assertThat(response.getPixelOwnerUser().getCurrentPixelCount()).isEqualTo(currentPixelCount.getCount());
+		assertThat(response.getPixelOwnerUser().getCurrentPixelCount()).isEqualTo(5L);
 		assertThat(response.getPixelOwnerUser().getNickname()).isEqualTo("test");
 	}
 
@@ -300,14 +299,14 @@ class PixelServiceTest {
 
 		PixelCount accumulatePixelCount = () -> 5;
 
-		when(pixelRepository.findCurrentPixelCountByUserId(userId)).thenReturn(currentPixelCount);
+		when(pixelRepository.countCurrentPixelByUserId(userId)).thenReturn(3L);
 		when(pixelUserRepository.countAccumulatePixelByUserId(userId)).thenReturn(5L);
 
 		// When
 		PixelCountResponse pixelCount = pixelService.getPixelCount(userId);
 
 		// Then
-		assertEquals(pixelCount.getCurrentPixelCount(), currentPixelCount.getCount());
+		assertEquals(pixelCount.getCurrentPixelCount(), 3L);
 		assertEquals(pixelCount.getAccumulatePixelCount(), 5L);
 	}
 
