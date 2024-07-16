@@ -13,9 +13,6 @@ spring:
     database-platform: org.hibernate.spatial.dialect.mysql.MySQL56InnoDBSpatialDialect
     hibernate:
       ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true
 
   data:
     redis:
@@ -63,7 +60,6 @@ springdoc:
     path: /api/docs
   api-docs:
     path: /api/docs
-
 
 cloud:
   aws:

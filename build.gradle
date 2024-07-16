@@ -42,6 +42,9 @@ dependencies {
     // JWT를 위한 의존성
     implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
 
+    // 클라우드 워치를 위한 의존성
+    implementation 'ca.pjer:logback-awslogs-appender:1.6.0'
+    
     implementation "javax.xml.bind:jaxb-api:2.3.0"
 
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
