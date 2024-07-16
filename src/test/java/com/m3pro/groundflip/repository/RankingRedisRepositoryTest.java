@@ -35,7 +35,7 @@ class RankingRedisRepositoryTest {
 	}
 
 	@Test
-	@DisplayName("[increaseScore] 기존 점수에 1을 추가한다.")
+	@DisplayName("[increaseCurrentPixelCount] 기존 점수에 1을 추가한다.")
 	void increaseCurrentPixelCountTest() {
 		//Given
 		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
@@ -51,7 +51,7 @@ class RankingRedisRepositoryTest {
 	}
 
 	@Test
-	@DisplayName("[increaseScore] 등록되지 않은 userId 라도 0으로 초기화후 1을 더한다.")
+	@DisplayName("[increaseCurrentPixelCount] 등록되지 않은 userId 라도 0으로 초기화후 1을 더한다.")
 	void increaseCurrentPixelCountTestUnregistered() {
 		//Given
 		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
@@ -66,7 +66,7 @@ class RankingRedisRepositoryTest {
 	}
 
 	@Test
-	@DisplayName("[decreaseScore] 기존 점수에 1을 뺀다.")
+	@DisplayName("[decreaseCurrentPixelCount] 기존 점수에 1을 뺀다.")
 	void decreaseCurrentPixelCountTest() {
 		//Given
 		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
@@ -84,7 +84,7 @@ class RankingRedisRepositoryTest {
 	}
 
 	@Test
-	@DisplayName("[decreaseScore] 기존 점수가 0이라면 0으로 유지된다.")
+	@DisplayName("[decreaseCurrentPixelCount] 기존 점수가 0이라면 0으로 유지된다.")
 	void decreaseCurrentPixelCountTestCaseZero() {
 		//Given
 		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
@@ -147,14 +147,14 @@ class RankingRedisRepositoryTest {
 
 		//Then
 		assertThat(score.isPresent()).isEqualTo(true);
+		//noinspection OptionalGetWithoutIsPresent
 		assertThat(score.get()).isEqualTo(2);
 	}
 
 	@Test
-	@DisplayName("[getUserRank] 없는 userId를 넣으면 NullPointException을 반환한다.")
+	@DisplayName("[getUserRank] 없는 userId를 넣으면 Optional에 값이 없다.")
 	void getUserRankTestNullPointException() {
 		//Given
-		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
 		Long userId1 = 1L;
 
 		// When
@@ -162,6 +162,37 @@ class RankingRedisRepositoryTest {
 
 		// Then
 		assertThat(score.isEmpty()).isEqualTo(true);
+	}
+
+	@Test
+	@DisplayName("[getUserRank] userId 에 해당하는 점수를 반환한다.")
+	void getUserCurrentPixelCountTest() {
+		//Given
+		Long userId1 = 1L;
+		Long userId2 = 2L;
+		Long userId3 = 3L;
+		setRanking(userId1, userId2, userId3);
+
+		// When
+		Optional<Long> currentPixelCount = rankingRedisRepository.getUserCurrentPixelCount(userId1);
+
+		//Then
+		assertThat(currentPixelCount.isPresent()).isEqualTo(true);
+		//noinspection OptionalGetWithoutIsPresent
+		assertThat(currentPixelCount.get()).isEqualTo(2);
+	}
+
+	@Test
+	@DisplayName("[getUserCurrentPixelCount] 없는 userId를 넣으면 Optional에 값이 없다.")
+	void getUserCurrentPixelCountTestNull() {
+		//Given
+		Long userId1 = 1L;
+
+		// When
+		Optional<Long> currentPixelCount = rankingRedisRepository.getUserCurrentPixelCount(userId1);
+
+		// Then
+		assertThat(currentPixelCount.isEmpty()).isEqualTo(true);
 	}
 
 	private void setRanking(Long userId1, Long userId2, Long userId3) {
