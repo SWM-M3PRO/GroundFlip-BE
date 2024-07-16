@@ -1,4 +1,4 @@
-package com.m3pro.groundflip.aws;
+package com.m3pro.groundflip.util;
 
 import java.io.IOException;
 import java.util.UUID;

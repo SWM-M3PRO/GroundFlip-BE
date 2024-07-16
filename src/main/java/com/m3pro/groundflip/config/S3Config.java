@@ -1,4 +1,4 @@
-package com.m3pro.groundflip.aws;
+package com.m3pro.groundflip.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
