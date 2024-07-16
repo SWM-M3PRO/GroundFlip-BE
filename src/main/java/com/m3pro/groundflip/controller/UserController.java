@@ -1,12 +1,19 @@
 package com.m3pro.groundflip.controller;
 
+import java.io.IOException;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.m3pro.groundflip.aws.S3Uploader;
 import com.m3pro.groundflip.domain.dto.Response;
 import com.m3pro.groundflip.domain.dto.user.UserInfoRequest;
 import com.m3pro.groundflip.domain.dto.user.UserInfoResponse;
@@ -25,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 @SecurityRequirement(name = "Authorization")
 public class UserController {
 	private final UserService userService;
+	private final S3Uploader s3Uploader;
 
 	@Operation(summary = "사용자 기본 정보 조회", description = "닉네임, id, 출생년도, 성별, 프로필 사진, 그룹이름, 그룹 id 를 조회 한다.")
 	@GetMapping("/{userId}")
@@ -40,9 +48,11 @@ public class UserController {
 	public Response<?> putUserInfo(
 		@Parameter(description = "찾고자 하는 userId", required = true)
 		@PathVariable Long userId,
-		@RequestBody UserInfoRequest userInfoRequest
-	) {
-		userService.putUserInfo(userId, userInfoRequest);
+		@RequestPart UserInfoRequest userInfoRequest,
+		@RequestPart(value = "profileImage", required=false)MultipartFile multipartfile
+	) throws IOException {
+
+		userService.putUserInfo(userId, userInfoRequest, multipartfile);
 		return Response.createSuccessWithNoData();
 	}
 
