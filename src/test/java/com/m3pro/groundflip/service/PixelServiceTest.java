@@ -44,6 +44,8 @@ class PixelServiceTest {
 	private UserRepository userRepository;
 	@Mock
 	private CommunityRepository communityRepository;
+	@Mock
+	private RankingService rankingService;
 	@InjectMocks
 	private PixelService pixelService;
 
