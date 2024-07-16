@@ -21,7 +21,6 @@ import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelCountResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
-import com.m3pro.groundflip.domain.dto.pixelUser.PixelCount;
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelOwnerUser;
 import com.m3pro.groundflip.domain.dto.pixelUser.VisitedUser;
 import com.m3pro.groundflip.domain.entity.Pixel;
@@ -116,9 +115,6 @@ class PixelServiceTest {
 			.profileImage("www.test.com")
 			.nickname("test")
 			.build();
-
-		PixelCount accumulatePixelCount = () -> 10;
-		PixelCount currentPixelCount = () -> 5;
 
 		when(pixelRepository.findById(pixelId)).thenReturn(Optional.of(pixel));
 		when(pixelUserRepository.findAllVisitedUserByPixelId(pixelId)).thenReturn(visitedUsers);
@@ -294,10 +290,6 @@ class PixelServiceTest {
 	void getPixelCountSuccess() {
 		// Given
 		Long userId = 1L;
-
-		PixelCount currentPixelCount = () -> 3;
-
-		PixelCount accumulatePixelCount = () -> 5;
 
 		when(pixelRepository.countCurrentPixelByUserId(userId)).thenReturn(3L);
 		when(pixelUserRepository.countAccumulatePixelByUserId(userId)).thenReturn(5L);
