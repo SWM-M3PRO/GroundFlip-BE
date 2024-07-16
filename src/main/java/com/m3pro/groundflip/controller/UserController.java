@@ -44,11 +44,10 @@ public class UserController {
 		@Parameter(description = "찾고자 하는 userId", required = true)
 		@PathVariable Long userId,
 		@RequestPart UserInfoRequest userInfoRequest,
-		@RequestPart(value = "profileImage", required=false)MultipartFile multipartfile
-	) throws IOException {
+		@RequestPart(value = "profileImage", required = false) MultipartFile multipartfile
+	) {
 		userService.putUserInfo(userId, userInfoRequest, multipartfile);
 		return Response.createSuccessWithNoData();
 	}
-
 
 }
