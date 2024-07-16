@@ -1,13 +1,8 @@
 package com.m3pro.groundflip.aws;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Optional;
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -30,8 +25,8 @@ public class S3Uploader {
     public String uploadFiles(MultipartFile multipartFile) throws IOException{
         String fileName = multipartFile.getOriginalFilename();
         assert fileName != null : "fileName must not null";
-		String fileExtention = fileName.substring(fileName.lastIndexOf("."));
-        String originalFilename = convertFiletoUUID(fileName).concat(fileExtention);
+
+        String originalFilename = convertFiletoUUID(fileName);
 
         String path = bucket.concat("/static");
 
@@ -44,7 +39,8 @@ public class S3Uploader {
     }
 
     private String convertFiletoUUID(String fileName){
-        return UUID.randomUUID().toString();
+        String fileExtention = fileName.substring(fileName.lastIndexOf("."));
+        return UUID.randomUUID().toString().concat(fileExtention);
     }
 
 }
