@@ -21,4 +21,9 @@ public class RankingRedisRepository {
 		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
 		zSetOperations.incrementScore(RANKING_KEY, userId.toString(), -1);
 	}
+
+	public void save(Long userId) {
+		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
+		zSetOperations.add(RANKING_KEY, userId.toString(), 0);
+	}
 }
