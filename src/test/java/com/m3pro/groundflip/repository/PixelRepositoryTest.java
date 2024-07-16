@@ -16,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.m3pro.groundflip.domain.dto.pixel.IndividualModePixelResponse;
-import com.m3pro.groundflip.domain.dto.pixelUser.PixelCount;
 import com.m3pro.groundflip.domain.entity.Pixel;
 
 import jakarta.transaction.Transactional;
@@ -59,15 +58,15 @@ public class PixelRepositoryTest {
 	@Test
 	@DisplayName("[findCurrentPixelCountByUserId] 자신의 현재 픽셀 개수를 정확히 가져오는지 확인")
 	@Transactional
-	void findCurrentPixelCountByUserIdIsCorrect() {
+	void countCurrentPixelByUserIdIsCorrect() {
 		savePixel(LATITUDE_50M_AWAY, LONGITUDE_50M_AWAY, 0L, 0L, 1L);
 		savePixel(LATITUDE_50M_AWAY, LONGITUDE_50M_AWAY, 0L, 0L, 2L);
 		savePixel(LATITUDE_50M_AWAY, LONGITUDE_50M_AWAY, 0L, 0L, 2L);
 		savePixel(LATITUDE_50M_AWAY, LONGITUDE_50M_AWAY, 0L, 0L, null);
 
-		PixelCount pixelCount = pixelRepository.findCurrentPixelCountByUserId(1L);
+		Long pixelCount = pixelRepository.countCurrentPixelByUserId(1L);
 
-		assertThat(pixelCount.getCount()).isEqualTo(1);
+		assertThat(pixelCount).isEqualTo(1);
 	}
 
 	@Test

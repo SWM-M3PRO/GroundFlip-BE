@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelCountResponse;
+import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelCount;
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelOwnerUser;
@@ -28,6 +29,7 @@ import com.m3pro.groundflip.domain.entity.PixelUser;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
+import com.m3pro.groundflip.repository.CommunityRepository;
 import com.m3pro.groundflip.repository.PixelRepository;
 import com.m3pro.groundflip.repository.PixelUserRepository;
 import com.m3pro.groundflip.repository.UserRepository;
@@ -41,6 +43,8 @@ class PixelServiceTest {
 	private PixelUserRepository pixelUserRepository;
 	@Mock
 	private UserRepository userRepository;
+	@Mock
+	private CommunityRepository communityRepository;
 	@InjectMocks
 	private PixelService pixelService;
 
@@ -52,14 +56,15 @@ class PixelServiceTest {
 	}
 
 	@Test
-	@DisplayName("[getIndividualPixelInfo] 없는 pixelId 를 넣을 경우 PIXEL_NOT_FOUND 에러")
-	void getIndividualPixelInfoPixelNotFound() {
+	@DisplayName("[getIndividualModePixelInfo] 없는 pixelId 를 넣을 경우 PIXEL_NOT_FOUND 에러")
+	void getIndividualPixelInfoModePixelNotFound() {
 		// Given
 		Long pixelId = 1L;
 		when(pixelRepository.findById(pixelId)).thenReturn(Optional.empty());
 
 		// When
-		AppException exception = assertThrows(AppException.class, () -> pixelService.getIndividualPixelInfo(pixelId));
+		AppException exception = assertThrows(AppException.class,
+			() -> pixelService.getIndividualModePixelInfo(pixelId));
 
 		// Then
 		assertEquals(ErrorCode.PIXEL_NOT_FOUND, exception.getErrorCode());
@@ -67,10 +72,11 @@ class PixelServiceTest {
 	}
 
 	@Test
-	@DisplayName("[getIndividualPixelInfo] 정상적으로 픽셀에 대한 정보가 있는 경우")
-	void getIndividualPixelInfoSuccess() {
+	@DisplayName("[getIndividualModePixelInfo] 정상적으로 픽셀에 대한 정보가 있는 경우")
+	void getIndividualModePixelInfoSuccess() {
 		// Given
 		Long pixelId = 1L;
+		Long ownerId = 1L;
 		String address = "서울특별시 은평구 녹번동";
 		int addressNumber = 1;
 
@@ -78,6 +84,7 @@ class PixelServiceTest {
 			.id(pixelId)
 			.address(address)
 			.addressNumber(addressNumber)
+			.userId(ownerId)
 			.build();
 
 		List<VisitedUser> visitedUsers = List.of(
@@ -103,58 +110,37 @@ class PixelServiceTest {
 				}
 			}
 		);
-		PixelOwnerUser pixelOwnerUser = new PixelOwnerUser() {
-			@Override
-			public Long getUserId() {
-				return 100L;
-			}
 
-			@Override
-			public String getNickname() {
-				return "JohnDoe";
-			}
+		User ownerUser = User.builder()
+			.id(ownerId)
+			.profileImage("www.test.com")
+			.nickname("test")
+			.build();
 
-			@Override
-			public String getProfileImage() {
-				return "profileImage.png";
-			}
-		};
-		PixelCount accumulatePixelCount = new PixelCount() {
-			@Override
-			public int getCount() {
-				return 10;
-			}
-		};
-		PixelCount currentPixelCount = new PixelCount() {
-			@Override
-			public int getCount() {
-				return 5;
-			}
-		};
+		PixelCount accumulatePixelCount = () -> 10;
+		PixelCount currentPixelCount = () -> 5;
 
 		when(pixelRepository.findById(pixelId)).thenReturn(Optional.of(pixel));
 		when(pixelUserRepository.findAllVisitedUserByPixelId(pixelId)).thenReturn(visitedUsers);
-		when(pixelUserRepository.findCurrentOwnerByPixelId(pixelId)).thenReturn(pixelOwnerUser);
-		when(pixelUserRepository.findAccumulatePixelCountByUserId(pixelOwnerUser.getUserId())).thenReturn(
-			accumulatePixelCount);
-		when(pixelRepository.findCurrentPixelCountByUserId(pixelOwnerUser.getUserId())).thenReturn(
-			currentPixelCount);
+		when(userRepository.findById(ownerId)).thenReturn(Optional.of(ownerUser));
+		when(pixelUserRepository.countAccumulatePixelByUserId(ownerId)).thenReturn(10L);
+		when(pixelRepository.countCurrentPixelByUserId(ownerId)).thenReturn(5L);
 
 		// When
-		IndividualPixelInfoResponse response = pixelService.getIndividualPixelInfo(pixelId);
+		IndividualPixelInfoResponse response = pixelService.getIndividualModePixelInfo(pixelId);
 
 		// Then
 		assertThat(response.getAddress()).isEqualTo("은평구 녹번동");
 		assertThat(response.getAddressNumber()).isEqualTo(addressNumber);
 		assertThat(response.getVisitCount()).isEqualTo(visitedUsers.size());
 		assertThat(response.getVisitList().get(0).getNickname()).isEqualTo("JohnDoe");
-		assertThat(response.getPixelOwnerUser().getCurrentPixelCount()).isEqualTo(currentPixelCount.getCount());
-		assertThat(response.getPixelOwnerUser().getNickname()).isEqualTo(pixelOwnerUser.getNickname());
+		assertThat(response.getPixelOwnerUser().getCurrentPixelCount()).isEqualTo(5L);
+		assertThat(response.getPixelOwnerUser().getNickname()).isEqualTo("test");
 	}
 
 	@Test
-	@DisplayName("[getIndividualPixelInfo] pixelId에 해당하는 픽셀에 방문한 사람이 없는 경우")
-	void getIndividualPixelInfoNoVisitedUser() {
+	@DisplayName("[getIndividualModePixelInfo] pixelId에 해당하는 픽셀에 방문한 사람이 없는 경우")
+	void getIndividualModePixelInfoNoVisitedUser() {
 		// Given
 		Long pixelId = 1L;
 		String address = "서울특별시 은평구 녹번동";
@@ -171,10 +157,9 @@ class PixelServiceTest {
 
 		when(pixelRepository.findById(pixelId)).thenReturn(Optional.of(pixel));
 		when(pixelUserRepository.findAllVisitedUserByPixelId(pixelId)).thenReturn(visitedUsers);
-		when(pixelUserRepository.findCurrentOwnerByPixelId(pixelId)).thenReturn(pixelOwnerUser);
 
 		// When
-		IndividualPixelInfoResponse response = pixelService.getIndividualPixelInfo(pixelId);
+		IndividualPixelInfoResponse response = pixelService.getIndividualModePixelInfo(pixelId);
 
 		// Then
 		assertThat(response.getAddress()).isEqualTo("은평구 녹번동");
@@ -297,14 +282,15 @@ class PixelServiceTest {
 		when(pixelRepository.findById(pixelId)).thenReturn(Optional.empty());
 
 		// When
-		AppException exception = assertThrows(AppException.class, () -> pixelService.getIndividualPixelInfo(pixelId));
+		AppException exception = assertThrows(AppException.class,
+			() -> pixelService.getIndividualModePixelInfo(pixelId));
 
 		// Then
 		assertEquals(ErrorCode.PIXEL_NOT_FOUND, exception.getErrorCode());
 	}
 
 	@Test
-	@DisplayName("픽셀 갯수가 정상적으로 불러와지는지 확인")
+	@DisplayName("[getPixelCount] 픽셀 갯수가 정상적으로 불러와지는지 확인")
 	void getPixelCountSuccess() {
 		// Given
 		Long userId = 1L;
@@ -313,14 +299,31 @@ class PixelServiceTest {
 
 		PixelCount accumulatePixelCount = () -> 5;
 
-		when(pixelRepository.findCurrentPixelCountByUserId(userId)).thenReturn(currentPixelCount);
-		when(pixelUserRepository.findAccumulatePixelCountByUserId(userId)).thenReturn(accumulatePixelCount);
+		when(pixelRepository.countCurrentPixelByUserId(userId)).thenReturn(3L);
+		when(pixelUserRepository.countAccumulatePixelByUserId(userId)).thenReturn(5L);
 
 		// When
 		PixelCountResponse pixelCount = pixelService.getPixelCount(userId);
 
 		// Then
-		assertEquals(pixelCount.getCurrentPixelCount(), currentPixelCount.getCount());
-		assertEquals(pixelCount.getAccumulatePixelCount(), accumulatePixelCount.getCount());
+		assertEquals(pixelCount.getCurrentPixelCount(), 3L);
+		assertEquals(pixelCount.getAccumulatePixelCount(), 5L);
+	}
+
+	@Test
+	@DisplayName("[occupyPixel] 픽셀을 정상적으로 차지한다.")
+	void occupyPixel() {
+		// Given
+		PixelOccupyRequest pixelOccupyRequest = new PixelOccupyRequest(5L, 78611L, 222L, 233L);
+		Pixel pixel = Pixel.builder()
+			.x(222L)
+			.y(233L)
+			.address("대한민국")
+			.build();
+		when(pixelRepository.findByXAndY(222L, 233L)).thenReturn(Optional.of(pixel));
+		// When
+		pixelService.occupyPixel(pixelOccupyRequest);
+		//Then
+		verify(pixelUserRepository, times(1)).save(any());
 	}
 }

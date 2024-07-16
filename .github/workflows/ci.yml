@@ -28,7 +28,7 @@ jobs:
           mysql user: 'root'
 
       - name: 테스트를 위한 Redis 구동
-        run: sudo docker run -d --name redis -p 6379:6379 redis:latest
+        run: sudo docker run -d --name redis -p 6378:6379 redis:latest
 
       - name: JDK 17 설치
         uses: actions/setup-java@v3
@@ -52,6 +52,7 @@ jobs:
           title: 📝 테스트 커버리지 리포트
           paths: ${{ github.workspace }}/build/jacocoReport/test/jacocoTestReport.xml
           token: ${{ secrets.GITHUB_TOKEN }}
+          update-comment: true
 
   qodana:
     runs-on: ubuntu-latest
