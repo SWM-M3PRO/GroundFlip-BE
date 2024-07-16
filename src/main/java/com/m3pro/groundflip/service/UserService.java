@@ -5,8 +5,6 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +19,7 @@ import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.UserCommunityRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -45,6 +44,7 @@ public class UserService {
 		}
 	}
 
+	@Transactional
 	public void putUserInfo(Long userId, UserInfoRequest userInfoRequest, MultipartFile multipartFile) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
