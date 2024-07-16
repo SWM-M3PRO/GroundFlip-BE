@@ -54,3 +54,10 @@ springdoc:
     path: /api/docs
   api-docs:
     path: /api/docs
+
+
+  aws:
+    credentials:
+      cloudwatch:
+        accessKey: ${AWS_CREDENTIALS_CLOUDWATCH_ACCESSKEY}
+        secretKey: ${AWS_CREDENTIALS_CLOUDWATCH_SECRETKEY}
