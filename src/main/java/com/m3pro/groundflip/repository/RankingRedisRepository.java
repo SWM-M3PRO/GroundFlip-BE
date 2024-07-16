@@ -42,4 +42,10 @@ public class RankingRedisRepository {
 				zSetOperations.reverseRangeWithScores(RANKING_KEY, RANKING_START_INDEX, RANKING_END_INDEX))))
 			.stream().map(Ranking::from).toList();
 	}
+
+	public Long getUserRank(Long userId) {
+		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
+		Long rank = Objects.requireNonNull(zSetOperations.reverseRank(RANKING_KEY, userId.toString()));
+		return rank + 1;
+	}
 }
