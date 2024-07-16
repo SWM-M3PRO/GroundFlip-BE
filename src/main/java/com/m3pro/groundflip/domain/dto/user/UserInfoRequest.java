@@ -20,7 +20,7 @@ public class UserInfoRequest {
 	@Schema(description = "사용자 닉네임", example = "홍길동")
 	private String nickname;
 
-	@Schema(description = "사용자 프로필 사진 주소", example = "http://www.test.com")
+	@Schema(description = "사용자 프로필 사진 s3주소", example = "https://ground-flip-s3.s3.ap-northeast-2.....")
 	private MultipartFile profileImage;
 
 	@Schema(description = "사용자 출생년도", example = "2000")

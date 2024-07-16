@@ -5,6 +5,8 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -54,7 +56,7 @@ public class UserService {
 		try {
 			fileS3Url = s3Uploader.uploadFiles(multipartFile);
 		} catch (Exception e) {
-			fileS3Url = null;
+			throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
 		}
 		user.updateGender(userInfoRequest.getGender());
 		user.updateBirthYear(convertToDate(userInfoRequest.getBirthYear()));
