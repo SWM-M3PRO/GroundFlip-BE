@@ -3,6 +3,7 @@ package com.m3pro.groundflip.repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -46,9 +47,9 @@ public class RankingRedisRepository {
 			.stream().map(Ranking::from).toList();
 	}
 
-	public Long getUserRank(Long userId) {
+	public Optional<Long> getUserRank(Long userId) {
 		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
-		Long rank = Objects.requireNonNull(zSetOperations.reverseRank(RANKING_KEY, userId.toString()));
-		return rank + 1;
+		Long rank = zSetOperations.reverseRank(RANKING_KEY, userId.toString());
+		return Optional.ofNullable(rank).map(r -> r + 1);
 	}
 }

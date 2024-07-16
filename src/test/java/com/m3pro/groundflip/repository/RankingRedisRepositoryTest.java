@@ -1,9 +1,9 @@
 package com.m3pro.groundflip.repository;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -143,10 +143,11 @@ class RankingRedisRepositoryTest {
 		setRanking(userId1, userId2, userId3);
 
 		// When
-		Long score = rankingRedisRepository.getUserRank(userId1);
+		Optional<Long> score = rankingRedisRepository.getUserRank(userId1);
 
 		//Then
-		assertThat(score).isEqualTo(2);
+		assertThat(score.isPresent()).isEqualTo(true);
+		assertThat(score.get()).isEqualTo(2);
 	}
 
 	@Test
@@ -157,7 +158,10 @@ class RankingRedisRepositoryTest {
 		Long userId1 = 1L;
 
 		// When
-		assertThrows(NullPointerException.class, () -> rankingRedisRepository.getUserRank(userId1));
+		Optional<Long> score = rankingRedisRepository.getUserRank(userId1);
+
+		// Then
+		assertThat(score.isEmpty()).isEqualTo(true);
 	}
 
 	private void setRanking(Long userId1, Long userId2, Long userId3) {
