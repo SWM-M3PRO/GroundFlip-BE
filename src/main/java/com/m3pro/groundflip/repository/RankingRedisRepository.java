@@ -27,7 +27,10 @@ public class RankingRedisRepository {
 
 	public void decreaseScore(Long userId) {
 		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
-		zSetOperations.incrementScore(RANKING_KEY, userId.toString(), -1);
+		Double currentScore = zSetOperations.score(RANKING_KEY, userId.toString());
+		if (currentScore != null && currentScore > 0) {
+			zSetOperations.incrementScore(RANKING_KEY, userId.toString(), -1);
+		}
 	}
 
 	public void save(Long userId) {
