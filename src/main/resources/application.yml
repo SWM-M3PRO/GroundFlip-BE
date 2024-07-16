@@ -3,4 +3,4 @@ server:
 
 spring:
   profiles:
-    default: dev
+    default: local
