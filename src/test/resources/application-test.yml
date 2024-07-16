@@ -58,3 +58,16 @@ springdoc:
     path: /api/docs
   api-docs:
     path: /api/docs
+
+cloud:
+  aws:
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false
+    credentials:
+      access-key: test-value
+      secret-key: test-value
+    s3:
+      bucket: ground-flip-s3
