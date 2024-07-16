@@ -44,7 +44,7 @@ public class UserService {
 		}
 	}
 
-	public void putUserInfo(Long userId, UserInfoRequest userInfoRequest, MultipartFile multipartFile) throws IOException {
+	public void putUserInfo(Long userId, UserInfoRequest userInfoRequest, MultipartFile multipartFile) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -54,7 +54,7 @@ public class UserService {
 		String fileS3Url;
 		try {
 			fileS3Url = s3Uploader.uploadFiles(multipartFile);
-		}catch(Exception e){
+		} catch (Exception e) {
 			fileS3Url = null;
 		}
 		user.updateGender(userInfoRequest.getGender());

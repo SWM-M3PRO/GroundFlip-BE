@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.m3pro.groundflip.aws.S3Uploader;
 import com.m3pro.groundflip.domain.dto.Response;
 import com.m3pro.groundflip.domain.dto.user.UserInfoRequest;
 import com.m3pro.groundflip.domain.dto.user.UserInfoResponse;
