@@ -36,14 +36,14 @@ class RankingRedisRepositoryTest {
 
 	@Test
 	@DisplayName("[increaseScore] 기존 점수에 1을 추가한다.")
-	void increaseScoreTest() {
+	void increaseCurrentPixelCountTest() {
 		//Given
 		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
 		Long userId = 1L;
 		rankingRedisRepository.save(userId);
 
 		// When
-		rankingRedisRepository.increaseScore(userId);
+		rankingRedisRepository.increaseCurrentPixelCount(userId);
 
 		// Then
 		Double score = zSetOperations.score(RANKING_KEY, userId.toString());
@@ -52,13 +52,13 @@ class RankingRedisRepositoryTest {
 
 	@Test
 	@DisplayName("[increaseScore] 등록되지 않은 userId 라도 0으로 초기화후 1을 더한다.")
-	void increaseScoreTestUnregistered() {
+	void increaseCurrentPixelCountTestUnregistered() {
 		//Given
 		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
 		Long userId = 1L;
 
 		// When
-		rankingRedisRepository.increaseScore(userId);
+		rankingRedisRepository.increaseCurrentPixelCount(userId);
 
 		// Then
 		Double score = zSetOperations.score(RANKING_KEY, userId.toString());
@@ -67,16 +67,16 @@ class RankingRedisRepositoryTest {
 
 	@Test
 	@DisplayName("[decreaseScore] 기존 점수에 1을 뺀다.")
-	void decreaseScoreTest() {
+	void decreaseCurrentPixelCountTest() {
 		//Given
 		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
 		Long userId = 1L;
 		rankingRedisRepository.save(userId);
-		rankingRedisRepository.increaseScore(userId);
-		rankingRedisRepository.increaseScore(userId);
+		rankingRedisRepository.increaseCurrentPixelCount(userId);
+		rankingRedisRepository.increaseCurrentPixelCount(userId);
 
 		// When
-		rankingRedisRepository.decreaseScore(userId);
+		rankingRedisRepository.decreaseCurrentPixelCount(userId);
 
 		// Then
 		Double score = zSetOperations.score(RANKING_KEY, userId.toString());
@@ -85,14 +85,14 @@ class RankingRedisRepositoryTest {
 
 	@Test
 	@DisplayName("[decreaseScore] 기존 점수가 0이라면 0으로 유지된다.")
-	void decreaseScoreTestCaseZero() {
+	void decreaseCurrentPixelCountTestCaseZero() {
 		//Given
 		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
 		Long userId = 1L;
 		rankingRedisRepository.save(userId);
 
 		// When
-		rankingRedisRepository.decreaseScore(userId);
+		rankingRedisRepository.decreaseCurrentPixelCount(userId);
 
 		// Then
 		Double score = zSetOperations.score(RANKING_KEY, userId.toString());
@@ -124,7 +124,7 @@ class RankingRedisRepositoryTest {
 		setRanking(userId1, userId2, userId3);
 
 		// When
-		List<Ranking> rankings = rankingRedisRepository.getRankingsWithScore();
+		List<Ranking> rankings = rankingRedisRepository.getRankingsWithCurrentPixelCount();
 
 		//Then
 		assertThat(rankings).hasSize(3);
@@ -169,11 +169,11 @@ class RankingRedisRepositoryTest {
 		rankingRedisRepository.save(userId2);
 		rankingRedisRepository.save(userId3);
 
-		rankingRedisRepository.increaseScore(userId1);
-		rankingRedisRepository.increaseScore(userId1);
-		rankingRedisRepository.increaseScore(userId2);
-		rankingRedisRepository.increaseScore(userId3);
-		rankingRedisRepository.increaseScore(userId3);
-		rankingRedisRepository.increaseScore(userId3);
+		rankingRedisRepository.increaseCurrentPixelCount(userId1);
+		rankingRedisRepository.increaseCurrentPixelCount(userId1);
+		rankingRedisRepository.increaseCurrentPixelCount(userId2);
+		rankingRedisRepository.increaseCurrentPixelCount(userId3);
+		rankingRedisRepository.increaseCurrentPixelCount(userId3);
+		rankingRedisRepository.increaseCurrentPixelCount(userId3);
 	}
 }

@@ -21,12 +21,12 @@ public class RankingRedisRepository {
 	private static final int RANKING_END_INDEX = 29;
 	private final RedisTemplate<String, String> redisTemplate;
 
-	public void increaseScore(Long userId) {
+	public void increaseCurrentPixelCount(Long userId) {
 		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
 		zSetOperations.incrementScore(RANKING_KEY, userId.toString(), 1);
 	}
 
-	public void decreaseScore(Long userId) {
+	public void decreaseCurrentPixelCount(Long userId) {
 		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
 		Double currentScore = zSetOperations.score(RANKING_KEY, userId.toString());
 		if (currentScore != null && currentScore > 0) {
@@ -39,7 +39,7 @@ public class RankingRedisRepository {
 		zSetOperations.add(RANKING_KEY, userId.toString(), 0);
 	}
 
-	public List<Ranking> getRankingsWithScore() {
+	public List<Ranking> getRankingsWithCurrentPixelCount() {
 		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
 		return new ArrayList<>(
 			(Objects.requireNonNull(
