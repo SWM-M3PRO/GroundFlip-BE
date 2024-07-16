@@ -52,4 +52,10 @@ public class RankingRedisRepository {
 		Long rank = zSetOperations.reverseRank(RANKING_KEY, userId.toString());
 		return Optional.ofNullable(rank).map(r -> r + 1);
 	}
+
+	public Optional<Long> getUserCurrentPixelCount(Long userId) {
+		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
+		Double currentPixelCount = zSetOperations.score(RANKING_KEY, userId.toString());
+		return Optional.ofNullable(currentPixelCount).map(Double::longValue);
+	}
 }
