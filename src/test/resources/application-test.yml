@@ -70,4 +70,4 @@ cloud:
       access-key: test-value
       secret-key: test-value
     s3:
-      bucket: ground-flip-s3
+      bucket: test-value
