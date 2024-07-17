@@ -4,7 +4,10 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.m3pro.groundflip.domain.dto.ranking.Ranking;
 import com.m3pro.groundflip.domain.dto.ranking.UserRankingResponse;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.exception.AppException;
@@ -120,5 +124,53 @@ class RankingServiceTest {
 		assertThat(userRankingResponse.getNickname()).isEqualTo("test");
 		assertThat(userRankingResponse.getRank()).isEqualTo(1L);
 		assertThat(userRankingResponse.getProfileImageUrl()).isEqualTo("test");
+	}
+
+	@Test
+	@DisplayName("[getAllUserRanking] 현재 상위 30명의 랭킹을 가져온다.")
+	void getAllUserRankingTest() {
+		List<Ranking> rankings = Arrays.asList(
+			new Ranking(1L, 10L, 3L),
+			new Ranking(2L, 20L, 1L),
+			new Ranking(3L, 15L, 2L)
+		);
+
+		List<User> users = Arrays.asList(
+			User.builder().id(1L).nickname("User1").profileImage("url1").build(),
+			User.builder().id(2L).nickname("User2").profileImage("url2").build(),
+			User.builder().id(3L).nickname("User3").profileImage("url3").build()
+		);
+
+		when(rankingRedisRepository.getRankingsWithCurrentPixelCount()).thenReturn(rankings);
+		when(userRepository.findAllById(anySet())).thenReturn(users);
+
+		List<UserRankingResponse> responses = rankingService.getAllUserRanking();
+
+		assertEquals(3, responses.size());
+		assertEquals(1L, responses.get(0).getUserId());
+		assertEquals(2L, responses.get(1).getUserId());
+		assertEquals(3L, responses.get(2).getUserId());
+	}
+
+	@Test
+	@DisplayName("[getAllUserRanking] 레디스에서 찾은 유저가 DB 에서 찾아온 유저에 없다면 예외 발생")
+	void getAllUserRankingTest_UserNotFound() {
+		List<Ranking> rankings = Arrays.asList(
+			new Ranking(1L, 10L, 3L),
+			new Ranking(2L, 20L, 1L),
+			new Ranking(3L, 15L, 2L)
+		);
+
+		List<User> users = Arrays.asList(
+			User.builder().id(1L).nickname("User1").profileImage("url1").build(),
+			User.builder().id(2L).nickname("User2").profileImage("url2").build(),
+			User.builder().id(3L).nickname("User3").profileImage("url3").build()
+		);
+		when(rankingRedisRepository.getRankingsWithCurrentPixelCount()).thenReturn(rankings);
+		when(userRepository.findAllById(anySet())).thenReturn(
+			users.stream().filter(user -> user.getId() != 2L).collect(Collectors.toList()));
+
+		RuntimeException exception = assertThrows(RuntimeException.class, () -> rankingService.getAllUserRanking());
+		assertEquals("User not found", exception.getMessage());
 	}
 }
