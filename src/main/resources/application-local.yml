@@ -1,7 +1,7 @@
 spring:
   config:
     activate:
-      on-profile: dev
+      on-profile: local
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -16,15 +16,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
   data:
     redis:
       host: ${REDIS_HOST}
       port: 6379
-
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
 
 logging:
   level:
@@ -75,6 +71,5 @@ cloud:
       secret-key: ${AWS_SECRET_KEY}
     s3:
       bucket: ${AWS_S3_BUCKET}
-
 
 
