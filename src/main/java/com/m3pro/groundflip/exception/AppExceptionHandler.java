@@ -14,7 +14,7 @@ public class AppExceptionHandler {
 
 	@ExceptionHandler(AppException.class)
 	ResponseEntity<ErrorResponse> handleAppException(AppException appException, HttpServletRequest request) {
-		log.info("EXCEPTION [{}] [{}] [{}] [{}]", request.getAttribute(LOG_ID), request.getRequestURI(),
+		log.error("EXCEPTION [{}] [{}] [{}] [{}]", request.getAttribute(LOG_ID), request.getRequestURI(),
 			request.getMethod(), appException.getErrorCode().getMessage());
 
 		return ResponseEntity.status(appException.getErrorCode().getHttpStatus())
