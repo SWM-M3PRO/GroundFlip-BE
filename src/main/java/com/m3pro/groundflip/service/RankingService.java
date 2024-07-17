@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.m3pro.groundflip.domain.dto.ranking.Ranking;
 import com.m3pro.groundflip.domain.dto.ranking.UserRankingResponse;
@@ -40,6 +41,7 @@ public class RankingService {
 		return rankingRedisRepository.getUserCurrentPixelCount(userId).orElse(0L);
 	}
 
+	@Transactional
 	public List<UserRankingResponse> getAllUserRanking() {
 		List<Ranking> rankings = rankingRedisRepository.getRankingsWithCurrentPixelCount();
 
