@@ -14,11 +14,13 @@ import lombok.NoArgsConstructor;
 public class Ranking {
 	private Long userId;
 	private Long currentPixelCount;
+	private Long rank;
 
-	public static Ranking from(ZSetOperations.TypedTuple<String> typedTuple) {
+	public static Ranking from(ZSetOperations.TypedTuple<String> typedTuple, Long rank) {
 		return new Ranking(
 			Long.parseLong(Objects.requireNonNull(typedTuple.getValue())),
-			Objects.requireNonNull(typedTuple.getScore()).longValue()
+			Objects.requireNonNull(typedTuple.getScore()).longValue(),
+			rank
 		);
 	}
 }
