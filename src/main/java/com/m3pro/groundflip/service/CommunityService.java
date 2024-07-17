@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.m3pro.groundflip.domain.dto.community.CommunitySearchResponse;
 import com.m3pro.groundflip.domain.dto.community.CommunityInfoResponse;
+import com.m3pro.groundflip.domain.dto.community.CommunitySearchResponse;
 import com.m3pro.groundflip.domain.entity.Community;
 import com.m3pro.groundflip.repository.CommunityRepository;
 

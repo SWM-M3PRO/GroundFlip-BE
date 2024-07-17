@@ -8,7 +8,6 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.m3pro.groundflip.util.S3Uploader;
 import com.m3pro.groundflip.domain.dto.user.UserInfoRequest;
 import com.m3pro.groundflip.domain.dto.user.UserInfoResponse;
 import com.m3pro.groundflip.domain.entity.User;
@@ -18,6 +17,7 @@ import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.UserCommunityRepository;
 import com.m3pro.groundflip.repository.UserRepository;
+import com.m3pro.groundflip.util.S3Uploader;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
