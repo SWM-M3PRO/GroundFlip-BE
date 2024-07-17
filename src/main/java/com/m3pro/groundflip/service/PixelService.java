@@ -2,6 +2,7 @@ package com.m3pro.groundflip.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.locationtech.jts.geom.Coordinate;
@@ -44,6 +45,7 @@ public class PixelService {
 	private final CommunityRepository communityRepository;
 	private final UserRepository userRepository;
 	private final ReverseGeoCodingService reverseGeoCodingService;
+	private final RankingService rankingService;
 
 	public List<IndividualModePixelResponse> getNearIndividualModePixelsByCoordinate(
 		double currentLatitude,
@@ -81,20 +83,18 @@ public class PixelService {
 	@Transactional
 	public void occupyPixel(PixelOccupyRequest pixelOccupyRequest) {
 		Long communityId = Optional.ofNullable(pixelOccupyRequest.getCommunityId()).orElse(-1L);
+		Long occupyingUserId = pixelOccupyRequest.getUserId();
 
 		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
-
 		updatePixelAddress(targetPixel);
-
-		targetPixel.updateUserId(pixelOccupyRequest.getUserId());
+		updatePixelOwnerUser(targetPixel, occupyingUserId);
 
 		PixelUser pixelUser = PixelUser.builder()
 			.pixel(targetPixel)
 			.community(communityRepository.getReferenceById(communityId))
-			.user(userRepository.getReferenceById(pixelOccupyRequest.getUserId()))
+			.user(userRepository.getReferenceById(occupyingUserId))
 			.build();
-
 		pixelUserRepository.save(pixelUser);
 	}
 
@@ -103,6 +103,20 @@ public class PixelService {
 			String address = reverseGeoCodingService.getAddressFromCoordinates(targetPixel.getCoordinate().getX(),
 				targetPixel.getCoordinate().getY());
 			targetPixel.updateAddress(address);
+		}
+	}
+
+	private void updatePixelOwnerUser(Pixel targetPixel, Long occupyingUserId) {
+		Long originalOwnerUserId = targetPixel.getUserId();
+		if (Objects.equals(originalOwnerUserId, occupyingUserId)) {
+			return;
+		}
+		targetPixel.updateUserId(occupyingUserId);
+
+		if (originalOwnerUserId == null) {
+			rankingService.increaseCurrentPixelCount(occupyingUserId);
+		} else {
+			rankingService.updateRankingAfterOccupy(occupyingUserId, originalOwnerUserId);
 		}
 	}
 
