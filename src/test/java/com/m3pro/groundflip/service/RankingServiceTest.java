@@ -1,6 +1,7 @@
 package com.m3pro.groundflip.service;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.util.Optional;
@@ -13,12 +14,19 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.m3pro.groundflip.domain.dto.ranking.UserRankingResponse;
+import com.m3pro.groundflip.domain.entity.User;
+import com.m3pro.groundflip.exception.AppException;
+import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.RankingRedisRepository;
+import com.m3pro.groundflip.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class RankingServiceTest {
 	@Mock
 	private RankingRedisRepository rankingRedisRepository;
+	@Mock
+	private UserRepository userRepository;
 	@InjectMocks
 	private RankingService rankingService;
 
@@ -79,5 +87,38 @@ class RankingServiceTest {
 		Long count = rankingService.getCurrentPixelCount(userId);
 
 		assertThat(count).isEqualTo(0L);
+	}
+
+	@Test
+	@DisplayName("[getUserRankInfo] user가 없다면 user not found")
+	void getUserRankInfoTestUserNotFoundException() {
+		Long userId = 1L;
+		when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+		AppException exception = assertThrows(AppException.class, () -> rankingService.getUserRankInfo(userId));
+
+		assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
+	}
+
+	@Test
+	@DisplayName("[getUserRankInfo] userId에 해당하는 순위 정보 반환")
+	void getUserRankInfoTest() {
+		Long userId = 1L;
+		User user = User.builder()
+			.id(userId)
+			.nickname("test")
+			.profileImage("test")
+			.build();
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+		when(rankingRedisRepository.getUserCurrentPixelCount(any())).thenReturn(Optional.of(15L));
+		when(rankingRedisRepository.getUserRank(any())).thenReturn(Optional.of(1L));
+
+		UserRankingResponse userRankingResponse = rankingService.getUserRankInfo(userId);
+
+		assertThat(userRankingResponse.getUserId()).isEqualTo(userId);
+		assertThat(userRankingResponse.getCurrentPixelCount()).isEqualTo(15L);
+		assertThat(userRankingResponse.getNickname()).isEqualTo("test");
+		assertThat(userRankingResponse.getRank()).isEqualTo(1L);
+		assertThat(userRankingResponse.getProfileImageUrl()).isEqualTo("test");
 	}
 }
