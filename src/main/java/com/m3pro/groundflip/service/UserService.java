@@ -46,13 +46,14 @@ public class UserService {
 
 	@Transactional
 	public void putUserInfo(Long userId, UserInfoRequest userInfoRequest, MultipartFile multipartFile) {
+		String fileS3Url;
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
 		if (checkNicknameExists(userInfoRequest)) {
 			throw new AppException(ErrorCode.DUPLICATED_NICKNAME);
 		}
-		String fileS3Url;
+
 		try {
 			fileS3Url = s3Uploader.uploadFiles(multipartFile);
 		} catch (Exception e) {
