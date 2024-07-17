@@ -25,4 +25,8 @@ public class RankingService {
 		increaseCurrentPixelCount(occupyingUserId);
 		decreaseCurrentPixelCount(deprivedUserId);
 	}
+
+	public Long getCurrentPixelCount(Long userId) {
+		return rankingRedisRepository.getUserCurrentPixelCount(userId).orElse(0L);
+	}
 }
