@@ -1,6 +1,9 @@
 package com.m3pro.groundflip.service;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
+
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -54,5 +57,27 @@ class RankingServiceTest {
 
 		verify(rankingRedisRepository, times(1)).decreaseCurrentPixelCount(deprivedUserId);
 		verify(rankingRedisRepository, times(1)).increaseCurrentPixelCount(occupyingUserId);
+	}
+
+	@Test
+	@DisplayName("[getCurrentPixelCount] userId 가 소유한 픽셀의 개수를 반환한다.")
+	void getCurrentPixelCountTest() {
+		Long userId = 1L;
+		when(rankingRedisRepository.getUserCurrentPixelCount(any())).thenReturn(Optional.of(15L));
+
+		Long count = rankingService.getCurrentPixelCount(userId);
+
+		assertThat(count).isEqualTo(15L);
+	}
+
+	@Test
+	@DisplayName("[getCurrentPixelCount] userId가 sortedSet에 없다면 0 반환")
+	void getCurrentPixelCountTestNull() {
+		Long userId = 1L;
+		when(rankingRedisRepository.getUserCurrentPixelCount(any())).thenReturn(Optional.empty());
+
+		Long count = rankingService.getCurrentPixelCount(userId);
+
+		assertThat(count).isEqualTo(0L);
 	}
 }
