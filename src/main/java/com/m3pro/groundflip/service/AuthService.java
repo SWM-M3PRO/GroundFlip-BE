@@ -13,6 +13,7 @@ import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.enums.Provider;
 import com.m3pro.groundflip.enums.UserStatus;
 import com.m3pro.groundflip.jwt.JwtProvider;
+import com.m3pro.groundflip.repository.RankingRedisRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 import com.m3pro.groundflip.service.oauth.OauthService;
 
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthService {
 	private final OauthService oauthUserInfoService;
+	private final RankingRedisRepository rankingRedisRepository;
 	private final JwtProvider jwtProvider;
 	private final UserRepository userRepository;
 
@@ -40,6 +42,7 @@ public class AuthService {
 			isSignUp = loginUser.get().getStatus() == UserStatus.PENDING;
 		} else {
 			userId = registerUser(provider, oauthUserInfo.getEmail()).getId();
+
 			isSignUp = true;
 		}
 
@@ -49,12 +52,14 @@ public class AuthService {
 	}
 
 	private User registerUser(Provider provider, String email) {
-		User registerUser = User.builder()
+		User newUser = User.builder()
 			.email(email)
 			.provider(provider)
 			.status(UserStatus.PENDING)
 			.build();
-		return userRepository.save(registerUser);
+		User registeredUser = userRepository.save(newUser);
+		rankingRedisRepository.save(registeredUser.getId());
+		return registeredUser;
 	}
 
 	public ReissueReponse reissueToken(String refreshToken) {
