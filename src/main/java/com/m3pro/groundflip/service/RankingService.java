@@ -1,7 +1,11 @@
 package com.m3pro.groundflip.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 
+import com.m3pro.groundflip.domain.dto.ranking.Ranking;
 import com.m3pro.groundflip.domain.dto.ranking.UserRankingResponse;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.exception.AppException;
@@ -34,6 +38,18 @@ public class RankingService {
 
 	public Long getCurrentPixelCount(Long userId) {
 		return rankingRedisRepository.getUserCurrentPixelCount(userId).orElse(0L);
+	}
+
+	public List<UserRankingResponse> getAllUserRanking() {
+		List<Ranking> rankings = rankingRedisRepository.getRankingsWithCurrentPixelCount();
+
+		return rankings.stream()
+			.map(ranking -> {
+				User user = userRepository.findById(ranking.getUserId())
+					.orElseThrow(() -> new RuntimeException("User not found"));
+				return UserRankingResponse.from(user, ranking.getRank(), ranking.getCurrentPixelCount());
+			})
+			.collect(Collectors.toList());
 	}
 
 	public UserRankingResponse getUserRankInfo(Long userId) {
