@@ -3,9 +3,10 @@ package com.m3pro.groundflip.controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.m3pro.groundflip.domain.dto.Response;
 import com.m3pro.groundflip.domain.dto.user.UserInfoRequest;
@@ -40,11 +41,11 @@ public class UserController {
 	public Response<?> putUserInfo(
 		@Parameter(description = "찾고자 하는 userId", required = true)
 		@PathVariable Long userId,
-		@RequestBody UserInfoRequest userInfoRequest
+		@RequestPart UserInfoRequest userInfoRequest,
+		@RequestPart(value = "profileImage", required = false) MultipartFile multipartfile
 	) {
-		userService.putUserInfo(userId, userInfoRequest);
+		userService.putUserInfo(userId, userInfoRequest, multipartfile);
 		return Response.createSuccessWithNoData();
 	}
-
 
 }
