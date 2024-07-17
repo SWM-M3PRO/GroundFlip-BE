@@ -1,10 +1,11 @@
 package com.m3pro.groundflip.service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.m3pro.groundflip.domain.dto.ranking.Ranking;
 import com.m3pro.groundflip.domain.dto.ranking.UserRankingResponse;
@@ -41,17 +42,29 @@ public class RankingService {
 		return rankingRedisRepository.getUserCurrentPixelCount(userId).orElse(0L);
 	}
 
-	@Transactional
 	public List<UserRankingResponse> getAllUserRanking() {
 		List<Ranking> rankings = rankingRedisRepository.getRankingsWithCurrentPixelCount();
+		Map<Long, User> users = getRankedUsers(rankings);
 
 		return rankings.stream()
 			.map(ranking -> {
-				User user = userRepository.findById(ranking.getUserId())
-					.orElseThrow(() -> new RuntimeException("User not found"));
+				User user = users.get(ranking.getUserId());
+				if (user == null) {
+					log.error("User {} Not Register At Redis Sorted Set", ranking.getUserId());
+					throw new RuntimeException("User not found");
+				}
 				return UserRankingResponse.from(user, ranking.getRank(), ranking.getCurrentPixelCount());
 			})
 			.collect(Collectors.toList());
+	}
+
+	private Map<Long, User> getRankedUsers(List<Ranking> rankings) {
+		Set<Long> userIds = rankings.stream()
+			.map(Ranking::getUserId)
+			.collect(Collectors.toSet());
+		List<User> users = userRepository.findAllById(userIds);
+		return users.stream()
+			.collect(Collectors.toMap(User::getId, user -> user));
 	}
 
 	public UserRankingResponse getUserRankInfo(Long userId) {
