@@ -31,6 +31,12 @@ public class AuthController {
 		return Response.createSuccess(authService.login(Provider.KAKAO, loginRequest));
 	}
 
+	@Operation(summary = "애플 로그인", description = "애플에서 받은 identity token을 통해 회원가입 또는 로그인하는 API")
+	@PostMapping("/kakao/apple")
+	public Response<LoginResponse> loginApple(@RequestBody LoginRequest loginRequest) {
+		return Response.createSuccess(authService.login(Provider.APPLE, loginRequest));
+	}
+
 	@Operation(summary = "access token 재발급", description = "만료된 access token 을 refresh token으로 재발급 하는 API")
 	@PostMapping("/reissue")
 	public Response<ReissueReponse> reissueToken(@RequestBody ReissueRequest reissueRequest) {
