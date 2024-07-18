@@ -3,7 +3,10 @@ package com.m3pro.groundflip.jwt;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Date;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.m3pro.groundflip.domain.entity.redis.BlacklistedToken;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
@@ -137,5 +141,19 @@ class JwtProviderTest {
 		jwtProvider.expireToken(token);
 
 		verify(blackListedTokenRepository, never()).save(any(BlacklistedToken.class));
+	}
+
+	@Test
+	@DisplayName("[parseHeaders] jwt 토큰에서 header 부분을 파싱해온다.")
+	public void parseHeadersTest() throws JsonProcessingException {
+		String header = Base64.getEncoder().encodeToString("{\"alg\":\"HS256\",\"typ\":\"JWT\"}".getBytes(
+			StandardCharsets.UTF_8));
+		String token = header + ".payload.signature";
+
+		Map<String, String> headers = jwtProvider.parseHeaders(token);
+
+		assertNotNull(headers);
+		assertEquals("HS256", headers.get("alg"));
+		assertEquals("JWT", headers.get("typ"));
 	}
 }
