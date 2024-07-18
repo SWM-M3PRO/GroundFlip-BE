@@ -10,8 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.m3pro.groundflip.exception.AppException;
-import com.m3pro.groundflip.exception.ErrorCode;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,21 +25,19 @@ public class S3Uploader {
 	public String uploadFiles(MultipartFile multipartFile) throws IOException {
 		String originalFileName = multipartFile.getOriginalFilename();
 		String convertedFileName;
+		String imageUrl = "";
+		final String path = bucket.concat("/static");
 
 		if (originalFileName != null) {
 			convertedFileName = convertFileNameToUuid(originalFileName);
-		} else {
-			throw new AppException(ErrorCode.IMAGE_NOT_FOUND);
+			ObjectMetadata metadata = new ObjectMetadata();
+			metadata.setContentLength(multipartFile.getSize());
+			metadata.setContentType(multipartFile.getContentType());
+
+			amazonS3Client.putObject(path, convertedFileName, multipartFile.getInputStream(), metadata);
+			imageUrl = amazonS3Client.getUrl(path, convertedFileName).toString();
 		}
-
-		String path = bucket.concat("/static");
-
-		ObjectMetadata metadata = new ObjectMetadata();
-		metadata.setContentLength(multipartFile.getSize());
-		metadata.setContentType(multipartFile.getContentType());
-
-		amazonS3Client.putObject(path, convertedFileName, multipartFile.getInputStream(), metadata);
-		return amazonS3Client.getUrl(path, convertedFileName).toString();
+		return imageUrl;
 	}
 
 	private String convertFileNameToUuid(String fileName) {

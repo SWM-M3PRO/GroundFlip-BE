@@ -1,5 +1,7 @@
 package com.m3pro.groundflip.controller;
 
+import java.io.IOException;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -43,7 +45,7 @@ public class UserController {
 		@PathVariable Long userId,
 		@RequestPart UserInfoRequest userInfoRequest,
 		@RequestPart(value = "profileImage", required = false) MultipartFile multipartfile
-	) {
+	) throws IOException {
 		userService.putUserInfo(userId, userInfoRequest, multipartfile);
 		return Response.createSuccessWithNoData();
 	}

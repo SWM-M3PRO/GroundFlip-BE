@@ -1,5 +1,6 @@
 package com.m3pro.groundflip.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -45,8 +46,9 @@ public class UserService {
 	}
 
 	@Transactional
-	public void putUserInfo(Long userId, UserInfoRequest userInfoRequest, MultipartFile multipartFile) {
-		String fileS3Url;
+	public void putUserInfo(Long userId, UserInfoRequest userInfoRequest, MultipartFile multipartFile) throws
+		IOException {
+		String fileS3Url = "";
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -54,11 +56,10 @@ public class UserService {
 			throw new AppException(ErrorCode.DUPLICATED_NICKNAME);
 		}
 
-		try {
+		if (multipartFile != null) {
 			fileS3Url = s3Uploader.uploadFiles(multipartFile);
-		} catch (Exception e) {
-			throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
 		}
+
 		user.updateGender(userInfoRequest.getGender());
 		user.updateBirthYear(convertToDate(userInfoRequest.getBirthYear()));
 		user.updateNickName(userInfoRequest.getNickname());
