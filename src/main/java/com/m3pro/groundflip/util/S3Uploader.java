@@ -21,32 +21,32 @@ import lombok.RequiredArgsConstructor;
 public class S3Uploader {
 	private final AmazonS3Client amazonS3Client;
 
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
+	@Value("${cloud.aws.s3.bucket}")
+	private String bucket;
 
-    public String uploadFiles(MultipartFile multipartFile) throws IOException{
-        String originalFileName = multipartFile.getOriginalFilename();
+	public String uploadFiles(MultipartFile multipartFile) throws IOException {
+		String originalFileName = multipartFile.getOriginalFilename();
 		String convertedFileName;
 
 		if (originalFileName != null) {
-			convertedFileName = convertFileNametoUUID(originalFileName);
-		}else{
-            throw new AppException(ErrorCode.IMAGE_NOT_FOUND);
-        }
+			convertedFileName = convertFileNameToUuid(originalFileName);
+		} else {
+			throw new AppException(ErrorCode.IMAGE_NOT_FOUND);
+		}
 
 		String path = bucket.concat("/static");
 
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(multipartFile.getSize());
-        metadata.setContentType(multipartFile.getContentType());
+		ObjectMetadata metadata = new ObjectMetadata();
+		metadata.setContentLength(multipartFile.getSize());
+		metadata.setContentType(multipartFile.getContentType());
 
-        amazonS3Client.putObject(path, convertedFileName,multipartFile.getInputStream(), metadata);
-        return amazonS3Client.getUrl(path, convertedFileName).toString();
-    }
+		amazonS3Client.putObject(path, convertedFileName, multipartFile.getInputStream(), metadata);
+		return amazonS3Client.getUrl(path, convertedFileName).toString();
+	}
 
-    private String convertFileNametoUUID(String fileName){
-        String fileExtention = fileName.substring(fileName.lastIndexOf("."));
-        return UUID.randomUUID().toString().concat(fileExtention);
-    }
+	private String convertFileNameToUuid(String fileName) {
+		String fileExtension = fileName.substring(fileName.lastIndexOf("."));
+		return UUID.randomUUID().toString().concat(fileExtension);
+	}
 
 }

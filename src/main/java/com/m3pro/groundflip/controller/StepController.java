@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.m3pro.groundflip.domain.dto.Response;
-import com.m3pro.groundflip.domain.dto.StepRecord.UserStepInfo;
+import com.m3pro.groundflip.domain.dto.stepRecord.UserStepInfo;
 import com.m3pro.groundflip.service.StepService;
 
 import io.swagger.v3.oas.annotations.Operation;

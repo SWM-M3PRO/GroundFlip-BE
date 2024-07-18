@@ -37,6 +37,7 @@ public class Community extends BaseTimeEntity {
 	private String backgroundImageUrl;
 
 	private String description;
-	
+
 	private LocalDateTime deletedAt;
+
 }

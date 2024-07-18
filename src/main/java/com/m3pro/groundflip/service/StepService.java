@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.m3pro.groundflip.domain.dto.StepRecord.UserStepInfo;
+import com.m3pro.groundflip.domain.dto.stepRecord.UserStepInfo;
 import com.m3pro.groundflip.domain.entity.StepRecord;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.exception.AppException;

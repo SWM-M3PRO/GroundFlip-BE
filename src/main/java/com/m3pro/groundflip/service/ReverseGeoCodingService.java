@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.m3pro.groundflip.domain.dto.pixel.NaverAPI.NaverReverseGeoCodingApiResult;
+import com.m3pro.groundflip.domain.dto.pixel.naverApi.NaverReverseGeoCodingApiResult;
 
 import lombok.RequiredArgsConstructor;
 

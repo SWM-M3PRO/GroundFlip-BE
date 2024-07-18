@@ -1,9 +1,8 @@
-package com.m3pro.groundflip.domain.dto.pixel.NaverAPI;
+package com.m3pro.groundflip.domain.dto.pixel.naverApi;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,16 +27,16 @@ public class NaverReverseGeoCodingApiResult {
 		String area2 = "";
 		String area3 = "";
 
-		if(!this.results.isEmpty()) {
+		if (!this.results.isEmpty()) {
 			Region region = this.results.get(0).getRegion();
-			if(region != null){
-				if(region.getArea1() != null && region.getArea1().getName() != null){
+			if (region != null) {
+				if (region.getArea1() != null && region.getArea1().getName() != null) {
 					area1 = region.getArea1().getName();
 				}
-				if(region.getArea2() != null && region.getArea2().getName() != null){
+				if (region.getArea2() != null && region.getArea2().getName() != null) {
 					area2 = region.getArea2().getName();
 				}
-				if(region.getArea3() != null && region.getArea3().getName() != null){
+				if (region.getArea3() != null && region.getArea3().getName() != null) {
 					area3 = region.getArea3().getName();
 				}
 			}
@@ -51,31 +50,7 @@ public class NaverReverseGeoCodingApiResult {
 	}
 }
 
-@Data
-@JsonIgnoreProperties(ignoreUnknown = true)
-class Result {
 
-	@JsonProperty("region")
-	private Region region;
 
-}
-
-@Data
-@JsonIgnoreProperties(ignoreUnknown = true)
-class Region {
-
-	private Area area1;
-	private Area area2;
-	private Area area3;
-
-}
-
-@Data
-@JsonIgnoreProperties(ignoreUnknown = true)
-class Area {
-
-	private String name;
-
-}
 
 
