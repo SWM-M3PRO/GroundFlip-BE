@@ -9,7 +9,6 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.Map;
 
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
 import com.m3pro.groundflip.domain.dto.auth.apple.ApplePublicKey;
@@ -21,8 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ApplePublicKeyGenerator {
 	public PublicKey generatePublicKey(Map<String, String> tokenHeaders,
-		ApplePublicKeyResponse applePublicKeys)
-		throws AuthenticationException, NoSuchAlgorithmException, InvalidKeySpecException {
+		ApplePublicKeyResponse applePublicKeys) throws NoSuchAlgorithmException, InvalidKeySpecException {
 		ApplePublicKey publicKey = applePublicKeys.getMatchedKey(tokenHeaders.get("kid"),
 			tokenHeaders.get("alg"));
 
