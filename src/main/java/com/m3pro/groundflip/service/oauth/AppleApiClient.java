@@ -24,11 +24,14 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class AppleApiClient implements OauthApiClient {
-	private static final String ISSUER = "https://appleid.apple.com";
 	private final RestClient restClient;
 	private final ApplePublicKeyGenerator applePublicKeyGenerator;
 	private final JwtProvider jwtProvider;
-	@Value("${apple.clientId}")
+	@Value("${oauth.apple.url.public-keys}")
+	private String applePublicKeysUrl;
+	@Value("${oauth.apple.url.issuer}")
+	private String issuer;
+	@Value("${oauth.apple.app.id}")
 	private String clientId;
 
 	@Override
@@ -60,7 +63,7 @@ public class AppleApiClient implements OauthApiClient {
 
 	private ApplePublicKeyResponse getAppleAuthPublicKey() {
 		return restClient.get()
-			.uri("https://appleid.apple.com/auth/keys")
+			.uri(applePublicKeysUrl)
 			.retrieve()
 			.body(ApplePublicKeyResponse.class);
 	}
@@ -73,7 +76,7 @@ public class AppleApiClient implements OauthApiClient {
 		PublicKey publicKey = applePublicKeyGenerator.generatePublicKey(headers, getAppleAuthPublicKey());
 		Claims tokenClaims = jwtProvider.getTokenClaims(identityToken, publicKey);
 
-		if (!ISSUER.equals(tokenClaims.getIssuer())) {
+		if (!issuer.equals(tokenClaims.getIssuer())) {
 			throw new AppException(ErrorCode.INVALID_JWT);
 		}
 		if (!clientId.equals(tokenClaims.getAudience())) {
