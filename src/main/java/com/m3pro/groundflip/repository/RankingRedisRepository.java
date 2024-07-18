@@ -2,8 +2,8 @@ package com.m3pro.groundflip.repository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -44,10 +44,18 @@ public class RankingRedisRepository {
 	}
 
 	public List<Ranking> getRankingsWithCurrentPixelCount() {
-		return new ArrayList<>(
-			(Objects.requireNonNull(
-				zSetOperations.reverseRangeWithScores(RANKING_KEY, RANKING_START_INDEX, RANKING_END_INDEX))))
-			.stream().map(Ranking::from).toList();
+		Set<ZSetOperations.TypedTuple<String>> typedTuples = zSetOperations.reverseRangeWithScores(RANKING_KEY,
+			RANKING_START_INDEX, RANKING_END_INDEX);
+		if (typedTuples == null) {
+			return new ArrayList<>();
+		}
+
+		List<Ranking> rankings = new ArrayList<>();
+		long rank = 1;
+		for (ZSetOperations.TypedTuple<String> typedTuple : typedTuples) {
+			rankings.add(Ranking.from(typedTuple, rank++));
+		}
+		return rankings;
 	}
 
 	public Optional<Long> getUserRank(Long userId) {

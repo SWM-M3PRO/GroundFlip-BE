@@ -56,14 +56,24 @@ public class User extends BaseTimeEntity {
 
 	private Date deletedAt;
 
-	public void updateNickName(String nickname) {this.nickname = nickname;}
+	public void updateNickName(String nickname) {
+		this.nickname = nickname;
+	}
 
-	public void updateProfileImage(String profileImage) {this.profileImage = profileImage;}
+	public void updateProfileImage(String profileImage) {
+		this.profileImage = profileImage;
+	}
 
-	public void updateBirthYear(Date birthYear) {this.birthYear = birthYear;}
+	public void updateBirthYear(Date birthYear) {
+		this.birthYear = birthYear;
+	}
 
-	public void updateGender(Gender gender) {this.gender = gender;}
+	public void updateGender(Gender gender) {
+		this.gender = gender;
+	}
 
-	public void updateStatus(UserStatus status) {this.status = status;}
+	public void updateStatus(UserStatus status) {
+		this.status = status;
+	}
 
 }
