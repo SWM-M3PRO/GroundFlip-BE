@@ -102,7 +102,7 @@ public class JwtProvider {
 		return new ObjectMapper().readValue(decodeHeader(header), Map.class);
 	}
 
-	public String decodeHeader(String token) {
+	private String decodeHeader(String token) {
 		return new String(Base64.getDecoder().decode(token), StandardCharsets.UTF_8);
 	}
 
