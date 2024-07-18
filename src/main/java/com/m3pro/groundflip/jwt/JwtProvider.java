@@ -1,11 +1,17 @@
 package com.m3pro.groundflip.jwt;
 
+import java.nio.charset.StandardCharsets;
+import java.security.PublicKey;
+import java.util.Base64;
 import java.util.Date;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.m3pro.groundflip.domain.entity.redis.BlacklistedToken;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
@@ -88,6 +94,28 @@ public class JwtProvider {
 			validateToken(token);
 			blackListedTokenRepository.save(new BlacklistedToken(token, parseExpirationSecs(token)));
 		} catch (Exception ignored) {
+		}
+	}
+
+	public Map<String, String> parseHeaders(String token) throws JsonProcessingException {
+		String header = token.split("\\.")[0];
+		return new ObjectMapper().readValue(decodeHeader(header), Map.class);
+	}
+
+	public String decodeHeader(String token) {
+		return new String(Base64.getDecoder().decode(token), StandardCharsets.UTF_8);
+	}
+
+	public Claims getTokenClaims(String token, PublicKey publicKey) {
+		try {
+			return Jwts.parser()
+				.setSigningKey(publicKey)
+				.parseClaimsJws(token)
+				.getBody();
+		} catch (SignatureException | MalformedJwtException e) {
+			throw new AppException(ErrorCode.INVALID_JWT);
+		} catch (ExpiredJwtException e) {
+			throw new AppException(ErrorCode.JWT_EXPIRED);
 		}
 	}
 }
