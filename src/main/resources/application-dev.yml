@@ -42,6 +42,12 @@ oauth:
     url:
       validation: https://kapi.kakao.com/v1/user/access_token_info
       user: https://kapi.kakao.com/v2/user/me
+  apple:
+    app:
+      id: ${APPLE_APP_ID}
+    url:
+      public-keys: https://appleid.apple.com/auth/keys
+      issuer: https://appleid.apple.com
 
 naver:
   apiKeyId: ${X-NCP-APIGW-API-KEY-ID}
