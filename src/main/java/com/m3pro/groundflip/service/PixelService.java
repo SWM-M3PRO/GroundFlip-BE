@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,15 +19,14 @@ import com.m3pro.groundflip.domain.dto.pixel.PixelCountResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
 import com.m3pro.groundflip.domain.dto.pixel.PixelOwnerUserResponse;
 import com.m3pro.groundflip.domain.dto.pixel.VisitedUserInfo;
+import com.m3pro.groundflip.domain.dto.pixel.event.PixelUserInsertEvent;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixelUser.VisitedUser;
 import com.m3pro.groundflip.domain.entity.Pixel;
-import com.m3pro.groundflip.domain.entity.PixelUser;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
-import com.m3pro.groundflip.repository.CommunityRepository;
 import com.m3pro.groundflip.repository.PixelRepository;
 import com.m3pro.groundflip.repository.PixelUserRepository;
 import com.m3pro.groundflip.repository.UserRepository;
@@ -42,10 +42,10 @@ public class PixelService {
 	private final GeometryFactory geometryFactory;
 	private final PixelRepository pixelRepository;
 	private final PixelUserRepository pixelUserRepository;
-	private final CommunityRepository communityRepository;
 	private final UserRepository userRepository;
 	private final ReverseGeoCodingService reverseGeoCodingService;
 	private final RankingService rankingService;
+	private final ApplicationEventPublisher eventPublisher;
 
 	public List<IndividualModePixelResponse> getNearIndividualModePixelsByCoordinate(
 		double currentLatitude,
@@ -82,20 +82,18 @@ public class PixelService {
 
 	@Transactional
 	public void occupyPixel(PixelOccupyRequest pixelOccupyRequest) {
-		Long communityId = Optional.ofNullable(pixelOccupyRequest.getCommunityId()).orElse(-1L);
 		Long occupyingUserId = pixelOccupyRequest.getUserId();
+		Long communityId = Optional.ofNullable(pixelOccupyRequest.getCommunityId()).orElse(-1L);
 
 		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
-		updatePixelAddress(targetPixel);
-		updatePixelOwnerUser(targetPixel, occupyingUserId);
 
-		PixelUser pixelUser = PixelUser.builder()
-			.pixel(targetPixel)
-			.community(communityRepository.getReferenceById(communityId))
-			.user(userRepository.getReferenceById(occupyingUserId))
-			.build();
-		pixelUserRepository.save(pixelUser);
+		updatePixelAddress(targetPixel);
+		updateRankingOnCache(targetPixel, occupyingUserId);
+
+		targetPixel.updateUserId(occupyingUserId);
+
+		eventPublisher.publishEvent(new PixelUserInsertEvent(targetPixel.getId(), occupyingUserId, communityId));
 	}
 
 	private void updatePixelAddress(Pixel targetPixel) {
@@ -106,12 +104,11 @@ public class PixelService {
 		}
 	}
 
-	private void updatePixelOwnerUser(Pixel targetPixel, Long occupyingUserId) {
+	private void updateRankingOnCache(Pixel targetPixel, Long occupyingUserId) {
 		Long originalOwnerUserId = targetPixel.getUserId();
 		if (Objects.equals(originalOwnerUserId, occupyingUserId)) {
 			return;
 		}
-		targetPixel.updateUserId(occupyingUserId);
 
 		if (originalOwnerUserId == null) {
 			rankingService.increaseCurrentPixelCount(occupyingUserId);

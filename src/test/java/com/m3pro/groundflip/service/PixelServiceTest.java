@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelCountResponse;
@@ -28,7 +29,6 @@ import com.m3pro.groundflip.domain.entity.PixelUser;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
-import com.m3pro.groundflip.repository.CommunityRepository;
 import com.m3pro.groundflip.repository.PixelRepository;
 import com.m3pro.groundflip.repository.PixelUserRepository;
 import com.m3pro.groundflip.repository.UserRepository;
@@ -43,7 +43,7 @@ class PixelServiceTest {
 	@Mock
 	private UserRepository userRepository;
 	@Mock
-	private CommunityRepository communityRepository;
+	private ApplicationEventPublisher eventPublisher;
 	@Mock
 	private RankingService rankingService;
 	@InjectMocks
@@ -305,19 +305,22 @@ class PixelServiceTest {
 	}
 
 	@Test
-	@DisplayName("[occupyPixel] 픽셀을 정상적으로 차지한다.")
+	@DisplayName("[occupyPixel] 픽셀을 정상적으로 차지하여 타겟 픽셀의 userId가 바뀐다.")
 	void occupyPixel() {
 		// Given
 		PixelOccupyRequest pixelOccupyRequest = new PixelOccupyRequest(5L, 78611L, 222L, 233L);
 		Pixel pixel = Pixel.builder()
 			.x(222L)
 			.y(233L)
+			.userId(1L)
 			.address("대한민국")
 			.build();
 		when(pixelRepository.findByXAndY(222L, 233L)).thenReturn(Optional.of(pixel));
+
 		// When
 		pixelService.occupyPixel(pixelOccupyRequest);
+
 		//Then
-		verify(pixelUserRepository, times(1)).save(any());
+		assertEquals(5L, pixel.getUserId());
 	}
 }
