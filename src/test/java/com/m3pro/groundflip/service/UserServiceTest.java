@@ -4,8 +4,11 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -49,9 +52,12 @@ class UserServiceTest {
 
 	@Test
 	@DisplayName("[getUserInfo] 그룹이 없는 사용자를 조회하는 경우")
-	void getUserInfoNoGroupTest() {
+	void getUserInfoNoGroupTest() throws ParseException {
 		// Given
-		User user = User.builder().id(1L).build();
+		String dateString = "2000-12-27";
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		Date date = formatter.parse(dateString);
+		User user = User.builder().id(1L).birthYear(date).build();
 		when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
 		when(userCommunityRepository.findByUserId(anyLong())).thenReturn(new ArrayList<>());
 
@@ -61,13 +67,17 @@ class UserServiceTest {
 		//Then
 		assertNull(userInfoResponse.getCommunityId());
 		assertNull(userInfoResponse.getCommunityName());
+		assertThat(userInfoResponse.getBirthYear()).isEqualTo(2000);
 	}
 
 	@Test
 	@DisplayName("[getUserInfo] 그룹이 있는 사용자를 조회하는 경우")
-	void getUserInfoTest() {
+	void getUserInfoTest() throws ParseException {
 		// Given
-		User user = User.builder().id(1L).build();
+		String dateString = "2000-12-27";
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		Date date = formatter.parse(dateString);
+		User user = User.builder().id(1L).birthYear(date).build();
 		Community community = Community.builder().id(1L).name("test").build();
 		UserCommunity userCommunity = UserCommunity.builder()
 			.user(user)
