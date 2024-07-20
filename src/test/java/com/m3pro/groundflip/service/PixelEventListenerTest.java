@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.event.RecordApplicationEvents;
 
 import com.m3pro.groundflip.domain.dto.pixel.event.PixelAddressUpdateEvent;
 import com.m3pro.groundflip.domain.dto.pixel.event.PixelUserInsertEvent;
@@ -20,7 +19,6 @@ import jakarta.transaction.Transactional;
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@RecordApplicationEvents
 public class PixelEventListenerTest {
 	@Autowired
 	private ApplicationContext applicationContext;
@@ -46,4 +44,5 @@ public class PixelEventListenerTest {
 
 		Mockito.verify(pixelEventListener).updatePixelAddress(event);
 	}
+
 }
