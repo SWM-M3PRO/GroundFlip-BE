@@ -21,6 +21,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelCountResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
+import com.m3pro.groundflip.domain.dto.pixel.event.PixelAddressUpdateEvent;
 import com.m3pro.groundflip.domain.dto.pixel.event.PixelUserInsertEvent;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelOwnerUser;
@@ -342,5 +343,43 @@ class PixelServiceTest {
 
 		// Then
 		verify(applicationEventPublisher, times(1)).publishEvent(any(PixelUserInsertEvent.class));
+	}
+
+	@Test
+	@DisplayName("[occupyPixel] 픽셀을 차지할 때 주소가 null이면 PixelAddressUpdate 이벤트가 발행되는지 확인")
+	void pixelAddressUpdateEventPublish() {
+		PixelOccupyRequest pixelOccupyRequest = new PixelOccupyRequest(5L, 78611L, 222L, 233L);
+		Pixel pixel = Pixel.builder()
+			.x(222L)
+			.y(233L)
+			.userId(1L)
+			.address(null)
+			.build();
+		when(pixelRepository.findByXAndY(222L, 233L)).thenReturn(Optional.of(pixel));
+
+		// When
+		pixelService.occupyPixel(pixelOccupyRequest);
+
+		// Then
+		verify(applicationEventPublisher, times(1)).publishEvent(any(PixelAddressUpdateEvent.class));
+	}
+
+	@Test
+	@DisplayName("[occupyPixel] 픽셀을 차지할 때 주소가 null이 아니라면 PixelAddressUpdate 이벤트가 발행되지 않는지 확인")
+	void pixelAddressUpdateEventNotPublish() {
+		PixelOccupyRequest pixelOccupyRequest = new PixelOccupyRequest(5L, 78611L, 222L, 233L);
+		Pixel pixel = Pixel.builder()
+			.x(222L)
+			.y(233L)
+			.userId(1L)
+			.address("대한민국 ")
+			.build();
+		when(pixelRepository.findByXAndY(222L, 233L)).thenReturn(Optional.of(pixel));
+
+		// When
+		pixelService.occupyPixel(pixelOccupyRequest);
+
+		// Then
+		verify(applicationEventPublisher, times(0)).publishEvent(any(PixelAddressUpdateEvent.class));
 	}
 }
