@@ -19,6 +19,7 @@ import com.m3pro.groundflip.domain.dto.pixel.PixelCountResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
 import com.m3pro.groundflip.domain.dto.pixel.PixelOwnerUserResponse;
 import com.m3pro.groundflip.domain.dto.pixel.VisitedUserInfo;
+import com.m3pro.groundflip.domain.dto.pixel.event.PixelAddressUpdateEvent;
 import com.m3pro.groundflip.domain.dto.pixel.event.PixelUserInsertEvent;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixelUser.VisitedUser;
@@ -43,7 +44,6 @@ public class PixelService {
 	private final PixelRepository pixelRepository;
 	private final PixelUserRepository pixelUserRepository;
 	private final UserRepository userRepository;
-	private final ReverseGeoCodingService reverseGeoCodingService;
 	private final RankingService rankingService;
 	private final ApplicationEventPublisher eventPublisher;
 
@@ -88,19 +88,16 @@ public class PixelService {
 		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
 
-		updatePixelAddress(targetPixel);
 		updateRankingOnCache(targetPixel, occupyingUserId);
-
 		targetPixel.updateUserId(occupyingUserId);
 
+		updatePixelAddress(targetPixel);
 		eventPublisher.publishEvent(new PixelUserInsertEvent(targetPixel.getId(), occupyingUserId, communityId));
 	}
 
 	private void updatePixelAddress(Pixel targetPixel) {
 		if (targetPixel.getAddress() == null) {
-			String address = reverseGeoCodingService.getAddressFromCoordinates(targetPixel.getCoordinate().getX(),
-				targetPixel.getCoordinate().getY());
-			targetPixel.updateAddress(address);
+			eventPublisher.publishEvent(new PixelAddressUpdateEvent(targetPixel));
 		}
 	}
 
