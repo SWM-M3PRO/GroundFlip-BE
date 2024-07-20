@@ -1,5 +1,6 @@
 package com.m3pro.groundflip.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -35,30 +36,33 @@ public class UserService {
 
 		List<UserCommunity> userCommunity = userCommunityRepository.findByUserId(userId);
 
+		LocalDate localDate = user.getBirthYear().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		int year = localDate.getYear();
+
 		if (userCommunity.isEmpty()) {
-			return UserInfoResponse.from(user, null, null);
+			return UserInfoResponse.from(user, year, null, null);
 		} else {
 			Long communityId = userCommunity.get(0).getCommunity().getId();
 			String communityName = userCommunity.get(0).getCommunity().getName();
-			return UserInfoResponse.from(user, communityId, communityName);
+			return UserInfoResponse.from(user, year, communityId, communityName);
 		}
 	}
 
 	@Transactional
-	public void putUserInfo(Long userId, UserInfoRequest userInfoRequest, MultipartFile multipartFile) {
-		String fileS3Url;
+	public void putUserInfo(Long userId, UserInfoRequest userInfoRequest, MultipartFile multipartFile) throws
+		IOException {
+		String fileS3Url = null;
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-		if (checkNicknameExists(userInfoRequest)) {
+		if (checkNicknameExists(userInfoRequest, user)) {
 			throw new AppException(ErrorCode.DUPLICATED_NICKNAME);
 		}
 
-		try {
+		if (multipartFile != null) {
 			fileS3Url = s3Uploader.uploadFiles(multipartFile);
-		} catch (Exception e) {
-			throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
 		}
+
 		user.updateGender(userInfoRequest.getGender());
 		user.updateBirthYear(convertToDate(userInfoRequest.getBirthYear()));
 		user.updateNickName(userInfoRequest.getNickname());
@@ -72,7 +76,13 @@ public class UserService {
 		return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 	}
 
-	public boolean checkNicknameExists(UserInfoRequest userInfoRequest) {
-		return userRepository.findByNickname(userInfoRequest.getNickname()).isPresent();
+	public boolean checkNicknameExists(UserInfoRequest userInfoRequest, User user) {
+		boolean isDuplicate = false;
+		if (!userInfoRequest.getNickname().equals(user.getNickname())) {
+			if (userRepository.findByNickname(userInfoRequest.getNickname()).isPresent()) {
+				isDuplicate = true;
+			}
+		}
+		return isDuplicate;
 	}
 }

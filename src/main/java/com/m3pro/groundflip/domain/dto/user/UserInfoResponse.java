@@ -1,7 +1,5 @@
 package com.m3pro.groundflip.domain.dto.user;
 
-import java.util.Date;
-
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.enums.Gender;
 
@@ -33,18 +31,18 @@ public class UserInfoResponse {
 	private String communityName;
 
 	@Schema(description = "사용자 출생년도", example = "2000")
-	private Date birthYear;
+	private int birthYear;
 
 	@Schema(description = "사용자 성별 (MALE, FEMALE)", example = "MALE")
 	private Gender gender;
 
-	public static UserInfoResponse from(User user, Long communityId, String communityName) {
+	public static UserInfoResponse from(User user, int year, Long communityId, String communityName) {
 		return UserInfoResponse.builder()
 			.userId(user.getId())
 			.nickname(user.getNickname())
 			.profileImageUrl(user.getProfileImage())
 			.gender(user.getGender())
-			.birthYear(user.getBirthYear())
+			.birthYear(year)
 			.communityId(communityId)
 			.communityName(communityName)
 			.build();
