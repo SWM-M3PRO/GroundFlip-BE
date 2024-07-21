@@ -21,6 +21,12 @@ public class PixelEventListener {
 	private final ReverseGeoCodingService reverseGeoCodingService;
 	private final PixelRepository pixelRepository;
 
+	/**
+	 * 픽셀 방문 기록을 DB에 삽입한다.
+	 * @param pixelUserInsertEvent pixel_user의 필드를 가지는 객체
+	 * @return X
+	 * @author 김민욱
+	 */
 	@EventListener
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	@Async
@@ -32,6 +38,12 @@ public class PixelEventListener {
 		);
 	}
 
+	/**
+	 * 픽셀을 방문 시 픽셀의 주소를 불러온다.
+	 * @param pixelAddressUpdateEvent 픽셀 엔티티를 담고있는 객체
+	 * @return X
+	 * @author 김민욱
+	 */
 	@EventListener
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	@Async
