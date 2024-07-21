@@ -30,6 +30,12 @@ public class KakaoApiClient implements OauthApiClient {
 		return Provider.KAKAO;
 	}
 
+	/**
+	 * 카카오로부터 사용자 정보를 가져온다.
+	 * @param accessToken 카카오의 액세스 토큰
+	 * @return OauthUserInfoResponse 카카오에서 받아온 사용자의 정보
+	 * @author 김민욱
+	 */
 	@Override
 	public OauthUserInfoResponse requestOauthUserInfo(String accessToken) {
 		return restClient.get()
@@ -40,6 +46,12 @@ public class KakaoApiClient implements OauthApiClient {
 			.body(KaKaoUserInfoResponse.class);
 	}
 
+	/**
+	 * 카카오로부터 액세스 토큰을 검증한다..
+	 * @param accessToken 카카오의 액세스 토큰
+	 * @return boolean 토큰이 유효한지 여부
+	 * @author 김민욱
+	 */
 	@Override
 	public boolean isOauthTokenValid(String accessToken) {
 		KakaoTokenValidationResponse validationResponse = restClient.get()
