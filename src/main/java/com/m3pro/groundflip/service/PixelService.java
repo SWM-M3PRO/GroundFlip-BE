@@ -47,6 +47,14 @@ public class PixelService {
 	private final RankingService rankingService;
 	private final ApplicationEventPublisher eventPublisher;
 
+	/**
+	 * 사용자를 중심으로 일정한 반경 내에 개인전 픽셀들을 가져온다.
+	 * @param currentLatitude 사용자의 위도
+	 * @param currentLongitude 사용자의 경도
+	 * @param radius 반경
+	 * @return List<IndividualModePixelResponse> 픽셀의 정보가 담긴 리스트
+	 * @author 김민욱
+	 */
 	public List<IndividualModePixelResponse> getNearIndividualModePixelsByCoordinate(
 		double currentLatitude,
 		double currentLongitude,
@@ -80,6 +88,12 @@ public class PixelService {
 		);
 	}
 
+	/**
+	 * 픽셀을 차지한다.
+	 * @param pixelOccupyRequest 픽셀을 차지하기 위해 필요한 정보
+	 * @return
+	 * @author 김민욱
+	 */
 	@Transactional
 	public void occupyPixel(PixelOccupyRequest pixelOccupyRequest) {
 		Long occupyingUserId = pixelOccupyRequest.getUserId();
@@ -95,12 +109,25 @@ public class PixelService {
 		eventPublisher.publishEvent(new PixelUserInsertEvent(targetPixel.getId(), occupyingUserId, communityId));
 	}
 
+	/**
+	 * 픽셀의 주소를 업데이트한다..
+	 * @param targetPixel 주소를 얻기 위한 픽셀
+	 * @return
+	 * @author 김민욱
+	 */
 	private void updatePixelAddress(Pixel targetPixel) {
 		if (targetPixel.getAddress() == null) {
 			eventPublisher.publishEvent(new PixelAddressUpdateEvent(targetPixel));
 		}
 	}
 
+	/**
+	 * 레디스 상에서 랭킹을 조정한다.
+	 * @param targetPixel 랭킹을 조정할 픽셀
+	 * @param occupyingUserId 현재 픽셀을 방문한 유저
+	 * @return
+	 * @author 김민욱
+	 */
 	private void updateRankingOnCache(Pixel targetPixel, Long occupyingUserId) {
 		Long originalOwnerUserId = targetPixel.getUserId();
 		if (Objects.equals(originalOwnerUserId, occupyingUserId)) {
@@ -114,6 +141,13 @@ public class PixelService {
 		}
 	}
 
+	/**
+	 * 개인 기록 모드에서 픽셀 방문 기록을 가져온다
+	 * @param pixelId 기록을 조회할 픽셀
+	 * @param userId 기록을 조회할 사용자
+	 * @return IndividualHistoryPixelInfoResponse 기록, 방문 횟수 등을 담고 있는 객체
+	 * @author 김민욱
+	 */
 	public IndividualHistoryPixelInfoResponse getIndividualHistoryPixelInfo(Long pixelId, Long userId) {
 		Pixel pixel = pixelRepository.findById(pixelId)
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
@@ -128,6 +162,12 @@ public class PixelService {
 			visitList);
 	}
 
+	/**
+	 * 현재 소유하고 있는 픽셀, 누적으로 방문한 픽셀 갯수를 구한다.
+	 * @param userId 픽셀 개수를 조회할 사용자
+	 * @return PixelCountResponse 현재 픽셀, 누적 픽셀을 담고있는 객체
+	 * @author 김민욱
+	 */
 	public PixelCountResponse getPixelCount(Long userId) {
 		return PixelCountResponse.builder()
 			.currentPixelCount(rankingService.getCurrentPixelCount(userId))

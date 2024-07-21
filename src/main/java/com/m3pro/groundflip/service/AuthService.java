@@ -28,6 +28,13 @@ public class AuthService {
 	private final JwtProvider jwtProvider;
 	private final UserRepository userRepository;
 
+	/**
+	 * Oauth Provider를 사용해 로그인을 진행한다.
+	 * @param provider oauth 프로바이더
+	 * @param loginRequest 프로바이더의 액세스 토큰을 담는 객체
+	 * @return LoginResponse 서버에서 발급한 액세스 토큰
+	 * @author 김민욱
+	 */
 	@Transactional
 	public LoginResponse login(Provider provider, LoginRequest loginRequest) {
 		Long userId;
@@ -51,6 +58,13 @@ public class AuthService {
 		return new LoginResponse(accessToken, refreshToken, isSignUp);
 	}
 
+	/**
+	 * 최초 접속일 경우 사용자를 등록한다.
+	 * @param provider oauth 프로바이더
+	 * @param email 프로바이더에서 제공하는 사용자의 이메일
+	 * @return User 저장된 유저의 객체
+	 * @author 김민욱
+	 */
 	private User registerUser(Provider provider, String email) {
 		User newUser = User.builder()
 			.email(email)
