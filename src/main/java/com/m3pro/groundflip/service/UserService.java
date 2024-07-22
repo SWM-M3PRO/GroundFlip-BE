@@ -30,6 +30,11 @@ public class UserService {
 	private final UserCommunityRepository userCommunityRepository;
 	private final S3Uploader s3Uploader;
 
+	/**
+	 * 유저의 정보를 반환한다.
+	 * @param userId 사용자 Id
+	 * @return 사용자 ID, 사용자 닉네임, 사용자 프로필 사진 주소, 그룹 ID, 그룹 이름, 사용자 출생년도, 사용자 성별
+	 */
 	public UserInfoResponse getUserInfo(Long userId) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
@@ -71,12 +76,12 @@ public class UserService {
 		userRepository.save(user);
 	}
 
-	public Date convertToDate(int year) {
+	private Date convertToDate(int year) {
 		LocalDate localDate = LocalDate.of(year, 1, 1);
 		return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 	}
 
-	public boolean checkNicknameExists(UserInfoRequest userInfoRequest, User user) {
+	private boolean checkNicknameExists(UserInfoRequest userInfoRequest, User user) {
 		boolean isDuplicate = false;
 		if (!userInfoRequest.getNickname().equals(user.getNickname())) {
 			if (userRepository.findByNickname(userInfoRequest.getNickname()).isPresent()) {
