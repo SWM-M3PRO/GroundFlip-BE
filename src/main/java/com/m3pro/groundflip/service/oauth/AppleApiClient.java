@@ -46,14 +46,8 @@ public class AppleApiClient implements OauthApiClient {
 	 */
 	@Override
 	public OauthUserInfoResponse requestOauthUserInfo(String identityToken) {
-		try {
-			Map<String, String> headers = jwtProvider.parseHeaders(identityToken);
-			PublicKey publicKey = applePublicKeyGenerator.generatePublicKey(headers, getAppleAuthPublicKey());
-			String email = jwtProvider.getTokenClaims(identityToken, publicKey).get("email", String.class);
-			return new AppleUserInfoResponse(email);
-		} catch (Exception e) {
-			throw new AppException(ErrorCode.UNAUTHORIZED);
-		}
+		String email = jwtProvider.parsePayLoad(identityToken).get("email");
+		return new AppleUserInfoResponse(email);
 	}
 
 	/**

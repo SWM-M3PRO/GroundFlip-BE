@@ -99,14 +99,23 @@ public class JwtProvider {
 
 	public Map<String, String> parseHeaders(String token) throws JsonProcessingException {
 		String header = token.split("\\.")[0];
-		return new ObjectMapper().readValue(decodeHeader(header), Map.class);
+		return new ObjectMapper().readValue(decodeBase64(header), Map.class);
 	}
 
-	private String decodeHeader(String token) {
+	public Map<String, String> parsePayLoad(String token) {
+		String header = token.split("\\.")[1];
+		try {
+			return new ObjectMapper().readValue(decodeBase64(header), Map.class);
+		} catch (JsonProcessingException e) {
+			throw new AppException(ErrorCode.INVALID_JWT);
+		}
+	}
+
+	private String decodeBase64(String token) {
 		return new String(Base64.getDecoder().decode(token), StandardCharsets.UTF_8);
 	}
 
-	public Claims getTokenClaims(String token, PublicKey publicKey) {
+	public Claims validateTokenWithPublicKey(String token, PublicKey publicKey) {
 		try {
 			return Jwts.parser()
 				.setSigningKey(publicKey)
