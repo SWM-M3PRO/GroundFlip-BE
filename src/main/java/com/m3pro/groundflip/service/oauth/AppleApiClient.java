@@ -7,12 +7,10 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.m3pro.groundflip.domain.dto.auth.AppleUserInfoResponse;
 import com.m3pro.groundflip.domain.dto.auth.OauthUserInfoResponse;
-import com.m3pro.groundflip.domain.dto.auth.apple.ApplePublicKeyResponse;
 import com.m3pro.groundflip.enums.Provider;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
@@ -24,11 +22,8 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class AppleApiClient implements OauthApiClient {
-	private final RestClient restClient;
 	private final ApplePublicKeyGenerator applePublicKeyGenerator;
 	private final JwtProvider jwtProvider;
-	@Value("${oauth.apple.url.public-keys}")
-	private String applePublicKeysUrl;
 	@Value("${oauth.apple.url.issuer}")
 	private String issuer;
 	@Value("${oauth.apple.app.id}")
@@ -66,17 +61,6 @@ public class AppleApiClient implements OauthApiClient {
 	}
 
 	/**
-	 * 애플의 퍼블릭키를 가져온다.
-	 * @return 애플의 퍼블릭키
-	 */
-	private ApplePublicKeyResponse getAppleAuthPublicKey() {
-		return restClient.get()
-			.uri(applePublicKeysUrl)
-			.retrieve()
-			.body(ApplePublicKeyResponse.class);
-	}
-
-	/**
 	 * IdentityToken을 검사한다.
 	 * @param identityToken
 	 * @throws JsonProcessingException
@@ -88,7 +72,7 @@ public class AppleApiClient implements OauthApiClient {
 		NoSuchAlgorithmException,
 		InvalidKeySpecException {
 		Map<String, String> headers = jwtProvider.parseHeaders(identityToken);
-		PublicKey publicKey = applePublicKeyGenerator.generatePublicKey(headers, getAppleAuthPublicKey());
+		PublicKey publicKey = applePublicKeyGenerator.getPublicKey(headers);
 		Claims tokenClaims = jwtProvider.validateTokenWithPublicKey(identityToken, publicKey);
 
 		if (!issuer.equals(tokenClaims.getIssuer())) {
