@@ -66,6 +66,14 @@ public class PixelService {
 		return pixelRepository.findAllIndividualModePixelsByCoordinate(point, radius);
 	}
 
+	/**
+	 * 위도 경도를 기준으로 radius 범위 안에서 userId 의 유저가 방문한 픽셀을 가져온다,.
+	 * @param currentLatitude 사용자의 위도
+	 * @param currentLongitude 사용자의 경도
+	 * @param radius 반경
+	 * @param userId 사용자의 id
+	 * @return 픽셀의 정보가 담긴 리스트
+	 */
 	public List<IndividualHistoryPixelResponse> getNearIndividualHistoryPixelsByCoordinate(double currentLatitude,
 		double currentLongitude, int radius, Long userId) {
 		Point point = geometryFactory.createPoint(new Coordinate(currentLongitude, currentLatitude));
@@ -74,6 +82,11 @@ public class PixelService {
 		return pixelRepository.findAllIndividualPixelsHistoryByCoordinate(point, radius, userId);
 	}
 
+	/**
+	 * 특정 픽셀의 정보를 반환한다. 소유주의 정보, 오늘 방문한 사람의 수, 방문한 사람 리스트
+	 * @param pixelId 찾고자 하는 픽셀의 id
+	 * @return 소유주의 정보, 오늘 방문한 사람의 수, 방문한 사람 리스트
+	 */
 	public IndividualPixelInfoResponse getIndividualModePixelInfo(Long pixelId) {
 		Pixel pixel = pixelRepository.findById(pixelId)
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
@@ -175,6 +188,11 @@ public class PixelService {
 			.build();
 	}
 
+	/**
+	 * 픽셀의 소유주의 정보를 반환한다.
+	 * @param pixel 소유주의 정보를 알고 싶은 픽셀
+	 * @return 닉네임, 프로필 사진, 현재 픽실, 누적 픽셀
+	 */
 	private PixelOwnerUserResponse getPixelOwnerUserInfo(Pixel pixel) {
 		Long ownerUserId = pixel.getUserId();
 		if (ownerUserId == null) {

@@ -44,7 +44,6 @@ class JwtProviderTest {
 	void createAccessTokenTest() {
 		Long userId = 1L;
 		String token = jwtProvider.createAccessToken(userId);
-		System.out.println(token);
 		assertNotNull(token);
 	}
 
@@ -155,5 +154,24 @@ class JwtProviderTest {
 		assertNotNull(headers);
 		assertEquals("HS256", headers.get("alg"));
 		assertEquals("JWT", headers.get("typ"));
+	}
+
+	@Test
+	@DisplayName("[parsePayLoad] jwt 토큰에서 payload 부분을 파싱해온다.")
+	public void parsePayLoadTest() {
+		// Given
+		String payload = Base64.getEncoder()
+			.encodeToString("{\"userId\":\"1234567890\",\"name\":\"John Doe\",\"iat\":1516239022}".getBytes(
+				StandardCharsets.UTF_8));
+		String token = "header." + payload + ".signature";
+
+		// When
+		Map<String, String> parsedPayload = jwtProvider.parsePayLoad(token);
+
+		// Then
+		assertNotNull(parsedPayload);
+		assertEquals("1234567890", parsedPayload.get("userId"));
+		assertEquals("John Doe", parsedPayload.get("name"));
+		assertEquals(1516239022, parsedPayload.get("iat"));
 	}
 }
