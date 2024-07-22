@@ -23,6 +23,12 @@ public class ReverseGeoCodingService {
 	@Value("${naver.apiKey}")
 	private String apiKey;
 
+	/**
+	 * 특정 좌표의 주소를 얻어온다.
+	 * @param longitude 경도
+	 * @param latitude 위도
+	 * @return 주소 if 대한민국 주소가 없으면 null 반환
+	 */
 	public String getAddressFromCoordinates(double longitude, double latitude) {
 		NaverReverseGeoCodingApiResult naverReverseGeoCodingApiResult =
 			fetchNaverReverseGeoCodingApiResult(longitude, latitude);
@@ -35,6 +41,12 @@ public class ReverseGeoCodingService {
 		}
 	}
 
+	/**
+	 * 네이버 리버스 지오 코딩 api 로 부터 주소 정보를 얻어온다.
+	 * @param longitude 경도
+	 * @param latitude 위도
+	 * @return 네이버 리버스 지오 코딩 api 응답 정보
+	 */
 	private NaverReverseGeoCodingApiResult fetchNaverReverseGeoCodingApiResult(double longitude, double latitude) {
 		String coordinate = String.format("%f, %f", longitude, latitude);
 		URI uri = UriComponentsBuilder.fromHttpUrl(NAVER_API_URL)
