@@ -39,6 +39,11 @@ public class AppleApiClient implements OauthApiClient {
 		return Provider.APPLE;
 	}
 
+	/**
+	 * identityToken 으로부터 이메일을 얻어온다.
+	 * @param identityToken identityToken
+	 * @return 이메일, provider 정보
+	 */
 	@Override
 	public OauthUserInfoResponse requestOauthUserInfo(String identityToken) {
 		try {
@@ -51,6 +56,11 @@ public class AppleApiClient implements OauthApiClient {
 		}
 	}
 
+	/**
+	 * identity token 이 유효한 토큰인지 검사한다.
+	 * @param identityToken identityToken
+	 * @return true, false
+	 */
 	@Override
 	public boolean isOauthTokenValid(String identityToken) {
 		try {
@@ -61,6 +71,10 @@ public class AppleApiClient implements OauthApiClient {
 		}
 	}
 
+	/**
+	 * 애플의 퍼블릭키를 가져온다.
+	 * @return 애플의 퍼블릭키
+	 */
 	private ApplePublicKeyResponse getAppleAuthPublicKey() {
 		return restClient.get()
 			.uri(applePublicKeysUrl)
@@ -68,13 +82,20 @@ public class AppleApiClient implements OauthApiClient {
 			.body(ApplePublicKeyResponse.class);
 	}
 
+	/**
+	 * IdentityToken을 검사한다.
+	 * @param identityToken
+	 * @throws JsonProcessingException
+	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidKeySpecException
+	 */
 	private void verifyIdentityToken(String identityToken) throws
 		JsonProcessingException,
 		NoSuchAlgorithmException,
 		InvalidKeySpecException {
 		Map<String, String> headers = jwtProvider.parseHeaders(identityToken);
 		PublicKey publicKey = applePublicKeyGenerator.generatePublicKey(headers, getAppleAuthPublicKey());
-		Claims tokenClaims = jwtProvider.getTokenClaims(identityToken, publicKey);
+		Claims tokenClaims = jwtProvider.validateTokenWithPublicKey(identityToken, publicKey);
 
 		if (!issuer.equals(tokenClaims.getIssuer())) {
 			throw new AppException(ErrorCode.INVALID_JWT);
