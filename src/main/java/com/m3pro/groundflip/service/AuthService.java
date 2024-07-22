@@ -76,6 +76,11 @@ public class AuthService {
 		return registeredUser;
 	}
 
+	/**
+	 * 토큰을 재발급 한다. 기존의 리프레시 토큰은 만료시키고 새로운 엑세스 토큰과 리프레시 토큰을 발급한다.
+	 * @param refreshToken 리프레시 토큰
+	 * @return 새로발급된 엑세스 토큰, 리프레시 토큰
+	 */
 	public ReissueReponse reissueToken(String refreshToken) {
 		jwtProvider.validateToken(refreshToken);
 		jwtProvider.expireToken(refreshToken);
@@ -85,6 +90,10 @@ public class AuthService {
 		return new ReissueReponse(reissuedAccessToken, reissuedRefreshToken);
 	}
 
+	/**
+	 * 로그아웃을 한다. 기존의 토큰을 블랙리스트에 넣어 만료시킨다.
+	 * @param logoutRequest 엑세스토큰, 리프레시 토큰
+	 */
 	public void logout(LogoutRequest logoutRequest) {
 		String accessToken = logoutRequest.getAccessToken();
 		String refreshToken = logoutRequest.getRefreshToken();
