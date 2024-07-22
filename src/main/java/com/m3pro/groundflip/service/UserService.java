@@ -59,7 +59,7 @@ public class UserService {
 	@Transactional
 	public void putUserInfo(Long userId, UserInfoRequest userInfoRequest, MultipartFile multipartFile) throws
 		IOException {
-		String fileS3Url = null;
+		String fileS3Url;
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 

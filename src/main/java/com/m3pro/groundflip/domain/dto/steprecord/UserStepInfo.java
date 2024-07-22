@@ -1,4 +1,4 @@
-package com.m3pro.groundflip.domain.dto.stepRecord;
+package com.m3pro.groundflip.domain.dto.steprecord;
 
 import java.sql.Date;
 
