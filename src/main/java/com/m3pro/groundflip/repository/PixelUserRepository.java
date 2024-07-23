@@ -44,8 +44,8 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 
 	@Modifying
 	@Query(value = """
-			INSERT INTO pixel_user (pixel_id, user_id, community_id)
-			VALUES (:pixel_id, :user_id, :community_id)
+			INSERT INTO pixel_user (pixel_id, user_id, community_id, created_at, modified_at)
+			VALUES (:pixel_id, :user_id, :community_id, NOW(), NOW())
 		""", nativeQuery = true)
 	void save(@Param("pixel_id") Long pixelId, @Param("user_id") Long userId,
 		@Param("community_id") Long communityId);
