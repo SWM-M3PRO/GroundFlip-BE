@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.m3pro.groundflip.domain.dto.stepRecord.UserStepInfo;
+import com.m3pro.groundflip.domain.dto.steprecord.UserStepInfo;
 import com.m3pro.groundflip.domain.entity.StepRecord;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.exception.AppException;
@@ -26,6 +26,10 @@ public class StepService {
 	private final UserRepository userRepository;
 	private final StepRecordRepository stepRecordRepository;
 
+	/*
+	 * 매일 자정에 user의 걸음수를 저장한다
+	 * @Param userStepInfo Dto (userId, userSteps, date)
+	 * */
 	@Transactional
 	public void postUserStep(UserStepInfo userStepInfo) {
 		User user = userRepository.findById(userStepInfo.getUserId())
@@ -40,6 +44,13 @@ public class StepService {
 		);
 	}
 
+	/*
+	 * 1주일간의 user의 걸음수를 가져온다
+	 * @Param userId
+	 * @Param startDate 시작날짜
+	 * @Param endDate 종료 날짜 (시작날짜+7)
+	 * @return 7일간 걸음수 List
+	 * */
 	public List<Integer> getUserStepWhileWeek(Long userId, Date startDate, Date endDate) {
 		List<StepRecord> stepRecordList = stepRecordRepository.findByUserIdAndDateBetween(userId, startDate, endDate);
 
@@ -60,6 +71,11 @@ public class StepService {
 		return result;
 	}
 
+	/*
+	 * 시, 분, 초를 0으로 하고 년,월,일 만 구하기
+	 * @Param input Date
+	 * @return result Date
+	 * */
 	private Date truncateTime(Date date) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(date);
