@@ -154,7 +154,7 @@ class RankingServiceTest {
 	}
 
 	@Test
-	@DisplayName("[getAllUserRanking] 레디스에서 찾은 유저가 DB 에서 찾아온 유저에 없다면 예외 발생")
+	@DisplayName("[getAllUserRanking] 레디스에서 찾은 유저가 DB 에서 찾아온 유저에 필터링된다.")
 	void getAllUserRankingTest_UserNotFound() {
 		List<Ranking> rankings = Arrays.asList(
 			new Ranking(1L, 10L, 3L),
@@ -171,9 +171,9 @@ class RankingServiceTest {
 		when(userRepository.findAllById(anySet())).thenReturn(
 			users.stream().filter(user -> user.getId() != 2L).collect(Collectors.toList()));
 
-		RuntimeException exception = assertThrows(RuntimeException.class,
-			() -> rankingService.getAllUserRankings(LocalDate.now())
-		);
-		assertEquals("User not found", exception.getMessage());
+		List<UserRankingResponse> responses = rankingService.getAllUserRankings(LocalDate.now());
+		assertEquals(2, responses.size());
+		assertEquals(1L, responses.get(0).getUserId());
+		assertEquals(3L, responses.get(1).getUserId());
 	}
 }
