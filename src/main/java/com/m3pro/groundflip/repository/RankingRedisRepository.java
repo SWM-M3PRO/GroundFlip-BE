@@ -40,7 +40,7 @@ public class RankingRedisRepository {
 	}
 
 	public void saveUserInRedis(Long userId) {
-		Double score = zSetOperations.score(RANKING_KEY, userId);
+		Double score = zSetOperations.score(RANKING_KEY, userId.toString());
 
 		if (score == null) {
 			zSetOperations.add(RANKING_KEY, userId.toString(), 0);
