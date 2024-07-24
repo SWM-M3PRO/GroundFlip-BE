@@ -33,9 +33,9 @@ public class RankingController {
 	@Operation(summary = "개인전 전체 랭킹 조회", description = "현재 개인전 유저들의 차지 중인 픽셀 기준으로 상위 30명의 랭킹을 반환한다.")
 	@GetMapping("/user")
 	public Response<List<UserRankingResponse>> getAllUserRanking(
-		@RequestParam(required = false, name = "week-start-date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate weekStartDate) {
+		@RequestParam(required = false, name = "lookup-date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lookUpDate) {
 		return Response.createSuccess(
-			rankingService.getAllUserRankings(weekStartDate)
+			rankingService.getAllUserRankings(lookUpDate)
 		);
 	}
 
@@ -43,9 +43,10 @@ public class RankingController {
 	@GetMapping("/user/{userId}")
 	public Response<UserRankingResponse> getUserRank(
 		@Parameter(description = "찾고자 하는 userID", required = true)
-		@PathVariable Long userId
+		@PathVariable Long userId,
+		@RequestParam(required = false, name = "lookup-date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lookUpDate
 	) {
 		return Response.createSuccess(
-			rankingService.getUserRankInfo(userId));
+			rankingService.getUserRankInfo(userId, lookUpDate));
 	}
 }

@@ -1,6 +1,7 @@
 package com.m3pro.groundflip.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,4 +21,9 @@ public interface RankingHistoryRepository extends JpaRepository<RankingHistory, 
 			LIMIT 30 
 		""")
 	List<UserRankingResponse> findAllByYearAndWeek(@Param("requestYear") int year, @Param("requestWeek") int week);
+
+	Optional<RankingHistory> findByUserIdAndYearAndWeek(
+		@Param("userId") Long userId,
+		@Param("requestYear") int year,
+		@Param("requestWeek") int week);
 }

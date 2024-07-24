@@ -38,4 +38,12 @@ public class UserRankingResponse {
 			.rank(rank)
 			.build();
 	}
+
+	public static UserRankingResponse from(User user) {
+		return UserRankingResponse.builder()
+			.userId(user.getId())
+			.nickname(user.getNickname())
+			.profileImageUrl(user.getProfileImage())
+			.build();
+	}
 }

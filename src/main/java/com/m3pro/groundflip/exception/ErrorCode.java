@@ -22,6 +22,8 @@ public enum ErrorCode {
 	INVALID_JWT(HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT입니다."),
 	JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "JWT가 만료되었습니다.");
 
+	// 랭킹 관련 에러
+	
 	private final HttpStatus httpStatus;
 	private final String message;
 }
