@@ -16,7 +16,7 @@ public interface RankingHistoryRepository extends JpaRepository<RankingHistory, 
 			FROM RankingHistory rh 
 			INNER JOIN User u on u.id = rh.userId 
 			WHERE rh.year = :requestYear AND rh.week = :requestWeek
-			ORDER BY rh.ranking asc
+			ORDER BY rh.ranking ASC 
 			LIMIT 30 
 		""")
 	List<UserRankingResponse> findAllByYearAndWeek(@Param("requestYear") int year, @Param("requestWeek") int week);

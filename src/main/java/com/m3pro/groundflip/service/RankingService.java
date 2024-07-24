@@ -68,22 +68,26 @@ public class RankingService {
 	 * 모든 유저의 순위를 반환한다. 최대 30개
 	 * @return 모든 유저의 순위
 	 */
-	public List<UserRankingResponse> getAllUserRanking(LocalDate weekStartDate) {
-		if (weekStartDate == null) {
-			weekStartDate = LocalDate.now();
+	public List<UserRankingResponse> getAllUserRankings(LocalDate lookUpDate) {
+		if (lookUpDate == null) {
+			lookUpDate = LocalDate.now();
 		}
 
-		if (DateUtils.isDateInCurrentWeek(weekStartDate)) {
-			return getCurrentWeekRankingsFromRedis();
+		if (DateUtils.isDateInCurrentWeek(lookUpDate)) {
+			return getCurrentWeekRankings();
 		} else {
-			return rankingHistoryRepository.findAllByYearAndWeek(
-				weekStartDate.getYear(),
-				DateUtils.getWeekOfDate(weekStartDate)
-			);
+			return getPastWeekRankingsByDate(lookUpDate);
 		}
 	}
 
-	private List<UserRankingResponse> getCurrentWeekRankingsFromRedis() {
+	private List<UserRankingResponse> getPastWeekRankingsByDate(LocalDate lookUpDate) {
+		return rankingHistoryRepository.findAllByYearAndWeek(
+			lookUpDate.getYear(),
+			DateUtils.getWeekOfDate(lookUpDate)
+		);
+	}
+
+	private List<UserRankingResponse> getCurrentWeekRankings() {
 		List<Ranking> rankings = rankingRedisRepository.getRankingsWithCurrentPixelCount();
 		Map<Long, User> users = getRankedUsers(rankings);
 

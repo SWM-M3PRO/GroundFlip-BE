@@ -35,7 +35,7 @@ public class RankingController {
 	public Response<List<UserRankingResponse>> getAllUserRanking(
 		@RequestParam(required = false, name = "week-start-date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate weekStartDate) {
 		return Response.createSuccess(
-			rankingService.getAllUserRanking(weekStartDate)
+			rankingService.getAllUserRankings(weekStartDate)
 		);
 	}
 

@@ -145,7 +145,7 @@ class RankingServiceTest {
 		when(rankingRedisRepository.getRankingsWithCurrentPixelCount()).thenReturn(rankings);
 		when(userRepository.findAllById(anySet())).thenReturn(users);
 
-		List<UserRankingResponse> responses = rankingService.getAllUserRanking(LocalDate.now());
+		List<UserRankingResponse> responses = rankingService.getAllUserRankings(LocalDate.now());
 
 		assertEquals(3, responses.size());
 		assertEquals(1L, responses.get(0).getUserId());
@@ -172,7 +172,7 @@ class RankingServiceTest {
 			users.stream().filter(user -> user.getId() != 2L).collect(Collectors.toList()));
 
 		RuntimeException exception = assertThrows(RuntimeException.class,
-			() -> rankingService.getAllUserRanking(LocalDate.now())
+			() -> rankingService.getAllUserRankings(LocalDate.now())
 		);
 		assertEquals("User not found", exception.getMessage());
 	}
