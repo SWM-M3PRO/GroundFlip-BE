@@ -1,5 +1,6 @@
 package com.m3pro.groundflip.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -12,8 +13,10 @@ import com.m3pro.groundflip.domain.dto.ranking.UserRankingResponse;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
+import com.m3pro.groundflip.repository.RankingHistoryRepository;
 import com.m3pro.groundflip.repository.RankingRedisRepository;
 import com.m3pro.groundflip.repository.UserRepository;
+import com.m3pro.groundflip.util.DateUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RankingService {
 	private final RankingRedisRepository rankingRedisRepository;
 	private final UserRepository userRepository;
+	private final RankingHistoryRepository rankingHistoryRepository;
 
 	/**
 	 * 현재 픽셀의 수를 1 증가 시킨다.
@@ -64,7 +68,22 @@ public class RankingService {
 	 * 모든 유저의 순위를 반환한다. 최대 30개
 	 * @return 모든 유저의 순위
 	 */
-	public List<UserRankingResponse> getAllUserRanking() {
+	public List<UserRankingResponse> getAllUserRanking(LocalDate weekStartDate) {
+		if (weekStartDate == null) {
+			weekStartDate = LocalDate.now();
+		}
+
+		if (DateUtils.isDateInCurrentWeek(weekStartDate)) {
+			return getCurrentWeekRankingsFromRedis();
+		} else {
+			return rankingHistoryRepository.findAllByYearAndWeek(
+				weekStartDate.getYear(),
+				DateUtils.getWeekOfDate(weekStartDate)
+			);
+		}
+	}
+
+	private List<UserRankingResponse> getCurrentWeekRankingsFromRedis() {
 		List<Ranking> rankings = rankingRedisRepository.getRankingsWithCurrentPixelCount();
 		Map<Long, User> users = getRankedUsers(rankings);
 

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -128,7 +129,7 @@ class RankingServiceTest {
 
 	@Test
 	@DisplayName("[getAllUserRanking] 현재 상위 30명의 랭킹을 가져온다.")
-	void getAllUserRankingTest() {
+	void getAllCurrentWeekRankingTest() {
 		List<Ranking> rankings = Arrays.asList(
 			new Ranking(1L, 10L, 3L),
 			new Ranking(2L, 20L, 1L),
@@ -144,7 +145,7 @@ class RankingServiceTest {
 		when(rankingRedisRepository.getRankingsWithCurrentPixelCount()).thenReturn(rankings);
 		when(userRepository.findAllById(anySet())).thenReturn(users);
 
-		List<UserRankingResponse> responses = rankingService.getAllUserRanking();
+		List<UserRankingResponse> responses = rankingService.getAllUserRanking(LocalDate.now());
 
 		assertEquals(3, responses.size());
 		assertEquals(1L, responses.get(0).getUserId());
@@ -170,7 +171,9 @@ class RankingServiceTest {
 		when(userRepository.findAllById(anySet())).thenReturn(
 			users.stream().filter(user -> user.getId() != 2L).collect(Collectors.toList()));
 
-		RuntimeException exception = assertThrows(RuntimeException.class, () -> rankingService.getAllUserRanking());
+		RuntimeException exception = assertThrows(RuntimeException.class,
+			() -> rankingService.getAllUserRanking(LocalDate.now())
+		);
 		assertEquals("User not found", exception.getMessage());
 	}
 }
