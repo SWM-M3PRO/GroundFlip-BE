@@ -71,9 +71,7 @@ public class AuthService {
 			.provider(provider)
 			.status(UserStatus.PENDING)
 			.build();
-		User registeredUser = userRepository.save(newUser);
-		rankingRedisRepository.save(registeredUser.getId());
-		return registeredUser;
+		return userRepository.save(newUser);
 	}
 
 	/**

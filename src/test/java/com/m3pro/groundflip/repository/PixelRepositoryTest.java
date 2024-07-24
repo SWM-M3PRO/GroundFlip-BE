@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
@@ -38,6 +39,11 @@ public class PixelRepositoryTest {
 
 	@Autowired
 	GeometryFactory geometryFactory;
+
+	@BeforeEach
+	void setUp() {
+		pixelRepository.deleteAll();
+	}
 
 	@Test
 	@DisplayName("[findAllIndividualModePixelsByCoordinate] 반경 내에 존재하는 픽셀만 불러오는 지 테스트")
@@ -84,12 +90,7 @@ public class PixelRepositoryTest {
 
 	private Pixel savePixel(double latitude, double longitude, Long x, Long y, Long userId) {
 		Point point = createPoint(longitude, latitude);
-		return pixelRepository.save(Pixel.builder()
-			.coordinate(point)
-			.userId(userId)
-			.x(x)
-			.y(y)
-			.build());
+		return pixelRepository.save(Pixel.builder().coordinate(point).userId(userId).x(x).y(y).build());
 	}
 
 	private Point createPoint(double longitude, double latitude) {

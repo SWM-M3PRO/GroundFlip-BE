@@ -1,7 +1,9 @@
 package com.m3pro.groundflip.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -9,11 +11,14 @@ import org.springframework.stereotype.Service;
 
 import com.m3pro.groundflip.domain.dto.ranking.Ranking;
 import com.m3pro.groundflip.domain.dto.ranking.UserRankingResponse;
+import com.m3pro.groundflip.domain.entity.RankingHistory;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
+import com.m3pro.groundflip.repository.RankingHistoryRepository;
 import com.m3pro.groundflip.repository.RankingRedisRepository;
 import com.m3pro.groundflip.repository.UserRepository;
+import com.m3pro.groundflip.util.DateUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RankingService {
 	private final RankingRedisRepository rankingRedisRepository;
 	private final UserRepository userRepository;
+	private final RankingHistoryRepository rankingHistoryRepository;
 
 	/**
 	 * 현재 픽셀의 수를 1 증가 시킨다.
@@ -56,7 +62,7 @@ public class RankingService {
 	 * @param userId 사용자 id
 	 * @return 현재 소유한 픽셀의 개수
 	 */
-	public Long getCurrentPixelCount(Long userId) {
+	public Long getCurrentPixelCountFromCache(Long userId) {
 		return rankingRedisRepository.getUserCurrentPixelCount(userId).orElse(0L);
 	}
 
@@ -64,20 +70,50 @@ public class RankingService {
 	 * 모든 유저의 순위를 반환한다. 최대 30개
 	 * @return 모든 유저의 순위
 	 */
-	public List<UserRankingResponse> getAllUserRanking() {
+	public List<UserRankingResponse> getAllUserRankings(LocalDate lookUpDate) {
+		if (lookUpDate == null) {
+			lookUpDate = LocalDate.now();
+		}
+
+		if (DateUtils.isDateInCurrentWeek(lookUpDate)) {
+			return getCurrentWeekRankings();
+		} else {
+			return getPastWeekRankingsByDate(lookUpDate);
+		}
+	}
+
+	private List<UserRankingResponse> getPastWeekRankingsByDate(LocalDate lookUpDate) {
+		return rankingHistoryRepository.findAllByYearAndWeek(
+			lookUpDate.getYear(),
+			DateUtils.getWeekOfDate(lookUpDate)
+		);
+	}
+
+	private List<UserRankingResponse> getCurrentWeekRankings() {
 		List<Ranking> rankings = rankingRedisRepository.getRankingsWithCurrentPixelCount();
 		Map<Long, User> users = getRankedUsers(rankings);
+
+		rankings = filterNotExistUsers(rankings, users);
 
 		return rankings.stream()
 			.map(ranking -> {
 				User user = users.get(ranking.getUserId());
-				if (user == null) {
-					log.error("User {} Not Register At Redis Sorted Set", ranking.getUserId());
-					throw new RuntimeException("User not found");
-				}
 				return UserRankingResponse.from(user, ranking.getRank(), ranking.getCurrentPixelCount());
 			})
 			.collect(Collectors.toList());
+	}
+
+	private List<Ranking> filterNotExistUsers(List<Ranking> rankings, Map<Long, User> users) {
+		return rankings.stream()
+			.filter(ranking -> {
+				if (users.containsKey(ranking.getUserId())) {
+					return true;
+				} else {
+					log.error("[filterNotExistUsers] userId {}은 데이터베이스에 존재하지 않음", ranking.getUserId());
+					return false;
+				}
+			})
+			.toList();
 	}
 
 	/**
@@ -99,11 +135,43 @@ public class RankingService {
 	 * @param userId 사용자 Id
 	 * @return 유저의 순위 정보
 	 */
-	public UserRankingResponse getUserRankInfo(Long userId) {
+	public UserRankingResponse getUserRankInfo(Long userId, LocalDate lookUpDate) {
+		if (lookUpDate == null) {
+			lookUpDate = LocalDate.now();
+		}
+
+		if (DateUtils.isDateInCurrentWeek(lookUpDate)) {
+			return getCurrentWeekUserRanking(userId);
+		} else {
+			return getPastWeekUserRanking(userId, lookUpDate);
+		}
+	}
+
+	private UserRankingResponse getPastWeekUserRanking(Long userId, LocalDate lookUpDate) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-		Long rank = getUserRank(userId);
-		Long currentPixelCount = getCurrentPixelCount(userId);
+
+		Optional<RankingHistory> rankingHistory = rankingHistoryRepository.findByUserIdAndYearAndWeek(
+			userId,
+			lookUpDate.getYear(),
+			DateUtils.getWeekOfDate(lookUpDate)
+		);
+
+		if (rankingHistory.isPresent()) {
+			return UserRankingResponse.from(
+				user,
+				rankingHistory.get().getRanking(),
+				rankingHistory.get().getCurrentPixelCount());
+		} else {
+			return UserRankingResponse.from(user);
+		}
+	}
+
+	private UserRankingResponse getCurrentWeekUserRanking(Long userId) {
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+		Long rank = getUserRankFromCache(userId);
+		Long currentPixelCount = getCurrentPixelCountFromCache(userId);
 		return UserRankingResponse.from(user, rank, currentPixelCount);
 	}
 
@@ -112,7 +180,7 @@ public class RankingService {
 	 * @param userId 사용자 Id
 	 * @return 사용자의 순위
 	 */
-	private Long getUserRank(Long userId) {
+	private Long getUserRankFromCache(Long userId) {
 		return rankingRedisRepository.getUserRank(userId)
 			.orElseThrow(() -> {
 				log.error("User {} not register at redis", userId);
