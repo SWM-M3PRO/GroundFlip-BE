@@ -87,16 +87,27 @@ public class RankingService {
 		List<Ranking> rankings = rankingRedisRepository.getRankingsWithCurrentPixelCount();
 		Map<Long, User> users = getRankedUsers(rankings);
 
+		rankings = filterNotExistUsers(rankings, users);
+
 		return rankings.stream()
 			.map(ranking -> {
 				User user = users.get(ranking.getUserId());
-				if (user == null) {
-					log.error("User {} Not Register At Redis Sorted Set", ranking.getUserId());
-					throw new RuntimeException("User not found");
-				}
 				return UserRankingResponse.from(user, ranking.getRank(), ranking.getCurrentPixelCount());
 			})
 			.collect(Collectors.toList());
+	}
+
+	private List<Ranking> filterNotExistUsers(List<Ranking> rankings, Map<Long, User> users) {
+		return rankings.stream()
+			.filter(ranking -> {
+				if (users.containsKey(ranking.getUserId())) {
+					return true;
+				} else {
+					log.error("[filterNotExistUsers] userId {}은 데이터베이스에 존재하지 않음", ranking.getUserId());
+					return false;
+				}
+			})
+			.toList();
 	}
 
 	/**
