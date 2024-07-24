@@ -39,8 +39,12 @@ public class RankingRedisRepository {
 		}
 	}
 
-	public void save(Long userId) {
-		zSetOperations.add(RANKING_KEY, userId.toString(), 0);
+	public void saveUserInRedis(Long userId) {
+		Double score = zSetOperations.score(RANKING_KEY, userId);
+
+		if (score == null) {
+			zSetOperations.add(RANKING_KEY, userId.toString(), 0);
+		}
 	}
 
 	public List<Ranking> getRankingsWithCurrentPixelCount() {

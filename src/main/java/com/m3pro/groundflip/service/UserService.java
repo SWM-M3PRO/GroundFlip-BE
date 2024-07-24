@@ -87,7 +87,7 @@ public class UserService {
 		user.updateStatus(UserStatus.COMPLETE);
 		userRepository.save(user);
 
-		rankingRedisRepository.save(user.getId());
+		rankingRedisRepository.saveUserInRedis(user.getId());
 	}
 
 	private Date convertToDate(int year) {
