@@ -3,6 +3,7 @@ package com.m3pro.groundflip.repository;
 import java.util.List;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
@@ -36,6 +37,13 @@ public class PixelUserRepositoryTest {
 	CommunityRepository communityRepository;
 	@Autowired
 	GeometryFactory geometryFactory;
+
+	@BeforeEach
+	void setUp() {
+		pixelUserRepository.deleteAll();
+		pixelRepository.deleteAll();
+		userRepository.deleteAll();
+	}
 
 	@Test
 	@Transactional

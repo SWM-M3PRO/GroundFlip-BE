@@ -163,9 +163,7 @@ public class RankingService {
 				rankingHistory.get().getRanking(),
 				rankingHistory.get().getCurrentPixelCount());
 		} else {
-			return UserRankingResponse.from(
-				user
-			);
+			return UserRankingResponse.from(user);
 		}
 	}
 

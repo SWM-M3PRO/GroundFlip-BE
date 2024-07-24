@@ -124,7 +124,7 @@ class PixelServiceTest {
 		when(pixelUserRepository.findAllVisitedUserByPixelId(pixelId)).thenReturn(visitedUsers);
 		when(userRepository.findById(ownerId)).thenReturn(Optional.of(ownerUser));
 		when(pixelUserRepository.countAccumulatePixelByUserId(ownerId)).thenReturn(10L);
-		when(rankingService.getCurrentPixelCount(ownerId)).thenReturn(5L);
+		when(rankingService.getCurrentPixelCountFromCache(ownerId)).thenReturn(5L);
 
 		// When
 		IndividualPixelInfoResponse response = pixelService.getIndividualModePixelInfo(pixelId);
@@ -295,7 +295,7 @@ class PixelServiceTest {
 		// Given
 		Long userId = 1L;
 
-		when(rankingService.getCurrentPixelCount(userId)).thenReturn(3L);
+		when(rankingService.getCurrentPixelCountFromCache(userId)).thenReturn(3L);
 		when(pixelUserRepository.countAccumulatePixelByUserId(userId)).thenReturn(5L);
 
 		// When
