@@ -16,6 +16,7 @@ import com.m3pro.groundflip.domain.entity.UserCommunity;
 import com.m3pro.groundflip.enums.UserStatus;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
+import com.m3pro.groundflip.repository.RankingRedisRepository;
 import com.m3pro.groundflip.repository.UserCommunityRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 import com.m3pro.groundflip.util.S3Uploader;
@@ -26,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+	private final RankingRedisRepository rankingRedisRepository;
 	private final UserRepository userRepository;
 	private final UserCommunityRepository userCommunityRepository;
 	private final S3Uploader s3Uploader;
@@ -84,6 +86,8 @@ public class UserService {
 		user.updateProfileImage(fileS3Url);
 		user.updateStatus(UserStatus.COMPLETE);
 		userRepository.save(user);
+
+		rankingRedisRepository.save(user.getId());
 	}
 
 	private Date convertToDate(int year) {

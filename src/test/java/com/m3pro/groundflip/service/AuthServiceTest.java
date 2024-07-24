@@ -103,7 +103,6 @@ class AuthServiceTest {
 		verify(oauthUserInfoService, times(1)).requestUserInfo(provider, loginRequest.getAccessToken());
 		verify(userRepository, times(1)).findByProviderAndEmail(provider, oauthUserInfo.getEmail());
 		verify(userRepository, times(1)).save(any(User.class));
-		verify(rankingRedisRepository, times(1)).save(newUser.getId());
 		verify(jwtProvider, times(1)).createAccessToken(newUser.getId());
 		verify(jwtProvider, times(1)).createRefreshToken(newUser.getId());
 		verifyNoMoreInteractions(oauthUserInfoService, userRepository, jwtProvider, rankingRedisRepository);
