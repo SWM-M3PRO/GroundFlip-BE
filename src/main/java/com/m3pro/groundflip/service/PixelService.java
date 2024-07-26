@@ -171,8 +171,7 @@ public class PixelService {
 			.map(BaseTimeEntity::getCreatedAt)
 			.toList();
 
-		return new IndividualHistoryPixelInfoResponse(pixel.getAddress(), pixel.getAddressNumber(), visitList.size(),
-			visitList);
+		return IndividualHistoryPixelInfoResponse.from(pixel, visitList);
 	}
 
 	/**
