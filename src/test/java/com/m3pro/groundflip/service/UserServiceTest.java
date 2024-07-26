@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
@@ -18,12 +19,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.m3pro.groundflip.domain.dto.user.UserDeleteRequest;
 import com.m3pro.groundflip.domain.dto.user.UserInfoResponse;
 import com.m3pro.groundflip.domain.entity.Community;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.domain.entity.UserCommunity;
+import com.m3pro.groundflip.enums.Gender;
+import com.m3pro.groundflip.enums.Provider;
+import com.m3pro.groundflip.enums.UserStatus;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
+import com.m3pro.groundflip.jwt.JwtProvider;
 import com.m3pro.groundflip.repository.UserCommunityRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 
@@ -34,6 +40,9 @@ class UserServiceTest {
 
 	@Mock
 	private UserCommunityRepository userCommunityRepository;
+
+	@Mock
+	private JwtProvider jwtProvider;
 
 	@InjectMocks
 	private UserService userService;
@@ -92,5 +101,33 @@ class UserServiceTest {
 		//Then
 		assertThat(userInfoResponse.getCommunityId()).isEqualTo(1L);
 		assertThat(userInfoResponse.getCommunityName()).isEqualTo("test");
+	}
+
+	@Test
+	@DisplayName("[deleteUser] 사용자의 정보가 정상적으로 masking 되는 지 확인한다.")
+	void deleteUserTest() {
+		User deleteUser = User.builder()
+			.id(1L)
+			.email("test1@naver.com")
+			.provider(Provider.KAKAO)
+			.gender(Gender.MALE)
+			.birthYear(new Date())
+			.profileImage("https://s3-fake-url")
+			.status(UserStatus.COMPLETE)
+			.nickname("test")
+			.build();
+
+		when(userRepository.findById(deleteUser.getId())).thenReturn(Optional.of(deleteUser));
+
+		userService.deleteUser(1L, new UserDeleteRequest("acessToken", "refreshToken"));
+
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(deleteUser.getBirthYear());
+
+		assertThat(deleteUser.getNickname()).isEqualTo(null);
+		assertThat(deleteUser.getProfileImage()).isEqualTo(null);
+		assertThat(calendar.get(Calendar.YEAR)).isEqualTo(1900);
+		assertThat(deleteUser.getEmail()).isEqualTo("unknown@unknown.com");
+
 	}
 }
