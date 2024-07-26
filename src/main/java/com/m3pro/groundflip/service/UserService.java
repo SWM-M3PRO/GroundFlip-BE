@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.m3pro.groundflip.domain.dto.user.UserDeleteRequest;
 import com.m3pro.groundflip.domain.dto.user.UserInfoRequest;
 import com.m3pro.groundflip.domain.dto.user.UserInfoResponse;
 import com.m3pro.groundflip.domain.entity.User;
@@ -16,6 +17,7 @@ import com.m3pro.groundflip.domain.entity.UserCommunity;
 import com.m3pro.groundflip.enums.UserStatus;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
+import com.m3pro.groundflip.jwt.JwtProvider;
 import com.m3pro.groundflip.repository.RankingRedisRepository;
 import com.m3pro.groundflip.repository.UserCommunityRepository;
 import com.m3pro.groundflip.repository.UserRepository;
@@ -31,6 +33,7 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final UserCommunityRepository userCommunityRepository;
 	private final S3Uploader s3Uploader;
+	private final JwtProvider jwtProvider;
 
 	/**
 	 * 유저의 정보를 반환한다.
@@ -103,5 +106,19 @@ public class UserService {
 			}
 		}
 		return isDuplicate;
+	}
+
+	@Transactional
+	public void deleteUser(Long userId, UserDeleteRequest userDeleteRequest) {
+		User deletedUser = userRepository.findById(userId)
+			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+		deletedUser.updateBirthYear(convertToDate(1900));
+		deletedUser.updateNickName(null);
+		deletedUser.updateProfileImage(null);
+		deletedUser.updateEmail("unknown@unknown.com");
+
+		jwtProvider.expireToken(userDeleteRequest.getAccessToken());
+		jwtProvider.expireToken(userDeleteRequest.getRefreshToken());
 	}
 }

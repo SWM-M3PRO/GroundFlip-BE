@@ -221,7 +221,7 @@ class PixelServiceTest {
 
 		// Given
 		Long pixelId = 10000L;
-		String address = "은평구";
+		String address = "서울특별시 은평구 녹번동";
 		int addressNumber = 1;
 
 		Pixel pixel = Pixel.builder()
