@@ -2,15 +2,18 @@ package com.m3pro.groundflip.controller;
 
 import java.io.IOException;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.m3pro.groundflip.domain.dto.Response;
+import com.m3pro.groundflip.domain.dto.user.UserDeleteRequest;
 import com.m3pro.groundflip.domain.dto.user.UserInfoRequest;
 import com.m3pro.groundflip.domain.dto.user.UserInfoResponse;
 import com.m3pro.groundflip.service.UserService;
@@ -50,4 +53,13 @@ public class UserController {
 		return Response.createSuccessWithNoData();
 	}
 
+	@Operation(summary = "사용자 탈퇴", description = "회원을 탈퇴한다.")
+	@DeleteMapping("/{userId}")
+	public Response<?> putUserInfo(
+		@Parameter(description = "찾고자 하는 userId", required = true) @PathVariable Long userId,
+		@RequestBody UserDeleteRequest userDeleteRequest
+	) {
+		userService.deleteUser(userId, userDeleteRequest);
+		return Response.createSuccessWithNoData();
+	}
 }
