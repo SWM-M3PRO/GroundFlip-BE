@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.m3pro.groundflip.domain.dto.Response;
+import com.m3pro.groundflip.domain.dto.auth.AppleLoginRequest;
 import com.m3pro.groundflip.domain.dto.auth.LoginRequest;
 import com.m3pro.groundflip.domain.dto.auth.LoginResponse;
 import com.m3pro.groundflip.domain.dto.auth.LogoutRequest;
@@ -33,8 +34,8 @@ public class AuthController {
 
 	@Operation(summary = "애플 로그인", description = "애플에서 받은 identity token을 통해 회원가입 또는 로그인하는 API")
 	@PostMapping("/kakao/apple")
-	public Response<LoginResponse> loginApple(@RequestBody LoginRequest loginRequest) {
-		return Response.createSuccess(authService.login(Provider.APPLE, loginRequest));
+	public Response<LoginResponse> loginApple(@RequestBody AppleLoginRequest appleLoginRequest) {
+		return Response.createSuccess(authService.loginWithApple(appleLoginRequest));
 	}
 
 	@Operation(summary = "access token 재발급", description = "만료된 access token 을 refresh token으로 재발급 하는 API")

@@ -12,28 +12,36 @@ import org.springframework.web.multipart.MultipartFile;
 import com.m3pro.groundflip.domain.dto.user.UserDeleteRequest;
 import com.m3pro.groundflip.domain.dto.user.UserInfoRequest;
 import com.m3pro.groundflip.domain.dto.user.UserInfoResponse;
+import com.m3pro.groundflip.domain.entity.AppleRefreshToken;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.domain.entity.UserCommunity;
+import com.m3pro.groundflip.enums.Provider;
 import com.m3pro.groundflip.enums.UserStatus;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.jwt.JwtProvider;
+import com.m3pro.groundflip.repository.AppleRefreshTokenRepository;
 import com.m3pro.groundflip.repository.RankingRedisRepository;
 import com.m3pro.groundflip.repository.UserCommunityRepository;
 import com.m3pro.groundflip.repository.UserRepository;
+import com.m3pro.groundflip.service.oauth.AppleApiClient;
 import com.m3pro.groundflip.util.S3Uploader;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 	private final RankingRedisRepository rankingRedisRepository;
 	private final UserRepository userRepository;
+	private final AppleRefreshTokenRepository appleRefreshTokenRepository;
 	private final UserCommunityRepository userCommunityRepository;
 	private final S3Uploader s3Uploader;
 	private final JwtProvider jwtProvider;
+	private final AppleApiClient appleApiClient;
 
 	/**
 	 * 유저의 정보를 반환한다.
@@ -58,7 +66,7 @@ public class UserService {
 		}
 	}
 
-	/*
+	/**
 	 * 유저의 정보를 수정한다
 	 * @Param 유저id
 	 * @Param 유저정보dto (gender, year, nickname)
@@ -112,7 +120,9 @@ public class UserService {
 	public void deleteUser(Long userId, UserDeleteRequest userDeleteRequest) {
 		User deletedUser = userRepository.findById(userId)
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
+		if (deletedUser.getProvider() == Provider.APPLE) {
+			revokeAppleToken(deletedUser.getId());
+		}
 		deletedUser.updateBirthYear(convertToDate(1900));
 		deletedUser.updateNickName(null);
 		deletedUser.updateProfileImage(null);
@@ -120,5 +130,16 @@ public class UserService {
 
 		jwtProvider.expireToken(userDeleteRequest.getAccessToken());
 		jwtProvider.expireToken(userDeleteRequest.getRefreshToken());
+	}
+
+	private void revokeAppleToken(Long userId) {
+		try {
+			AppleRefreshToken appleRefreshToken = appleRefreshTokenRepository.findByUserId(userId)
+				.orElseThrow(() -> new AppException(ErrorCode.INTERNAL_SERVER_ERROR));
+			appleApiClient.revokeToken(appleRefreshToken.getRefreshToken());
+			appleRefreshTokenRepository.delete(appleRefreshToken);
+		} catch (Exception e) {
+			log.warn("revoke apple token failed userId : [{}]", userId);
+		}
 	}
 }
