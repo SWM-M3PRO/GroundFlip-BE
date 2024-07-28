@@ -98,11 +98,7 @@ public class AppleApiClient implements OauthApiClient {
 	 * @throws IOException
 	 */
 	public String getAppleRefreshToken(String authorizationCode) throws IOException {
-		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-		body.add("code", authorizationCode);
-		body.add("client_id", clientId);
-		body.add("client_secret", appleKeyGenerator.getClientSecret());
-		body.add("grant_type", "authorization_code");
+		MultiValueMap<String, String> body = getCreateTokenBody(authorizationCode);
 
 		AppleTokenResponse appleTokenResponse = restClient.post()
 			.uri("https://appleid.apple.com/auth/token")
@@ -114,12 +110,17 @@ public class AppleApiClient implements OauthApiClient {
 		return Objects.requireNonNull(appleTokenResponse).getRefresh_token();
 	}
 
-	public void revokeToken(String refreshToken) throws IOException {
+	private MultiValueMap<String, String> getCreateTokenBody(String authorizationCode) throws IOException {
 		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+		body.add("code", authorizationCode);
 		body.add("client_id", clientId);
-		body.add("token", refreshToken);
 		body.add("client_secret", appleKeyGenerator.getClientSecret());
-		body.add("token_type_hint", "refresh_token");
+		body.add("grant_type", "authorization_code");
+		return body;
+	}
+
+	public void revokeToken(String refreshToken) throws IOException {
+		MultiValueMap<String, String> body = getRevokeTokenBody(refreshToken);
 
 		restClient.post()
 			.uri("https://appleid.apple.com/auth/revoke")
@@ -127,5 +128,14 @@ public class AppleApiClient implements OauthApiClient {
 			.body(body)
 			.retrieve()
 			.toBodilessEntity();
+	}
+
+	private MultiValueMap<String, String> getRevokeTokenBody(String refreshToken) throws IOException {
+		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+		body.add("client_id", clientId);
+		body.add("token", refreshToken);
+		body.add("client_secret", appleKeyGenerator.getClientSecret());
+		body.add("token_type_hint", "refresh_token");
+		return body;
 	}
 }
