@@ -25,6 +25,8 @@ import org.springframework.web.client.RestClient;
 
 import com.m3pro.groundflip.domain.dto.auth.apple.ApplePublicKey;
 import com.m3pro.groundflip.domain.dto.auth.apple.ApplePublicKeyResponse;
+import com.m3pro.groundflip.exception.AppException;
+import com.m3pro.groundflip.exception.ErrorCode;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -97,7 +99,7 @@ public class AppleKeyGenerator {
 	 * @return
 	 * @throws IOException
 	 */
-	public String getClientSecret() throws IOException {
+	public String getClientSecret() {
 		Date expirationDate = Date.from(LocalDateTime.now().plusDays(30).atZone(ZoneId.systemDefault()).toInstant());
 
 		return Jwts.builder()
@@ -117,12 +119,16 @@ public class AppleKeyGenerator {
 	 * @return
 	 * @throws IOException
 	 */
-	private PrivateKey getPrivateKey() throws
-		IOException {
-		Reader pemReader = new StringReader(privateKey.replace("\\n", "\n"));
-		PEMParser pemParser = new PEMParser(pemReader);
-		JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
-		PrivateKeyInfo object = (PrivateKeyInfo)pemParser.readObject();
-		return converter.getPrivateKey(object);
+	private PrivateKey getPrivateKey() {
+		try {
+			Reader pemReader = new StringReader(privateKey.replace("\\n", "\n"));
+			PEMParser pemParser = new PEMParser(pemReader);
+			JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
+			PrivateKeyInfo object = (PrivateKeyInfo)pemParser.readObject();
+			return converter.getPrivateKey(object);
+		} catch (IOException e) {
+			throw new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
+		}
+
 	}
 }

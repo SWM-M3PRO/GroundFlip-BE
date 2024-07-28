@@ -97,7 +97,7 @@ public class AppleApiClient implements OauthApiClient {
 	 * @return apple 에서 발행하는 refresh token
 	 * @throws IOException
 	 */
-	public String getAppleRefreshToken(String authorizationCode) throws IOException {
+	public String getAppleRefreshToken(String authorizationCode) {
 		MultiValueMap<String, String> body = getCreateTokenBody(authorizationCode);
 
 		AppleTokenResponse appleTokenResponse = restClient.post()
@@ -110,7 +110,7 @@ public class AppleApiClient implements OauthApiClient {
 		return Objects.requireNonNull(appleTokenResponse).getRefresh_token();
 	}
 
-	private MultiValueMap<String, String> getCreateTokenBody(String authorizationCode) throws IOException {
+	private MultiValueMap<String, String> getCreateTokenBody(String authorizationCode) {
 		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
 		body.add("code", authorizationCode);
 		body.add("client_id", clientId);
@@ -119,7 +119,7 @@ public class AppleApiClient implements OauthApiClient {
 		return body;
 	}
 
-	public void revokeToken(String refreshToken) throws IOException {
+	public void revokeToken(String refreshToken) {
 		MultiValueMap<String, String> body = getRevokeTokenBody(refreshToken);
 
 		restClient.post()
@@ -130,7 +130,7 @@ public class AppleApiClient implements OauthApiClient {
 			.toBodilessEntity();
 	}
 
-	private MultiValueMap<String, String> getRevokeTokenBody(String refreshToken) throws IOException {
+	private MultiValueMap<String, String> getRevokeTokenBody(String refreshToken) {
 		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
 		body.add("client_id", clientId);
 		body.add("token", refreshToken);
