@@ -113,4 +113,19 @@ public class AppleApiClient implements OauthApiClient {
 
 		return Objects.requireNonNull(appleTokenResponse).getRefresh_token();
 	}
+
+	public void revokeToken(String refreshToken) throws IOException {
+		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+		body.add("client_id", clientId);
+		body.add("token", refreshToken);
+		body.add("client_secret", appleKeyGenerator.getClientSecret());
+		body.add("token_type_hint", "refresh_token");
+
+		restClient.post()
+			.uri("https://appleid.apple.com/auth/revoke")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.body(body)
+			.retrieve()
+			.toBodilessEntity();
+	}
 }
