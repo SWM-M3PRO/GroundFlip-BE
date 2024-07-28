@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.m3pro.groundflip.domain.dto.user.UserDeleteRequest;
 import com.m3pro.groundflip.domain.dto.user.UserInfoResponse;
+import com.m3pro.groundflip.domain.entity.AppleRefreshToken;
 import com.m3pro.groundflip.domain.entity.Community;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.domain.entity.UserCommunity;
@@ -30,8 +31,10 @@ import com.m3pro.groundflip.enums.UserStatus;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.jwt.JwtProvider;
+import com.m3pro.groundflip.repository.AppleRefreshTokenRepository;
 import com.m3pro.groundflip.repository.UserCommunityRepository;
 import com.m3pro.groundflip.repository.UserRepository;
+import com.m3pro.groundflip.service.oauth.AppleApiClient;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -40,6 +43,12 @@ class UserServiceTest {
 
 	@Mock
 	private UserCommunityRepository userCommunityRepository;
+
+	@Mock
+	private AppleRefreshTokenRepository appleRefreshTokenRepository;
+
+	@Mock
+	private AppleApiClient appleApiClient;
 
 	@Mock
 	private JwtProvider jwtProvider;
@@ -124,6 +133,37 @@ class UserServiceTest {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(deleteUser.getBirthYear());
 
+		assertThat(deleteUser.getNickname()).isEqualTo(null);
+		assertThat(deleteUser.getProfileImage()).isEqualTo(null);
+		assertThat(calendar.get(Calendar.YEAR)).isEqualTo(1900);
+		assertThat(deleteUser.getEmail()).isEqualTo("unknown@unknown.com");
+
+	}
+
+	@Test
+	@DisplayName("[deleteUser] 애플 로그인 경우 애플 토큰을 정상적으로 revoke 하고 사용자의 정보가 정상적으로 masking 되는 지 확인한다.")
+	void deleteUserTestInApple() {
+		User deleteUser = User.builder()
+			.id(1L)
+			.email("test1@naver.com")
+			.provider(Provider.APPLE)
+			.gender(Gender.MALE)
+			.birthYear(new Date())
+			.profileImage("https://s3-fake-url")
+			.status(UserStatus.COMPLETE)
+			.nickname("test")
+			.build();
+
+		when(userRepository.findById(deleteUser.getId())).thenReturn(Optional.of(deleteUser));
+		when(appleRefreshTokenRepository.findByUserId(any())).thenReturn(
+			Optional.of(AppleRefreshToken.builder().refreshToken("test").build()));
+
+		userService.deleteUser(1L, new UserDeleteRequest("acessToken", "refreshToken"));
+
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(deleteUser.getBirthYear());
+		verify(appleApiClient, times(1)).revokeToken(any());
+		verify(appleRefreshTokenRepository, times(1)).delete(any());
 		assertThat(deleteUser.getNickname()).isEqualTo(null);
 		assertThat(deleteUser.getProfileImage()).isEqualTo(null);
 		assertThat(calendar.get(Calendar.YEAR)).isEqualTo(1900);
