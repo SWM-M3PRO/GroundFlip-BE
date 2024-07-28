@@ -41,6 +41,9 @@ oauth:
   apple:
     app:
       id: 123456
+      teamId: 123456
+      keyId: 123456
+      privateKey: 123456
     url:
       public-keys: https://appleid.apple.com/auth/keys
       issuer: https://appleid.apple.com
