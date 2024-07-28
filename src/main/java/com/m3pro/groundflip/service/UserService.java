@@ -29,9 +29,11 @@ import com.m3pro.groundflip.util.S3Uploader;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 	private final RankingRedisRepository rankingRedisRepository;
 	private final UserRepository userRepository;
@@ -131,7 +133,13 @@ public class UserService {
 	}
 
 	private void revokeAppleToken(Long userId) {
-		AppleRefreshToken appleRefreshToken = appleRefreshTokenRepository.findByUserId(userId).orElseThrow();
-		appleApiClient.revokeToken(appleRefreshToken.getRefreshToken());
+		try {
+			AppleRefreshToken appleRefreshToken = appleRefreshTokenRepository.findByUserId(userId)
+				.orElseThrow(() -> new AppException(ErrorCode.INTERNAL_SERVER_ERROR));
+			appleApiClient.revokeToken(appleRefreshToken.getRefreshToken());
+			appleRefreshTokenRepository.delete(appleRefreshToken);
+		} catch (Exception e) {
+			log.warn("revoke apple token failed userId : [{}]", userId);
+		}
 	}
 }
