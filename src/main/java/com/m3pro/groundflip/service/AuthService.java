@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.m3pro.groundflip.domain.dto.auth.AppleLoginRequest;
 import com.m3pro.groundflip.domain.dto.auth.LoginRequest;
 import com.m3pro.groundflip.domain.dto.auth.LoginResponse;
 import com.m3pro.groundflip.domain.dto.auth.LogoutRequest;
@@ -13,7 +14,6 @@ import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.enums.Provider;
 import com.m3pro.groundflip.enums.UserStatus;
 import com.m3pro.groundflip.jwt.JwtProvider;
-import com.m3pro.groundflip.repository.RankingRedisRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 import com.m3pro.groundflip.service.oauth.OauthService;
 
@@ -24,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthService {
 	private final OauthService oauthUserInfoService;
-	private final RankingRedisRepository rankingRedisRepository;
 	private final JwtProvider jwtProvider;
 	private final UserRepository userRepository;
 
@@ -98,5 +97,31 @@ public class AuthService {
 
 		jwtProvider.expireToken(accessToken);
 		jwtProvider.expireToken(refreshToken);
+	}
+
+	public LoginResponse loginWithApple(AppleLoginRequest loginRequest) {
+		Long userId;
+		boolean isSignUp;
+
+		OauthUserInfoResponse oauthUserInfo = oauthUserInfoService.requestUserInfo(Provider.APPLE,
+			loginRequest.getAccessToken());
+		Optional<User> loginUser = userRepository.findByProviderAndEmail(Provider.APPLE, oauthUserInfo.getEmail());
+
+		if (loginUser.isPresent()) {
+			userId = loginUser.get().getId();
+			isSignUp = loginUser.get().getStatus() == UserStatus.PENDING;
+		} else {
+			userId = registerUser(Provider.APPLE, oauthUserInfo.getEmail()).getId();
+			registerAppleRefreshToken(userId, loginRequest.getAuthorizationCode());
+			isSignUp = true;
+		}
+
+		String accessToken = jwtProvider.createAccessToken(userId);
+		String refreshToken = jwtProvider.createRefreshToken(userId);
+		return new LoginResponse(accessToken, refreshToken, isSignUp);
+	}
+
+	private void registerAppleRefreshToken(Long userId, String authorizationCode) {
+		String refreshToken = oauthUserInfoService.getAppleRefreshToken(authorizationCode);
 	}
 }
