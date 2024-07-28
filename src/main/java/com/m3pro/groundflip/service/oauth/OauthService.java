@@ -48,4 +48,9 @@ public class OauthService {
 		OauthApiClient oauthApiClient = clients.get(provider);
 		return oauthApiClient.isOauthTokenValid(accessToken);
 	}
+
+	public String getAppleRefreshToken(String authorizationCode) {
+		AppleApiClient appleApiClient = (AppleApiClient)clients.get(Provider.APPLE);
+		return appleApiClient.getAppleRefreshToken(authorizationCode);
+	}
 }
