@@ -10,10 +10,12 @@ import com.m3pro.groundflip.domain.dto.auth.LoginResponse;
 import com.m3pro.groundflip.domain.dto.auth.LogoutRequest;
 import com.m3pro.groundflip.domain.dto.auth.OauthUserInfoResponse;
 import com.m3pro.groundflip.domain.dto.auth.ReissueReponse;
+import com.m3pro.groundflip.domain.entity.AppleRefreshToken;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.enums.Provider;
 import com.m3pro.groundflip.enums.UserStatus;
 import com.m3pro.groundflip.jwt.JwtProvider;
+import com.m3pro.groundflip.repository.AppleRefreshTokenRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 import com.m3pro.groundflip.service.oauth.OauthService;
 
@@ -26,6 +28,7 @@ public class AuthService {
 	private final OauthService oauthUserInfoService;
 	private final JwtProvider jwtProvider;
 	private final UserRepository userRepository;
+	private final AppleRefreshTokenRepository appleRefreshTokenRepository;
 
 	/**
 	 * Oauth Provider를 사용해 로그인을 진행한다.
@@ -123,5 +126,11 @@ public class AuthService {
 
 	private void registerAppleRefreshToken(Long userId, String authorizationCode) {
 		String refreshToken = oauthUserInfoService.getAppleRefreshToken(authorizationCode);
+		appleRefreshTokenRepository.save(
+			AppleRefreshToken.builder()
+				.userId(userId)
+				.refreshToken(refreshToken)
+				.build()
+		);
 	}
 }
