@@ -1,14 +1,21 @@
 package com.m3pro.groundflip.service.oauth;
 
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.m3pro.groundflip.domain.dto.auth.AppleTokenResponse;
 import com.m3pro.groundflip.domain.dto.auth.AppleUserInfoResponse;
 import com.m3pro.groundflip.domain.dto.auth.OauthUserInfoResponse;
 import com.m3pro.groundflip.enums.Provider;
@@ -22,7 +29,8 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class AppleApiClient implements OauthApiClient {
-	private final ApplePublicKeyGenerator applePublicKeyGenerator;
+	private final AppleKeyGenerator appleKeyGenerator;
+	private final RestClient restClient;
 	private final JwtProvider jwtProvider;
 	@Value("${oauth.apple.url.issuer}")
 	private String issuer;
@@ -72,7 +80,7 @@ public class AppleApiClient implements OauthApiClient {
 		NoSuchAlgorithmException,
 		InvalidKeySpecException {
 		Map<String, String> headers = jwtProvider.parseHeaders(identityToken);
-		PublicKey publicKey = applePublicKeyGenerator.getPublicKey(headers);
+		PublicKey publicKey = appleKeyGenerator.getPublicKey(headers);
 		Claims tokenClaims = jwtProvider.validateTokenWithPublicKey(identityToken, publicKey);
 
 		if (!issuer.equals(tokenClaims.getIssuer())) {
@@ -81,5 +89,28 @@ public class AppleApiClient implements OauthApiClient {
 		if (!clientId.equals(tokenClaims.getAudience())) {
 			throw new AppException(ErrorCode.INVALID_JWT);
 		}
+	}
+
+	/**
+	 * apple 서버에서 발행하는 refresh token을 반환한다
+	 * @param authorizationCode
+	 * @return apple 에서 발행하는 refresh token
+	 * @throws IOException
+	 */
+	public String getAppleRefreshToken(String authorizationCode) throws IOException {
+		MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+		body.add("code", authorizationCode);
+		body.add("client_id", clientId);
+		body.add("client_secret", appleKeyGenerator.getClientSecret());
+		body.add("grant_type", "authorization_code");
+
+		AppleTokenResponse appleTokenResponse = restClient.post()
+			.uri("https://appleid.apple.com/auth/token")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.body(body)
+			.retrieve()
+			.body(AppleTokenResponse.class);
+
+		return Objects.requireNonNull(appleTokenResponse).getRefresh_token();
 	}
 }
