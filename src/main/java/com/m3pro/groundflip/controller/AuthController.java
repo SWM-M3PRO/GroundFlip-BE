@@ -33,7 +33,7 @@ public class AuthController {
 	}
 
 	@Operation(summary = "애플 로그인", description = "애플에서 받은 identity token을 통해 회원가입 또는 로그인하는 API")
-	@PostMapping("/kakao/apple")
+	@PostMapping("/apple/login")
 	public Response<LoginResponse> loginApple(@RequestBody AppleLoginRequest appleLoginRequest) {
 		return Response.createSuccess(authService.loginWithApple(appleLoginRequest));
 	}
