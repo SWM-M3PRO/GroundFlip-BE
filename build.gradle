@@ -91,6 +91,8 @@ jacocoTestReport {
                 files(classDirectories.files.collect {
                     fileTree(dir: it, excludes: [
                             '**/domain/**',
+                            '**/config/**',
+                            '**/enums/**',
                     ])
                 })
         )
