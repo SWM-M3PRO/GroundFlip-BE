@@ -1,0 +1,82 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/groundflip_test
+    username: root
+    password: root
+
+  jpa:
+    database-platform: org.hibernate.spatial.dialect.mysql.MySQL56InnoDBSpatialDialect
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+  data:
+    redis:
+      host: localhost
+      port: 6378
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+logging:
+  level:
+    sql: debug
+    org.hibernate.orm.jdbc.bind: trace
+
+oauth:
+  kakao:
+    app:
+      id: 123456
+    url:
+      validation: https://kapi.kakao.com/v1/user/access_token_info
+      user: https://kapi.kakao.com/v2/user/me
+  apple:
+    app:
+      id: 123456
+      teamId: 123456
+      keyId: 123456
+      privateKey: 123456
+    url:
+      public-keys: https://appleid.apple.com/auth/keys
+      issuer: https://appleid.apple.com
+
+naver:
+  apiKeyId: test-value
+  apiKey: test-value
+
+jwt:
+  secret: test-value
+  # 10일
+  access-token-time: 864000000
+  # 30일
+  refresh-token-time: 2592000000
+
+server:
+  port: 8080
+
+springdoc:
+  swagger-ui:
+    path: /api/docs
+  api-docs:
+    path: /api/docs
+
+cloud:
+  aws:
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false
+    credentials:
+      access-key: test-value
+      secret-key: test-value
+    s3:
+      bucket: test-value
