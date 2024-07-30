@@ -1,5 +1,6 @@
 package com.m3pro.groundflip.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -31,6 +32,7 @@ import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.PixelRepository;
 import com.m3pro.groundflip.repository.PixelUserRepository;
 import com.m3pro.groundflip.repository.UserRepository;
+import com.m3pro.groundflip.util.DateUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,8 +64,8 @@ public class PixelService {
 	) {
 		Point point = geometryFactory.createPoint(new Coordinate(currentLongitude, currentLatitude));
 		point.setSRID(WGS84_SRID);
-
-		return pixelRepository.findAllIndividualModePixelsByCoordinate(point, radius);
+		LocalDate thisWeekStartDate = DateUtils.getThisWeekStartDate();
+		return pixelRepository.findAllIndividualModePixelsByCoordinate(point, radius, thisWeekStartDate);
 	}
 
 	/**
