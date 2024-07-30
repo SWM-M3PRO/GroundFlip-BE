@@ -23,7 +23,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 		"/api/auth",
 		"/api/docs",
 		"/v3/api-docs",
-		"/api/swagger-ui");
+		"/api/swagger-ui",
+		"/check"
+	);
 	private static final List<String> WHITE_LIST_TMP = List.of(
 		"/api",
 		"/api/docs",

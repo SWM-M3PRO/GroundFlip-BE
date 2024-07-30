@@ -12,10 +12,10 @@ import com.m3pro.groundflip.exception.ErrorCode;
 @RestController
 public class TestController {
 
-	@GetMapping("/")
-	@ResponseStatus(HttpStatus.ACCEPTED)
+	@GetMapping("/check")
+	@ResponseStatus(HttpStatus.OK)
 	public Response<String> test() {
-		return Response.createSuccess("hello");
+		return Response.createSuccess("success");
 	}
 
 	@GetMapping("/exception")
