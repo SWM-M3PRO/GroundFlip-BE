@@ -1,5 +1,6 @@
 package com.m3pro.groundflip.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,11 +25,14 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
 		FROM
 			pixel
 		WHERE
-			ST_CONTAINS((ST_Buffer(:center, :radius)), pixel.coordinate) AND pixel.user_id IS NOT NULL
+			ST_CONTAINS((ST_Buffer(:center, :radius)), pixel.coordinate)
+			AND pixel.user_id IS NOT NULL
+			AND pixel.modified_at >= :weekStartDate
 		""", nativeQuery = true)
 	List<IndividualModePixelResponse> findAllIndividualModePixelsByCoordinate(
 		@Param("center") Point center,
-		@Param("radius") int radius);
+		@Param("radius") int radius,
+		@Param("weekStartDate") LocalDate weekStartDate);
 
 	@Query(value = """
 		WITH PixelsInRange AS (
