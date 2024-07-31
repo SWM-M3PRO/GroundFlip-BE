@@ -86,8 +86,6 @@ public class UserService {
 
 		if (multipartFile != null) {
 			s3Uploader.uploadFiles(multipartFile, userId);
-		} else {
-			user.updateProfileImage(null);
 		}
 
 		user.updateGender(userInfoRequest.getGender());
