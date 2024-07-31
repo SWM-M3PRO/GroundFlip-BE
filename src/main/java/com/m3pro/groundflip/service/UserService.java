@@ -77,7 +77,6 @@ public class UserService {
 	@Transactional
 	public void putUserInfo(Long userId, UserInfoRequest userInfoRequest, MultipartFile multipartFile) throws
 		IOException {
-		String fileS3Url;
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -86,15 +85,14 @@ public class UserService {
 		}
 
 		if (multipartFile != null) {
-			fileS3Url = s3Uploader.uploadFiles(multipartFile);
+			s3Uploader.uploadFiles(multipartFile, userId);
 		} else {
-			fileS3Url = user.getProfileImage();
+			user.updateProfileImage(null);
 		}
 
 		user.updateGender(userInfoRequest.getGender());
 		user.updateBirthYear(convertToDate(userInfoRequest.getBirthYear()));
 		user.updateNickName(userInfoRequest.getNickname());
-		user.updateProfileImage(fileS3Url);
 		user.updateStatus(UserStatus.COMPLETE);
 		userRepository.save(user);
 

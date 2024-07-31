@@ -22,14 +22,14 @@ public class S3Uploader {
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucket;
 
-	public String uploadFiles(MultipartFile multipartFile) throws IOException {
+	public String uploadFiles(MultipartFile multipartFile, Long userId) throws IOException {
 		String originalFileName = multipartFile.getOriginalFilename();
 		String convertedFileName;
 		String imageUrl = "";
 		final String path = bucket.concat("/static");
 
 		if (originalFileName != null) {
-			convertedFileName = convertFileNameToUuid(originalFileName);
+			convertedFileName = convertFileNameToUuid(originalFileName, userId);
 			ObjectMetadata metadata = new ObjectMetadata();
 			metadata.setContentLength(multipartFile.getSize());
 			metadata.setContentType(multipartFile.getContentType());
@@ -40,9 +40,10 @@ public class S3Uploader {
 		return imageUrl;
 	}
 
-	private String convertFileNameToUuid(String fileName) {
+	private String convertFileNameToUuid(String fileName, Long userId) {
 		String fileExtension = fileName.substring(fileName.lastIndexOf("."));
-		return UUID.randomUUID().toString().concat(fileExtension);
+		return UUID.randomUUID().toString().concat("###" + userId.toString()).concat(fileExtension);
+		//return UUID.randomUUID().toString().concat(fileExtension);
 	}
 
 }
