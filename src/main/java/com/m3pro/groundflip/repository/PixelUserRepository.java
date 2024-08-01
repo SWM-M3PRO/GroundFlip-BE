@@ -1,5 +1,6 @@
 package com.m3pro.groundflip.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,18 +30,19 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 	@Query(value = """
 		SELECT COUNT(DISTINCT pu.pixel.id) AS count
 		FROM PixelUser pu
-		WHERE pu.user.id = :userId
+		WHERE pu.user.id = :userId AND pu.createdAt >= :lookup_date
 		""")
-	Long countAccumulatePixelByUserId(@Param("userId") Long userId);
+	Long countAccumulatePixelByUserId(@Param("userId") Long userId, @Param("lookup_date") LocalDateTime lookUpDate);
 
 	@Query(value = """
 			SELECT pu
 			FROM PixelUser pu
-			WHERE pu.pixel = :pixel AND pu.user = :user
+			WHERE pu.pixel = :pixel AND pu.user = :user AND pu.createdAt >= :lookup_date
 			GROUP BY DATE(pu.createdAt)
 			ORDER BY pu.createdAt DESC
 		""")
-	List<PixelUser> findAllVisitHistoryByPixelAndUser(@Param("pixel") Pixel pixel, @Param("user") User user);
+	List<PixelUser> findAllVisitHistoryByPixelAndUser(@Param("pixel") Pixel pixel, @Param("user") User user,
+		@Param("lookup_date") LocalDateTime lookUpDate);
 
 	@Modifying
 	@Query(value = """

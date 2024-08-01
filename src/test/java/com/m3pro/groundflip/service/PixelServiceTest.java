@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -123,7 +124,8 @@ class PixelServiceTest {
 		when(pixelRepository.findById(pixelId)).thenReturn(Optional.of(pixel));
 		when(pixelUserRepository.findAllVisitedUserByPixelId(pixelId)).thenReturn(visitedUsers);
 		when(userRepository.findById(ownerId)).thenReturn(Optional.of(ownerUser));
-		when(pixelUserRepository.countAccumulatePixelByUserId(ownerId)).thenReturn(10L);
+		when(pixelUserRepository.countAccumulatePixelByUserId(ownerId,
+			LocalDate.parse("2024-07-15").atStartOfDay())).thenReturn(10L);
 		when(rankingService.getCurrentPixelCountFromCache(ownerId)).thenReturn(5L);
 
 		// When
@@ -202,11 +204,12 @@ class PixelServiceTest {
 
 		// When
 		when(pixelRepository.findById(pixelId)).thenReturn(Optional.of(pixel));
-		when(pixelUserRepository.findAllVisitHistoryByPixelAndUser(pixel, user)).thenReturn(visitHistory);
+		when(pixelUserRepository.findAllVisitHistoryByPixelAndUser(pixel, user,
+			LocalDate.parse("2024-07-15").atStartOfDay())).thenReturn(visitHistory);
 		when(userRepository.getReferenceById(userId)).thenReturn(user);
 
 		// Then
-		IndividualHistoryPixelInfoResponse response = pixelService.getIndividualHistoryPixelInfo(pixelId, userId);
+		IndividualHistoryPixelInfoResponse response = pixelService.getIndividualHistoryPixelInfo(pixelId, userId, null);
 
 		assertEquals(visitHistory.size(), response.getVisitList().size());
 		for (int i = 0; i < NUMBER_OF_HISTORY; i++) {
@@ -262,11 +265,13 @@ class PixelServiceTest {
 
 		// When
 		when(pixelRepository.findById(pixelId)).thenReturn(Optional.of(pixel));
-		when(pixelUserRepository.findAllVisitHistoryByPixelAndUser(pixel, user1)).thenReturn(visitHistoryUser1);
+		when(pixelUserRepository.findAllVisitHistoryByPixelAndUser(pixel, user1,
+			LocalDate.parse("2024-07-15").atStartOfDay())).thenReturn(visitHistoryUser1);
 		when(userRepository.getReferenceById(userId1)).thenReturn(user1);
 
 		// Then
-		IndividualHistoryPixelInfoResponse response = pixelService.getIndividualHistoryPixelInfo(pixelId, userId1);
+		IndividualHistoryPixelInfoResponse response = pixelService.getIndividualHistoryPixelInfo(pixelId, userId1,
+			null);
 
 		assertEquals(visitHistoryUser1.size(), response.getVisitList().size());
 		for (int i = 0; i < NUMBER_OF_HISTORY_PER_USER; i++) {
@@ -296,10 +301,11 @@ class PixelServiceTest {
 		Long userId = 1L;
 
 		when(rankingService.getCurrentPixelCountFromCache(userId)).thenReturn(3L);
-		when(pixelUserRepository.countAccumulatePixelByUserId(userId)).thenReturn(5L);
+		when(pixelUserRepository.countAccumulatePixelByUserId(userId,
+			LocalDate.parse("2024-07-15").atStartOfDay())).thenReturn(5L);
 
 		// When
-		PixelCountResponse pixelCount = pixelService.getPixelCount(userId);
+		PixelCountResponse pixelCount = pixelService.getPixelCount(userId, null);
 
 		// Then
 		assertEquals(pixelCount.getCurrentPixelCount(), 3L);

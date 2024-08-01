@@ -42,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PixelService {
 	private static final int WGS84_SRID = 4326;
+	private static final String DEFAULT_LOOK_UP_DATE = "2024-07-15";
 	private final GeometryFactory geometryFactory;
 	private final PixelRepository pixelRepository;
 	private final PixelUserRepository pixelUserRepository;
@@ -77,11 +78,16 @@ public class PixelService {
 	 * @return 픽셀의 정보가 담긴 리스트
 	 */
 	public List<IndividualHistoryPixelResponse> getNearIndividualHistoryPixelsByCoordinate(double currentLatitude,
-		double currentLongitude, int radius, Long userId) {
+		double currentLongitude, int radius, Long userId, LocalDate lookUpDate) {
 		Point point = geometryFactory.createPoint(new Coordinate(currentLongitude, currentLatitude));
 		point.setSRID(WGS84_SRID);
 
-		return pixelRepository.findAllIndividualPixelsHistoryByCoordinate(point, radius, userId);
+		if (lookUpDate == null) {
+			lookUpDate = LocalDate.parse(DEFAULT_LOOK_UP_DATE);
+		}
+
+		return pixelRepository
+			.findAllIndividualPixelsHistoryByCoordinate(point, radius, userId, lookUpDate.atStartOfDay());
 	}
 
 	/**
@@ -163,13 +169,18 @@ public class PixelService {
 	 * @return IndividualHistoryPixelInfoResponse 기록, 방문 횟수 등을 담고 있는 객체
 	 * @author 김민욱
 	 */
-	public IndividualHistoryPixelInfoResponse getIndividualHistoryPixelInfo(Long pixelId, Long userId) {
+	public IndividualHistoryPixelInfoResponse getIndividualHistoryPixelInfo(Long pixelId, Long userId,
+		LocalDate lookUpDate) {
 		Pixel pixel = pixelRepository.findById(pixelId)
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
 
 		User user = userRepository.getReferenceById(userId);
-
-		List<LocalDateTime> visitList = pixelUserRepository.findAllVisitHistoryByPixelAndUser(pixel, user).stream()
+		if (lookUpDate == null) {
+			lookUpDate = LocalDate.parse(DEFAULT_LOOK_UP_DATE);
+		}
+		List<LocalDateTime> visitList = pixelUserRepository.findAllVisitHistoryByPixelAndUser(pixel, user,
+				lookUpDate.atStartOfDay())
+			.stream()
 			.map(BaseTimeEntity::getCreatedAt)
 			.toList();
 
@@ -182,10 +193,14 @@ public class PixelService {
 	 * @return PixelCountResponse 현재 픽셀, 누적 픽셀을 담고있는 객체
 	 * @author 김민욱
 	 */
-	public PixelCountResponse getPixelCount(Long userId) {
+	public PixelCountResponse getPixelCount(Long userId, LocalDate lookUpDate) {
+		if (lookUpDate == null) {
+			lookUpDate = LocalDate.parse(DEFAULT_LOOK_UP_DATE);
+		}
+
 		return PixelCountResponse.builder()
 			.currentPixelCount(rankingService.getCurrentPixelCountFromCache(userId))
-			.accumulatePixelCount(pixelUserRepository.countAccumulatePixelByUserId(userId))
+			.accumulatePixelCount(pixelUserRepository.countAccumulatePixelByUserId(userId, lookUpDate.atStartOfDay()))
 			.build();
 	}
 
@@ -199,7 +214,8 @@ public class PixelService {
 		if (ownerUserId == null) {
 			return null;
 		} else {
-			Long accumulatePixelCount = pixelUserRepository.countAccumulatePixelByUserId(ownerUserId);
+			Long accumulatePixelCount = pixelUserRepository.countAccumulatePixelByUserId(ownerUserId,
+				LocalDate.parse(DEFAULT_LOOK_UP_DATE).atStartOfDay());
 			Long currentPixelCount = rankingService.getCurrentPixelCountFromCache(ownerUserId);
 			User ownerUser = userRepository.findById(ownerUserId)
 				.orElseThrow(() -> {
