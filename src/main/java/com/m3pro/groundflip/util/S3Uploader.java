@@ -43,7 +43,6 @@ public class S3Uploader {
 	private String convertFileNameToUuid(String fileName, Long userId) {
 		String fileExtension = fileName.substring(fileName.lastIndexOf("."));
 		return UUID.randomUUID().toString().concat("###" + userId.toString()).concat(fileExtension);
-		//return UUID.randomUUID().toString().concat(fileExtension);
 	}
 
 }
