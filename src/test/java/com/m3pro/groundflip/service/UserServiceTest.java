@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -23,8 +21,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.m3pro.groundflip.domain.dto.user.UserDeleteRequest;
 import com.m3pro.groundflip.domain.dto.user.UserInfoRequest;
@@ -78,42 +74,63 @@ class UserServiceTest {
 		//Given
 		Long userId = 1L;
 		String exampleNickname = "kim";
-		String profileImage = "https://amazonaws.com";
 		Gender gender = Gender.MALE;
 		int year = 2000;
 		LocalDate localDate = LocalDate.of(year, 1, 1);
 		Date birthYear = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-		MockMultipartFile image = new MockMultipartFile(
-			"test",
-			"cat.jpg",
-			"image/jpg",
-			new FileInputStream(new File("C:/projects/cat.jpg"))
-		);
-
-		User user = User.builder()
-			.id(userId)
-			.nickname("before kim")
-			.profileImage(profileImage)
-			.build();
+		User user = User.builder().id(userId).nickname("before kim").build();
 
 		UserInfoRequest userInfoRequest = UserInfoRequest.builder()
 			.nickname(exampleNickname)
-			.profileImage(image)
 			.gender(gender)
 			.birthYear(year)
 			.build();
 
 		//When
 		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-		when(s3Uploader.uploadFiles(any(MultipartFile.class), eq(userId))).thenReturn(profileImage);
-		userService.putUserInfo(userId, userInfoRequest, image);
+		userService.putUserInfo(userId, userInfoRequest, null);
 
+		//Then
 		assertThat(user.getNickname()).isEqualTo(exampleNickname);
 		assertThat(user.getBirthYear()).isEqualTo(birthYear);
 		assertThat(user.getGender()).isEqualTo(gender);
-		assertThat(user.getProfileImage()).isEqualTo(profileImage);
 
+	}
+
+	@Test
+	@DisplayName("[putUserInfo] 중복된 user닉네임을 설정하는 경우")
+	void putUserInfoDuplicate() {
+		// Given
+		Long userId1 = 1L;
+		Long userId2 = 2L;
+		String userNickName1 = "kim";
+		String userNickName2 = "cha";
+
+		User user1 = User.builder()
+			.id(userId1)
+			.nickname(userNickName1)
+			.build();
+
+		User user2 = User.builder()
+			.id(userId2)
+			.nickname(userNickName2)
+			.build();
+
+		UserInfoRequest userInfoRequest = UserInfoRequest.builder()
+			.nickname(userNickName2)
+			.profileImage(null).build();
+
+		//When
+		when(userRepository.findById(userId1)).thenReturn(Optional.of(user1));
+		when(userRepository.findByNickname(userNickName2)).thenReturn(Optional.of(user2));
+
+		// Then
+		AppException exception = assertThrows(AppException.class,
+			() -> userService.putUserInfo(userId1, userInfoRequest, null));
+
+		assertEquals(ErrorCode.DUPLICATED_NICKNAME, exception.getErrorCode());
+		verify(userRepository, times(1)).findByNickname(userNickName2);
 	}
 
 	@Test
@@ -157,10 +174,7 @@ class UserServiceTest {
 		Date date = formatter.parse(dateString);
 		User user = User.builder().id(1L).birthYear(date).build();
 		Community community = Community.builder().id(1L).name("test").build();
-		UserCommunity userCommunity = UserCommunity.builder()
-			.user(user)
-			.community(community)
-			.build();
+		UserCommunity userCommunity = UserCommunity.builder().user(user).community(community).build();
 		when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
 		when(userCommunityRepository.findByUserId(anyLong())).thenReturn(Collections.singletonList(userCommunity));
 
