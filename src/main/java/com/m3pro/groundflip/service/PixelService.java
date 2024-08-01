@@ -42,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PixelService {
 	private static final int WGS84_SRID = 4326;
+	private static final String DEFAULT_LOOK_UP_DATE = "2024-07-15";
 	private final GeometryFactory geometryFactory;
 	private final PixelRepository pixelRepository;
 	private final PixelUserRepository pixelUserRepository;
@@ -163,13 +164,18 @@ public class PixelService {
 	 * @return IndividualHistoryPixelInfoResponse 기록, 방문 횟수 등을 담고 있는 객체
 	 * @author 김민욱
 	 */
-	public IndividualHistoryPixelInfoResponse getIndividualHistoryPixelInfo(Long pixelId, Long userId) {
+	public IndividualHistoryPixelInfoResponse getIndividualHistoryPixelInfo(Long pixelId, Long userId,
+		LocalDate lookUpDate) {
 		Pixel pixel = pixelRepository.findById(pixelId)
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
 
 		User user = userRepository.getReferenceById(userId);
-
-		List<LocalDateTime> visitList = pixelUserRepository.findAllVisitHistoryByPixelAndUser(pixel, user).stream()
+		if (lookUpDate == null) {
+			lookUpDate = LocalDate.parse(DEFAULT_LOOK_UP_DATE);
+		}
+		List<LocalDateTime> visitList = pixelUserRepository.findAllVisitHistoryByPixelAndUser(pixel, user,
+				lookUpDate.atStartOfDay())
+			.stream()
 			.map(BaseTimeEntity::getCreatedAt)
 			.toList();
 

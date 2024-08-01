@@ -1,7 +1,9 @@
 package com.m3pro.groundflip.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -88,10 +90,12 @@ public class PixelController {
 		@Parameter(description = "찾고자 하는 pixelId", required = true)
 		@PathVariable Long pixelId,
 		@Parameter(description = "조회하고자 하는 userId", required = true)
-		@RequestParam(name = "user-id") Long userId
+		@RequestParam(name = "user-id") Long userId,
+		@RequestParam(required = false, name = "lookup-date")
+		@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lookUpDate
 	) {
 		return Response.createSuccess(
-			pixelService.getIndividualHistoryPixelInfo(pixelId, userId)
+			pixelService.getIndividualHistoryPixelInfo(pixelId, userId, lookUpDate)
 		);
 	}
 
