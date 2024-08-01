@@ -124,7 +124,8 @@ class PixelServiceTest {
 		when(pixelRepository.findById(pixelId)).thenReturn(Optional.of(pixel));
 		when(pixelUserRepository.findAllVisitedUserByPixelId(pixelId)).thenReturn(visitedUsers);
 		when(userRepository.findById(ownerId)).thenReturn(Optional.of(ownerUser));
-		when(pixelUserRepository.countAccumulatePixelByUserId(ownerId)).thenReturn(10L);
+		when(pixelUserRepository.countAccumulatePixelByUserId(ownerId,
+			LocalDate.parse("2024-07-15").atStartOfDay())).thenReturn(10L);
 		when(rankingService.getCurrentPixelCountFromCache(ownerId)).thenReturn(5L);
 
 		// When
@@ -300,10 +301,11 @@ class PixelServiceTest {
 		Long userId = 1L;
 
 		when(rankingService.getCurrentPixelCountFromCache(userId)).thenReturn(3L);
-		when(pixelUserRepository.countAccumulatePixelByUserId(userId)).thenReturn(5L);
+		when(pixelUserRepository.countAccumulatePixelByUserId(userId,
+			LocalDate.parse("2024-07-15").atStartOfDay())).thenReturn(5L);
 
 		// When
-		PixelCountResponse pixelCount = pixelService.getPixelCount(userId);
+		PixelCountResponse pixelCount = pixelService.getPixelCount(userId, null);
 
 		// Then
 		assertEquals(pixelCount.getCurrentPixelCount(), 3L);
