@@ -4,8 +4,13 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -18,8 +23,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.m3pro.groundflip.domain.dto.user.UserDeleteRequest;
+import com.m3pro.groundflip.domain.dto.user.UserInfoRequest;
 import com.m3pro.groundflip.domain.dto.user.UserInfoResponse;
 import com.m3pro.groundflip.domain.entity.AppleRefreshToken;
 import com.m3pro.groundflip.domain.entity.Community;
@@ -32,14 +40,22 @@ import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.jwt.JwtProvider;
 import com.m3pro.groundflip.repository.AppleRefreshTokenRepository;
+import com.m3pro.groundflip.repository.RankingRedisRepository;
 import com.m3pro.groundflip.repository.UserCommunityRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 import com.m3pro.groundflip.service.oauth.AppleApiClient;
+import com.m3pro.groundflip.util.S3Uploader;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 	@Mock
 	private UserRepository userRepository;
+
+	@Mock
+	private RankingRedisRepository rankingRedisRepository;
+
+	@Mock
+	private S3Uploader s3Uploader;
 
 	@Mock
 	private UserCommunityRepository userCommunityRepository;
@@ -55,6 +71,50 @@ class UserServiceTest {
 
 	@InjectMocks
 	private UserService userService;
+
+	@Test
+	@DisplayName("[PutUserInfo] user정보가 올바르게 업데이트 되는지")
+	void putUserInfoTest() throws IOException {
+		//Given
+		Long userId = 1L;
+		String exampleNickname = "kim";
+		String profileImage = "https://amazonaws.com";
+		Gender gender = Gender.MALE;
+		int year = 2000;
+		LocalDate localDate = LocalDate.of(year, 1, 1);
+		Date birthYear = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+		MockMultipartFile image = new MockMultipartFile(
+			"test",
+			"cat.jpg",
+			"image/jpg",
+			new FileInputStream(new File("C:/projects/cat.jpg"))
+		);
+
+		User user = User.builder()
+			.id(userId)
+			.nickname("before kim")
+			.profileImage(profileImage)
+			.build();
+
+		UserInfoRequest userInfoRequest = UserInfoRequest.builder()
+			.nickname(exampleNickname)
+			.profileImage(image)
+			.gender(gender)
+			.birthYear(year)
+			.build();
+
+		//When
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+		when(s3Uploader.uploadFiles(any(MultipartFile.class), eq(userId))).thenReturn(profileImage);
+		userService.putUserInfo(userId, userInfoRequest, image);
+
+		assertThat(user.getNickname()).isEqualTo(exampleNickname);
+		assertThat(user.getBirthYear()).isEqualTo(birthYear);
+		assertThat(user.getGender()).isEqualTo(gender);
+		assertThat(user.getProfileImage()).isEqualTo(profileImage);
+
+	}
 
 	@Test
 	@DisplayName("[getUserInfo] 존재하지 않는 user 를 조회하는 경우")
