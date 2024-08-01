@@ -68,8 +68,8 @@ public class UserService {
 
 	/**
 	 * 유저의 정보를 수정한다
-	 * @Param 유저id
-	 * @Param 유저정보dto (gender, year, nickname)
+	 * @Param userId 유저id
+	 * @Param userInfoRequest 유저정보dto (gender, year, nickname)
 	 * @Param 이미지 multipartFile
 	 * convertToDate() int로 들어온 year을 Date로 변환
 	 * checkNicknameExists() 닉네임 중복 체크를 위해 닉네임이 있는지 확인
@@ -77,6 +77,7 @@ public class UserService {
 	@Transactional
 	public void putUserInfo(Long userId, UserInfoRequest userInfoRequest, MultipartFile multipartFile) throws
 		IOException {
+		String fileS3Url;
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -85,15 +86,17 @@ public class UserService {
 		}
 
 		if (multipartFile != null) {
-			s3Uploader.uploadFiles(multipartFile, userId);
+			fileS3Url = s3Uploader.uploadFiles(multipartFile, userId);
+		} else {
+			fileS3Url = user.getProfileImage();
 		}
 
 		user.updateGender(userInfoRequest.getGender());
 		user.updateBirthYear(convertToDate(userInfoRequest.getBirthYear()));
 		user.updateNickName(userInfoRequest.getNickname());
 		user.updateStatus(UserStatus.COMPLETE);
+		user.updateProfileImage(fileS3Url);
 		userRepository.save(user);
-
 		rankingRedisRepository.saveUserInRedis(user.getId());
 	}
 
