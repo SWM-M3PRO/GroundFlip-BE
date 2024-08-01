@@ -68,9 +68,13 @@ public class PixelController {
 		@RequestParam(name = "current-latitude") @Min(-90) @Max(90) double currentLatitude,
 		@RequestParam(name = "current-longitude") @Min(-180) @Max(180) double currentLongitude,
 		@RequestParam(name = "radius") @Min(0) int radius,
-		@RequestParam(name = "user-id") @NotNull() Long userId) {
+		@RequestParam(name = "user-id") @NotNull() Long userId,
+		@RequestParam(required = false, name = "lookup-date")
+		@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lookUpDate) {
 		return Response.createSuccess(
-			pixelService.getNearIndividualHistoryPixelsByCoordinate(currentLatitude, currentLongitude, radius, userId)
+			pixelService
+				.getNearIndividualHistoryPixelsByCoordinate(currentLatitude, currentLongitude, radius, userId,
+					lookUpDate)
 		);
 	}
 

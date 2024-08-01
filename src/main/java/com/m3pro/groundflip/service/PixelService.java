@@ -78,11 +78,16 @@ public class PixelService {
 	 * @return 픽셀의 정보가 담긴 리스트
 	 */
 	public List<IndividualHistoryPixelResponse> getNearIndividualHistoryPixelsByCoordinate(double currentLatitude,
-		double currentLongitude, int radius, Long userId) {
+		double currentLongitude, int radius, Long userId, LocalDate lookUpDate) {
 		Point point = geometryFactory.createPoint(new Coordinate(currentLongitude, currentLatitude));
 		point.setSRID(WGS84_SRID);
 
-		return pixelRepository.findAllIndividualPixelsHistoryByCoordinate(point, radius, userId);
+		if (lookUpDate == null) {
+			lookUpDate = LocalDate.parse(DEFAULT_LOOK_UP_DATE);
+		}
+
+		return pixelRepository
+			.findAllIndividualPixelsHistoryByCoordinate(point, radius, userId, lookUpDate.atStartOfDay());
 	}
 
 	/**
