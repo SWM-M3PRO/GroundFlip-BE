@@ -193,10 +193,14 @@ public class PixelService {
 	 * @return PixelCountResponse 현재 픽셀, 누적 픽셀을 담고있는 객체
 	 * @author 김민욱
 	 */
-	public PixelCountResponse getPixelCount(Long userId) {
+	public PixelCountResponse getPixelCount(Long userId, LocalDate lookUpDate) {
+		if (lookUpDate == null) {
+			lookUpDate = LocalDate.parse(DEFAULT_LOOK_UP_DATE);
+		}
+
 		return PixelCountResponse.builder()
 			.currentPixelCount(rankingService.getCurrentPixelCountFromCache(userId))
-			.accumulatePixelCount(pixelUserRepository.countAccumulatePixelByUserId(userId))
+			.accumulatePixelCount(pixelUserRepository.countAccumulatePixelByUserId(userId, lookUpDate.atStartOfDay()))
 			.build();
 	}
 
@@ -210,7 +214,8 @@ public class PixelService {
 		if (ownerUserId == null) {
 			return null;
 		} else {
-			Long accumulatePixelCount = pixelUserRepository.countAccumulatePixelByUserId(ownerUserId);
+			Long accumulatePixelCount = pixelUserRepository.countAccumulatePixelByUserId(ownerUserId,
+				LocalDate.parse(DEFAULT_LOOK_UP_DATE).atStartOfDay());
 			Long currentPixelCount = rankingService.getCurrentPixelCountFromCache(ownerUserId);
 			User ownerUser = userRepository.findById(ownerUserId)
 				.orElseThrow(() -> {

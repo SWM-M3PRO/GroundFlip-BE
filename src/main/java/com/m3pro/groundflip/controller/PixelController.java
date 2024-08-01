@@ -112,8 +112,10 @@ public class PixelController {
 
 	@Operation(summary = "픽셀 개수 조회", description = "특정 유저의 현재 소유중인 픽셀, 누적 픽셀을 조회하는 api")
 	@GetMapping("/count")
-	public Response<PixelCountResponse> getPixelCount(@RequestParam(name = "user-id") @NotNull() Long userId) {
-		return Response.createSuccess(pixelService.getPixelCount(userId));
+	public Response<PixelCountResponse> getPixelCount(@RequestParam(name = "user-id") @NotNull() Long userId,
+		@RequestParam(required = false, name = "lookup-date")
+		@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lookUpDate) {
+		return Response.createSuccess(pixelService.getPixelCount(userId, lookUpDate));
 	}
 }
 

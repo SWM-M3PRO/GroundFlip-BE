@@ -30,9 +30,9 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 	@Query(value = """
 		SELECT COUNT(DISTINCT pu.pixel.id) AS count
 		FROM PixelUser pu
-		WHERE pu.user.id = :userId
+		WHERE pu.user.id = :userId AND pu.createdAt >= :lookup_date
 		""")
-	Long countAccumulatePixelByUserId(@Param("userId") Long userId);
+	Long countAccumulatePixelByUserId(@Param("userId") Long userId, @Param("lookup_date") LocalDateTime lookUpDate);
 
 	@Query(value = """
 			SELECT pu
