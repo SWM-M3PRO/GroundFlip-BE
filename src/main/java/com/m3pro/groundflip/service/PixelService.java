@@ -5,10 +5,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,13 +45,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PixelService {
 	private static final int WGS84_SRID = 4326;
+	private static final String REDISSON_LOCK_PREFIX = "LOCK:";
 	private static final String DEFAULT_LOOK_UP_DATE = "2024-07-15";
+
 	private final GeometryFactory geometryFactory;
 	private final PixelRepository pixelRepository;
 	private final PixelUserRepository pixelUserRepository;
 	private final UserRepository userRepository;
 	private final RankingService rankingService;
 	private final ApplicationEventPublisher eventPublisher;
+	private final RedissonClient redissonClient;
 
 	/**
 	 * 사용자를 중심으로 일정한 반경 내에 개인전 픽셀들을 가져온다.
@@ -116,15 +122,37 @@ public class PixelService {
 	 * @author 김민욱
 	 */
 	@Transactional
-	public void occupyPixel(PixelOccupyRequest pixelOccupyRequest) {
+	public void occupyPixelWithLock(PixelOccupyRequest pixelOccupyRequest) {
+		String lockName = REDISSON_LOCK_PREFIX + pixelOccupyRequest.getX() + pixelOccupyRequest.getY();
+		RLock rLock = redissonClient.getLock(lockName);
+
+		long waitTime = 5L;
+		long leaseTime = 3L;
+		TimeUnit timeUnit = TimeUnit.SECONDS;
+		try {
+			boolean available = rLock.tryLock(waitTime, leaseTime, timeUnit);
+			if (!available) {
+				throw new AppException(ErrorCode.LOCK_ACQUISITION_ERROR);
+			}
+
+			occupyPixel(pixelOccupyRequest);
+
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		} finally {
+			rLock.unlock();
+		}
+	}
+
+	private void occupyPixel(PixelOccupyRequest pixelOccupyRequest) {
 		Long occupyingUserId = pixelOccupyRequest.getUserId();
 		Long communityId = Optional.ofNullable(pixelOccupyRequest.getCommunityId()).orElse(-1L);
 
 		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
-
 		updateRankingOnCache(targetPixel, occupyingUserId);
 		targetPixel.updateUserId(occupyingUserId);
+		pixelRepository.saveAndFlush(targetPixel);
 
 		updatePixelAddress(targetPixel);
 		eventPublisher.publishEvent(new PixelUserInsertEvent(targetPixel.getId(), occupyingUserId, communityId));
