@@ -20,10 +20,13 @@ public enum ErrorCode {
 	// JWT 관련 에러
 	JWT_NOT_EXISTS(HttpStatus.UNAUTHORIZED, "요청에 JWT가 존재하지 않습니다."),
 	INVALID_JWT(HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT입니다."),
-	JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "JWT가 만료되었습니다.");
+	JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "JWT가 만료되었습니다."),
+
+	// 분산락 관련 에러
+	LOCK_ACQUISITION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "락을 획득하는데 실패하였습니다.");
 
 	// 랭킹 관련 에러
-	
+
 	private final HttpStatus httpStatus;
 	private final String message;
 }
