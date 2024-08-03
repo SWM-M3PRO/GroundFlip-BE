@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.WeekFields;
+import java.util.Calendar;
+import java.util.Date;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -74,5 +76,37 @@ class DateUtilsTest {
 		LocalDate date4 = LocalDate.of(2020, 2, 29);
 		int expectedWeek4 = date4.get(weekFields.weekOfWeekBasedYear());
 		assertEquals(expectedWeek4, DateUtils.getWeekOfDate(date4), "Week number of 2020-02-29 should match");
+	}
+
+	@Test
+	@DisplayName("[truncateTime]")
+	void truncateTime_shouldSetTimeToMidnight() {
+		// Given: 현재 날짜와 시간이 설정된 Date 객체
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.YEAR, 2024);
+		calendar.set(Calendar.MONTH, Calendar.AUGUST);
+		calendar.set(Calendar.DAY_OF_MONTH, 3);
+		calendar.set(Calendar.HOUR_OF_DAY, 15);
+		calendar.set(Calendar.MINUTE, 45);
+		calendar.set(Calendar.SECOND, 30);
+		calendar.set(Calendar.MILLISECOND, 123);
+		Date originalDate = calendar.getTime();
+
+		// When: 시간을 자정으로 설정
+		Date truncatedDate = DateUtils.truncateTime(originalDate);
+
+		// Then: 자정으로 시간이 설정된 날짜 확인
+		Calendar expectedCalendar = Calendar.getInstance();
+		expectedCalendar.setTime(truncatedDate);
+
+		assertEquals(2024, expectedCalendar.get(Calendar.YEAR));
+		assertEquals(Calendar.AUGUST, expectedCalendar.get(Calendar.MONTH));
+		assertEquals(3, expectedCalendar.get(Calendar.DAY_OF_MONTH));
+		assertEquals(0, expectedCalendar.get(Calendar.HOUR_OF_DAY));
+		assertEquals(0, expectedCalendar.get(Calendar.MINUTE));
+		assertEquals(0, expectedCalendar.get(Calendar.SECOND));
+		assertEquals(0, expectedCalendar.get(Calendar.MILLISECOND));
+
+		assertNotNull(truncatedDate);
 	}
 }
