@@ -16,6 +16,7 @@ import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.StepRecordRepository;
 import com.m3pro.groundflip.repository.UserRepository;
+import com.m3pro.groundflip.util.DateUtils;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -62,27 +63,11 @@ public class StepService {
 		calendar.setTime(startDate);
 
 		while (!calendar.getTime().after(endDate)) {
-			Date currentDate = truncateTime(calendar.getTime());
+			Date currentDate = DateUtils.truncateTime(calendar.getTime());
 			int steps = stepsMap.getOrDefault(currentDate, 0);
 			result.add(steps);
 			calendar.add(Calendar.DATE, 1);
 		}
-
 		return result;
-	}
-
-	/*
-	 * 시, 분, 초를 0으로 하고 년,월,일 만 구하기
-	 * @Param input Date
-	 * @return result Date
-	 * */
-	private Date truncateTime(Date date) {
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(date);
-		calendar.set(Calendar.HOUR_OF_DAY, 0);
-		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, 0);
-		calendar.set(Calendar.MILLISECOND, 0);
-		return calendar.getTime();
 	}
 }
