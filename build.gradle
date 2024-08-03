@@ -92,9 +92,12 @@ jacocoTestReport {
         classDirectories.setFrom(
                 files(classDirectories.files.collect {
                     fileTree(dir: it, excludes: [
-//                            '**/domain/**',
-//                            '**/config/**',
-//                            '**/enums/**',
+                            '**/domain/**',
+                            '**/config/**',
+                            '**/enums/**',
+                            '**/exception/**',
+                            '**/jwt/*Filter*',
+                            '**/oauth/*Client*',
                     ])
                 })
         )
