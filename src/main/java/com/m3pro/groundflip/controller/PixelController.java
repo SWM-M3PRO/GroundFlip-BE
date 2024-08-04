@@ -1,7 +1,9 @@
 package com.m3pro.groundflip.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -66,9 +68,13 @@ public class PixelController {
 		@RequestParam(name = "current-latitude") @Min(-90) @Max(90) double currentLatitude,
 		@RequestParam(name = "current-longitude") @Min(-180) @Max(180) double currentLongitude,
 		@RequestParam(name = "radius") @Min(0) int radius,
-		@RequestParam(name = "user-id") @NotNull() Long userId) {
+		@RequestParam(name = "user-id") @NotNull() Long userId,
+		@RequestParam(required = false, name = "lookup-date")
+		@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lookUpDate) {
 		return Response.createSuccess(
-			pixelService.getNearIndividualHistoryPixelsByCoordinate(currentLatitude, currentLongitude, radius, userId)
+			pixelService
+				.getNearIndividualHistoryPixelsByCoordinate(currentLatitude, currentLongitude, radius, userId,
+					lookUpDate)
 		);
 	}
 
@@ -88,24 +94,28 @@ public class PixelController {
 		@Parameter(description = "찾고자 하는 pixelId", required = true)
 		@PathVariable Long pixelId,
 		@Parameter(description = "조회하고자 하는 userId", required = true)
-		@RequestParam(name = "user-id") Long userId
+		@RequestParam(name = "user-id") Long userId,
+		@RequestParam(required = false, name = "lookup-date")
+		@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lookUpDate
 	) {
 		return Response.createSuccess(
-			pixelService.getIndividualHistoryPixelInfo(pixelId, userId)
+			pixelService.getIndividualHistoryPixelInfo(pixelId, userId, lookUpDate)
 		);
 	}
 
 	@Operation(summary = "픽셀 차지", description = "특정 픽셀의 id, 사용자 id, 커뮤니티 id를 사용해 소유권을 바꾸는 API ")
 	@PostMapping("")
 	public Response<?> occupyPixel(@RequestBody PixelOccupyRequest pixelOccupyRequest) {
-		pixelService.occupyPixel(pixelOccupyRequest);
+		pixelService.occupyPixelWithLock(pixelOccupyRequest);
 		return Response.createSuccessWithNoData();
 	}
 
 	@Operation(summary = "픽셀 개수 조회", description = "특정 유저의 현재 소유중인 픽셀, 누적 픽셀을 조회하는 api")
 	@GetMapping("/count")
-	public Response<PixelCountResponse> getPixelCount(@RequestParam(name = "user-id") @NotNull() Long userId) {
-		return Response.createSuccess(pixelService.getPixelCount(userId));
+	public Response<PixelCountResponse> getPixelCount(@RequestParam(name = "user-id") @NotNull() Long userId,
+		@RequestParam(required = false, name = "lookup-date")
+		@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lookUpDate) {
+		return Response.createSuccess(pixelService.getPixelCount(userId, lookUpDate));
 	}
 }
 
