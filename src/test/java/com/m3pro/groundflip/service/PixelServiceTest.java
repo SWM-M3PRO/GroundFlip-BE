@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +19,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.redisson.api.RFuture;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.context.ApplicationEventPublisher;
 
 import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelInfoResponse;
@@ -49,6 +54,8 @@ class PixelServiceTest {
 	private RankingService rankingService;
 	@Mock
 	private ApplicationEventPublisher applicationEventPublisher;
+	@Mock
+	private RedissonClient redissonClient;
 	@InjectMocks
 	private PixelService pixelService;
 
@@ -324,9 +331,9 @@ class PixelServiceTest {
 			.address("대한민국")
 			.build();
 		when(pixelRepository.findByXAndY(222L, 233L)).thenReturn(Optional.of(pixel));
-
+		when(redissonClient.getLock(any())).thenReturn(new RedissonLock());
 		// When
-		pixelService.occupyPixel(pixelOccupyRequest);
+		pixelService.occupyPixelWithLock(pixelOccupyRequest);
 
 		//Then
 		assertEquals(5L, pixel.getUserId());
@@ -343,9 +350,9 @@ class PixelServiceTest {
 			.address("대한민국")
 			.build();
 		when(pixelRepository.findByXAndY(222L, 233L)).thenReturn(Optional.of(pixel));
-
+		when(redissonClient.getLock(any())).thenReturn(new RedissonLock());
 		// When
-		pixelService.occupyPixel(pixelOccupyRequest);
+		pixelService.occupyPixelWithLock(pixelOccupyRequest);
 
 		// Then
 		verify(applicationEventPublisher, times(1)).publishEvent(any(PixelUserInsertEvent.class));
@@ -362,9 +369,9 @@ class PixelServiceTest {
 			.address(null)
 			.build();
 		when(pixelRepository.findByXAndY(222L, 233L)).thenReturn(Optional.of(pixel));
-
+		when(redissonClient.getLock(any())).thenReturn(new RedissonLock());
 		// When
-		pixelService.occupyPixel(pixelOccupyRequest);
+		pixelService.occupyPixelWithLock(pixelOccupyRequest);
 
 		// Then
 		verify(applicationEventPublisher, times(1)).publishEvent(any(PixelAddressUpdateEvent.class));
@@ -381,11 +388,168 @@ class PixelServiceTest {
 			.address("대한민국 ")
 			.build();
 		when(pixelRepository.findByXAndY(222L, 233L)).thenReturn(Optional.of(pixel));
-
+		when(redissonClient.getLock(any())).thenReturn(new RedissonLock());
 		// When
-		pixelService.occupyPixel(pixelOccupyRequest);
+		pixelService.occupyPixelWithLock(pixelOccupyRequest);
 
 		// Then
 		verify(applicationEventPublisher, times(0)).publishEvent(any(PixelAddressUpdateEvent.class));
+	}
+
+	static class RedissonLock implements RLock {
+		@Override
+		public String getName() {
+			return "";
+		}
+
+		@Override
+		public void lockInterruptibly(long l, TimeUnit timeUnit) throws InterruptedException {
+
+		}
+
+		@Override
+		public boolean tryLock(long l, long l1, TimeUnit timeUnit) throws InterruptedException {
+			return true;
+		}
+
+		@Override
+		public void lock(long l, TimeUnit timeUnit) {
+
+		}
+
+		@Override
+		public boolean forceUnlock() {
+			return false;
+		}
+
+		@Override
+		public boolean isLocked() {
+			return false;
+		}
+
+		@Override
+		public boolean isHeldByThread(long l) {
+			return false;
+		}
+
+		@Override
+		public boolean isHeldByCurrentThread() {
+			return false;
+		}
+
+		@Override
+		public int getHoldCount() {
+			return 0;
+		}
+
+		@Override
+		public long remainTimeToLive() {
+			return 0;
+		}
+
+		@Override
+		public void lock() {
+
+		}
+
+		@Override
+		public void lockInterruptibly() throws InterruptedException {
+
+		}
+
+		@Override
+		public boolean tryLock() {
+			return false;
+		}
+
+		@Override
+		public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
+			return false;
+		}
+
+		@Override
+		public void unlock() {
+
+		}
+
+		@Override
+		public Condition newCondition() {
+			return null;
+		}
+
+		@Override
+		public RFuture<Boolean> forceUnlockAsync() {
+			return null;
+		}
+
+		@Override
+		public RFuture<Void> unlockAsync() {
+			return null;
+		}
+
+		@Override
+		public RFuture<Void> unlockAsync(long l) {
+			return null;
+		}
+
+		@Override
+		public RFuture<Boolean> tryLockAsync() {
+			return null;
+		}
+
+		@Override
+		public RFuture<Void> lockAsync() {
+			return null;
+		}
+
+		@Override
+		public RFuture<Void> lockAsync(long l) {
+			return null;
+		}
+
+		@Override
+		public RFuture<Void> lockAsync(long l, TimeUnit timeUnit) {
+			return null;
+		}
+
+		@Override
+		public RFuture<Void> lockAsync(long l, TimeUnit timeUnit, long l1) {
+			return null;
+		}
+
+		@Override
+		public RFuture<Boolean> tryLockAsync(long l) {
+			return null;
+		}
+
+		@Override
+		public RFuture<Boolean> tryLockAsync(long l, TimeUnit timeUnit) {
+			return null;
+		}
+
+		@Override
+		public RFuture<Boolean> tryLockAsync(long l, long l1, TimeUnit timeUnit) {
+			return null;
+		}
+
+		@Override
+		public RFuture<Boolean> tryLockAsync(long l, long l1, TimeUnit timeUnit, long l2) {
+			return null;
+		}
+
+		@Override
+		public RFuture<Integer> getHoldCountAsync() {
+			return null;
+		}
+
+		@Override
+		public RFuture<Boolean> isLockedAsync() {
+			return null;
+		}
+
+		@Override
+		public RFuture<Long> remainTimeToLiveAsync() {
+			return null;
+		}
 	}
 }

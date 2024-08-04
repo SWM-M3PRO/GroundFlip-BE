@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import com.m3pro.groundflip.domain.dto.community.CommunityInfoResponse;
 import com.m3pro.groundflip.domain.dto.community.CommunitySearchResponse;
 import com.m3pro.groundflip.domain.entity.Community;
+import com.m3pro.groundflip.exception.AppException;
+import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.CommunityRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -29,7 +31,7 @@ public class CommunityService {
 
 	public CommunityInfoResponse findCommunityById(Long id) {
 		Community community = communityRepository.findById(id)
-			.orElseThrow(() -> new IllegalArgumentException("Community not found"));
+			.orElseThrow(() -> new AppException(ErrorCode.GROUP_NOT_FOUND));
 		return CommunityInfoResponse.from(community, 0, 0);
 	}
 }

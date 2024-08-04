@@ -106,7 +106,7 @@ public class PixelController {
 	@Operation(summary = "픽셀 차지", description = "특정 픽셀의 id, 사용자 id, 커뮤니티 id를 사용해 소유권을 바꾸는 API ")
 	@PostMapping("")
 	public Response<?> occupyPixel(@RequestBody PixelOccupyRequest pixelOccupyRequest) {
-		pixelService.occupyPixel(pixelOccupyRequest);
+		pixelService.occupyPixelWithLock(pixelOccupyRequest);
 		return Response.createSuccessWithNoData();
 	}
 

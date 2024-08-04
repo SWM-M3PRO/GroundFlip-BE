@@ -53,6 +53,7 @@ jobs:
           paths: ${{ github.workspace }}/build/jacocoReport/test/jacocoTestReport.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           update-comment: true
+          min-coverage-overall: 70
 
   qodana:
     runs-on: ubuntu-latest
