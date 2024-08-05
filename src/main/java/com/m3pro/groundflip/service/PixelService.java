@@ -187,14 +187,20 @@ public class PixelService {
 	 */
 	private void updateRankingOnCache(Pixel targetPixel, Long occupyingUserId) {
 		Long originalOwnerUserId = targetPixel.getUserId();
-		if (Objects.equals(originalOwnerUserId, occupyingUserId)) {
-			return;
-		}
+		LocalDateTime thisWeekStart = DateUtils.getThisWeekStartDate().atTime(0, 0);
+		LocalDateTime modifiedAt = targetPixel.getModifiedAt();
 
-		if (originalOwnerUserId == null) {
+		if (Objects.equals(originalOwnerUserId, occupyingUserId)) {
+			if (modifiedAt.isAfter(thisWeekStart)) {
+				return;
+			}
 			rankingService.increaseCurrentPixelCount(occupyingUserId);
 		} else {
-			rankingService.updateRankingAfterOccupy(occupyingUserId, originalOwnerUserId);
+			if (originalOwnerUserId == null || modifiedAt.isBefore(thisWeekStart)) {
+				rankingService.increaseCurrentPixelCount(occupyingUserId);
+			} else {
+				rankingService.updateRankingAfterOccupy(occupyingUserId, originalOwnerUserId);
+			}
 		}
 	}
 
