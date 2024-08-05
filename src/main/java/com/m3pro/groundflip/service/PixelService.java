@@ -151,11 +151,19 @@ public class PixelService {
 		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
 		updateRankingOnCache(targetPixel, occupyingUserId);
-		targetPixel.updateUserId(occupyingUserId);
-		pixelRepository.saveAndFlush(targetPixel);
+		updatePixelOwner(targetPixel, occupyingUserId);
 
 		updatePixelAddress(targetPixel);
 		eventPublisher.publishEvent(new PixelUserInsertEvent(targetPixel.getId(), occupyingUserId, communityId));
+	}
+
+	private void updatePixelOwner(Pixel targetPixel, Long occupyingUserId) {
+		if (Objects.equals(targetPixel.getUserId(), occupyingUserId)) {
+			targetPixel.updateModifiedAt();
+		} else {
+			targetPixel.updateUserId(occupyingUserId);
+		}
+		pixelRepository.saveAndFlush(targetPixel);
 	}
 
 	/**
