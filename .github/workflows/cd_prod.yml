@@ -26,7 +26,7 @@ jobs:
           echo "SPRING_PROFILES_ACTIVE=prod" >> .env
           echo "X-NCP-APIGW-API-KEY-ID=${{ secrets.NAVER_APIKEYID }}" >> .env
           echo "X-NCP-APIGW-API-KEY=${{ secrets.NAVER_APIKEY }}" >> .env
-          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY_PROD }}" >> .env
           echo "KAKAO_APP_ID=${{ secrets.KAKAO_APP_ID }}" >> .env
           echo "REDIS_HOST=${{ secrets.REDIS_HOST_PROD }}" >> .env
           echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY_PROD }}" >> .env
