@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Schema(title = "사용자 즐겨찾기 정보 등록")
-public class UserPlaceMarkRequest {
+public class MyPlaceRequest {
 
 	@Schema(description = "즐겨찾기 장소 이름", example = "학교")
 	private String placeName;
