@@ -1,11 +1,14 @@
 package com.m3pro.groundflip.service;
 
+import java.util.List;
+
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
 
 import com.m3pro.groundflip.domain.dto.myplace.MyPlaceRequest;
+import com.m3pro.groundflip.domain.dto.myplace.MyPlaceResponse;
 import com.m3pro.groundflip.domain.entity.MyPlace;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.exception.AppException;
@@ -40,7 +43,14 @@ public class MyPlaceService {
 				.placeName(myPlaceRequest.getPlaceName())
 				.build()
 		);
+	}
 
+	public List<MyPlaceResponse> getMyPlace(Long userId) {
+		List<MyPlace> myPlaces = myPlaceRepository.findByUserId(userId);
+		if (myPlaces.isEmpty()) {
+			throw new AppException(ErrorCode.PLACE_NOT_FOUND);
+		}
+		return myPlaces.stream().map(MyPlaceResponse::from).toList();
 	}
 
 }

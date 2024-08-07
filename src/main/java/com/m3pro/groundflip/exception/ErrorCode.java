@@ -13,6 +13,7 @@ public enum ErrorCode {
 	GROUP_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 그룹입니다."),
 	PIXEL_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 픽셀입니다."),
 	IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 이미지입니다."),
+	PLACE_NOT_FOUND(HttpStatus.NOT_FOUND, "장소가 등록되어 있지 않습니다."),
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러 입니다"),
 
 	// 권한 관련 에러
