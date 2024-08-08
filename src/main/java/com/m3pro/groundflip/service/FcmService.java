@@ -30,7 +30,7 @@ public class FcmService {
 		Optional<FcmToken> fcmToken = fcmTokenRepository.findByUser(user);
 
 		if (fcmToken.isPresent()) {
-			fcmToken.get().updateModifiedAt();
+			fcmToken.get().updateModifiedAtToNow();
 		} else {
 			fcmTokenRepository.save(
 				FcmToken.builder()

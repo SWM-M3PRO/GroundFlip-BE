@@ -43,30 +43,14 @@ public class RankingService {
 			if (modifiedAt.isAfter(thisWeekStart)) {
 				return;
 			}
-			increaseCurrentPixelCount(occupyingUserId);
+			rankingRedisRepository.increaseCurrentPixelCount(occupyingUserId);
 		} else {
 			if (originalOwnerUserId == null || modifiedAt.isBefore(thisWeekStart)) {
-				increaseCurrentPixelCount(occupyingUserId);
+				rankingRedisRepository.increaseCurrentPixelCount(occupyingUserId);
 			} else {
 				updateRankingAfterOccupy(occupyingUserId, originalOwnerUserId);
 			}
 		}
-	}
-
-	/**
-	 * 현재 픽셀의 수를 1 증가 시킨다.
-	 * @param userId 사용자 id
-	 */
-	public void increaseCurrentPixelCount(Long userId) {
-		rankingRedisRepository.increaseCurrentPixelCount(userId);
-	}
-
-	/**
-	 * 현재 픽셀의 수를 1 감소 시킨다.
-	 * @param userId 사용자 id
-	 */
-	public void decreaseCurrentPixelCount(Long userId) {
-		rankingRedisRepository.decreaseCurrentPixelCount(userId);
 	}
 
 	/**
@@ -75,8 +59,8 @@ public class RankingService {
 	 * @param deprivedUserId 픽셀을 뺴앗긴 유저
 	 */
 	public void updateRankingAfterOccupy(Long occupyingUserId, Long deprivedUserId) {
-		increaseCurrentPixelCount(occupyingUserId);
-		decreaseCurrentPixelCount(deprivedUserId);
+		rankingRedisRepository.increaseCurrentPixelCount(occupyingUserId);
+		rankingRedisRepository.decreaseCurrentPixelCount(deprivedUserId);
 	}
 
 	/**

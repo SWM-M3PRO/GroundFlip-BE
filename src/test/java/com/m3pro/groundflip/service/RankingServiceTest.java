@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.m3pro.groundflip.domain.dto.ranking.Ranking;
 import com.m3pro.groundflip.domain.dto.ranking.UserRankingResponse;
+import com.m3pro.groundflip.domain.entity.Pixel;
 import com.m3pro.groundflip.domain.entity.RankingHistory;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.exception.AppException;
@@ -28,6 +29,7 @@ import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.RankingHistoryRepository;
 import com.m3pro.groundflip.repository.RankingRedisRepository;
 import com.m3pro.groundflip.repository.UserRepository;
+import com.m3pro.groundflip.util.DateUtils;
 
 @ExtendWith(MockitoExtension.class)
 class RankingServiceTest {
@@ -46,27 +48,67 @@ class RankingServiceTest {
 	}
 
 	@Test
-	@DisplayName("[increaseCurrentPixelCount] userId 에 해당하는 현재 소유 픽셀의 개수를 1 증가시킨다.")
-	void increaseCurrentPixelCountTest() {
-		Long userId = 1L;
+	@DisplayName("[updateRanking] 이번주에 이미 차지한 땅이라면 랭킹 업데이트 하지 않는다.")
+	void updateRanking_NoUpdate() {
+		Long occupyingUserId = 1L;
+		Pixel targetPixel = Pixel.builder().userId(occupyingUserId).build();
+		targetPixel.updateModifiedAt(DateUtils.getThisWeekStartDate().atTime(0, 0, 0).plusDays(1));
 
-		rankingService.increaseCurrentPixelCount(userId);
+		rankingService.updateRanking(targetPixel, occupyingUserId);
 
-		verify(rankingRedisRepository, times(1)).increaseCurrentPixelCount(userId);
+		verify(rankingRedisRepository, never()).increaseCurrentPixelCount(occupyingUserId);
 	}
 
 	@Test
-	@DisplayName("[decreasePixelCount] userId 에 해당하는 현재 소유 픽셀의 개수를 1 감소시킨다.")
-	void decreasePixelCountTest() {
-		Long userId = 1L;
+	@DisplayName("[updateRanking] 저번주에 차지한 땅이고 차지한 사람과 차지하려는 사람이 같다면 랭킹을 업데이트한다.")
+	void updateRanking_UpdateBeforeThisWeek() {
+		Long occupyingUserId = 1L;
+		Pixel targetPixel = Pixel.builder().userId(occupyingUserId).build();
+		targetPixel.updateModifiedAt(DateUtils.getThisWeekStartDate().atTime(0, 0, 0).minusDays(3));
 
-		rankingService.decreaseCurrentPixelCount(userId);
+		rankingService.updateRanking(targetPixel, occupyingUserId);
 
-		verify(rankingRedisRepository, times(1)).decreaseCurrentPixelCount(userId);
+		verify(rankingRedisRepository, times(1)).increaseCurrentPixelCount(occupyingUserId);
 	}
 
 	@Test
-	@DisplayName("[decreasePixelCount] occupyingUserId 에 해당하는 현재 소유 픽셀의 개수를 1 증가시키고 deprivedUserId 에 해당하는 현재 소유 픽셀의 개수를 1 감소시킨다.")
+	@DisplayName("[updateRanking] 아무도 차지 한 적이 없는 땅이라면 차지하려는 사람의 점수를 추가한다.")
+	void updateRanking_NeverOccupied() {
+		Long occupyingUserId = 1L;
+		Pixel targetPixel = Pixel.builder().userId(null).build();
+
+		rankingService.updateRanking(targetPixel, occupyingUserId);
+
+		verify(rankingRedisRepository, times(1)).increaseCurrentPixelCount(occupyingUserId);
+	}
+
+	@Test
+	@DisplayName("[updateRanking] 가장 최근에 차지한 시간이 저번주라면 지금 차지하려는 사람의 점수를 추가한다.")
+	void updateRanking_BeforeThisWeek() {
+		Long occupyingUserId = 1L;
+		Pixel targetPixel = Pixel.builder().userId(3L).build();
+		targetPixel.updateModifiedAt(DateUtils.getThisWeekStartDate().atTime(0, 0, 0).minusDays(3));
+
+		rankingService.updateRanking(targetPixel, occupyingUserId);
+
+		verify(rankingRedisRepository, times(1)).increaseCurrentPixelCount(occupyingUserId);
+	}
+
+	@Test
+	@DisplayName("[updateRanking] 가장 최근에 차지한 시간이 이번주이고 차지하려는 사람과 차지한 사람이 다르면 지금 차지하려는 사람의 점수를 추가하고 차지한 사람의 점수는 감소시킨다.")
+	void updateRanking_OccupyPixel() {
+		Long occupyingUserId = 1L;
+		Pixel targetPixel = Pixel.builder().userId(3L).build();
+		targetPixel.updateModifiedAt(DateUtils.getThisWeekStartDate().atTime(0, 0, 0).plusDays(3));
+
+		rankingService.updateRanking(targetPixel, occupyingUserId);
+
+		verify(rankingRedisRepository, times(1)).increaseCurrentPixelCount(occupyingUserId);
+		verify(rankingRedisRepository, times(1)).decreaseCurrentPixelCount(3L);
+	}
+
+	@Test
+	@DisplayName("[updateRankingAfterOccupy] occupyingUserId 에 해당하는 현재 소유 픽셀의 개수를 1 증가시키고 deprivedUserId 에 해당하는 현재 소유 픽셀의 개수를 1 감소시킨다.")
 	void updateRankingAfterOccupyTest() {
 		Long occupyingUserId = 1L;
 		Long deprivedUserId = 2L;

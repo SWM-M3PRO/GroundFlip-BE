@@ -159,7 +159,7 @@ public class PixelService {
 
 	private void updatePixelOwner(Pixel targetPixel, Long occupyingUserId) {
 		if (Objects.equals(targetPixel.getUserId(), occupyingUserId)) {
-			targetPixel.updateModifiedAt();
+			targetPixel.updateModifiedAtToNow();
 		} else {
 			targetPixel.updateUserId(occupyingUserId);
 		}
