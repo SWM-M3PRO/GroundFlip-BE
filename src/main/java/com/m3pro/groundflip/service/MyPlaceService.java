@@ -53,4 +53,13 @@ public class MyPlaceService {
 		return myPlaces.stream().map(MyPlaceResponse::from).toList();
 	}
 
+	public void deleteMyPlace(MyPlaceRequest myPlaceRequest) {
+		List<MyPlace> myplaces = myPlaceRepository.findByUserIdAndPlaceName(myPlaceRequest.getUserId(),
+			myPlaceRequest.getPlaceName());
+		if (myplaces.isEmpty()) {
+			throw new AppException(ErrorCode.PLACE_NOT_FOUND);
+		}
+		myPlaceRepository.deleteAll(myplaces);
+	}
+
 }

@@ -2,6 +2,7 @@ package com.m3pro.groundflip.controller;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -43,6 +44,16 @@ public class MyPlaceController {
 		@PathVariable Long userId
 	) {
 		return Response.createSuccess(myPlaceService.getMyPlace(userId));
+	}
+
+	@Operation(summary = "사용자 즐겨찾기 delete", description = "즐겨찾기 장소를 삭제한다")
+	@DeleteMapping("")
+	public Response<?> deleteMyPlace(
+		@Parameter(description = "지우고자 하는 userId", required = true)
+		@RequestBody MyPlaceRequest myPlaceRequest
+	) {
+		myPlaceService.deleteMyPlace(myPlaceRequest);
+		return Response.createSuccessWithNoData();
 	}
 
 }

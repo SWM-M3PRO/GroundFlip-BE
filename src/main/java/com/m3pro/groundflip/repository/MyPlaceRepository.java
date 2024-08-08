@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.m3pro.groundflip.domain.entity.MyPlace;
+import com.m3pro.groundflip.enums.Place;
 
 public interface MyPlaceRepository extends JpaRepository<MyPlace, Long> {
 
@@ -21,4 +22,6 @@ public interface MyPlaceRepository extends JpaRepository<MyPlace, Long> {
 		    WHERE mp.user_id = :userId
 		""", nativeQuery = true)
 	List<MyPlace> findByUserId(Long userId);
+
+	List<MyPlace> findByUserIdAndPlaceName(Long userId, Place placeName);
 }
