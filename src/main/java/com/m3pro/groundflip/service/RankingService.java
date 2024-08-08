@@ -1,8 +1,10 @@
 package com.m3pro.groundflip.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.m3pro.groundflip.domain.dto.ranking.Ranking;
 import com.m3pro.groundflip.domain.dto.ranking.UserRankingResponse;
+import com.m3pro.groundflip.domain.entity.Pixel;
 import com.m3pro.groundflip.domain.entity.RankingHistory;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.exception.AppException;
@@ -30,6 +33,25 @@ public class RankingService {
 	private final RankingRedisRepository rankingRedisRepository;
 	private final UserRepository userRepository;
 	private final RankingHistoryRepository rankingHistoryRepository;
+
+	public void updateRanking(Pixel targetPixel, Long occupyingUserId) {
+		Long originalOwnerUserId = targetPixel.getUserId();
+		LocalDateTime thisWeekStart = DateUtils.getThisWeekStartDate().atTime(0, 0);
+		LocalDateTime modifiedAt = targetPixel.getModifiedAt();
+
+		if (Objects.equals(originalOwnerUserId, occupyingUserId)) {
+			if (modifiedAt.isAfter(thisWeekStart)) {
+				return;
+			}
+			increaseCurrentPixelCount(occupyingUserId);
+		} else {
+			if (originalOwnerUserId == null || modifiedAt.isBefore(thisWeekStart)) {
+				increaseCurrentPixelCount(occupyingUserId);
+			} else {
+				updateRankingAfterOccupy(occupyingUserId, originalOwnerUserId);
+			}
+		}
+	}
 
 	/**
 	 * 현재 픽셀의 수를 1 증가 시킨다.

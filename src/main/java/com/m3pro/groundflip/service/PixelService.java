@@ -150,7 +150,7 @@ public class PixelService {
 
 		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
-		updateRankingOnCache(targetPixel, occupyingUserId);
+		rankingService.updateRanking(targetPixel, occupyingUserId);
 		updatePixelOwner(targetPixel, occupyingUserId);
 
 		updatePixelAddress(targetPixel);
@@ -175,32 +175,6 @@ public class PixelService {
 	private void updatePixelAddress(Pixel targetPixel) {
 		if (targetPixel.getAddress() == null) {
 			eventPublisher.publishEvent(new PixelAddressUpdateEvent(targetPixel));
-		}
-	}
-
-	/**
-	 * 레디스 상에서 랭킹을 조정한다.
-	 * @param targetPixel 랭킹을 조정할 픽셀
-	 * @param occupyingUserId 현재 픽셀을 방문한 유저
-	 * @return
-	 * @author 김민욱
-	 */
-	private void updateRankingOnCache(Pixel targetPixel, Long occupyingUserId) {
-		Long originalOwnerUserId = targetPixel.getUserId();
-		LocalDateTime thisWeekStart = DateUtils.getThisWeekStartDate().atTime(0, 0);
-		LocalDateTime modifiedAt = targetPixel.getModifiedAt();
-
-		if (Objects.equals(originalOwnerUserId, occupyingUserId)) {
-			if (modifiedAt.isAfter(thisWeekStart)) {
-				return;
-			}
-			rankingService.increaseCurrentPixelCount(occupyingUserId);
-		} else {
-			if (originalOwnerUserId == null || modifiedAt.isBefore(thisWeekStart)) {
-				rankingService.increaseCurrentPixelCount(occupyingUserId);
-			} else {
-				rankingService.updateRankingAfterOccupy(occupyingUserId, originalOwnerUserId);
-			}
 		}
 	}
 
