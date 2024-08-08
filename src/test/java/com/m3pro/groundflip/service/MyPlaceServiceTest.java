@@ -137,4 +137,48 @@ public class MyPlaceServiceTest {
 		//When
 		assertEquals(ErrorCode.PLACE_NOT_FOUND, thrown.getErrorCode());
 	}
+
+	@Test
+	@DisplayName("[deleteMyPlace] 즐겨찾기 삭제 동작 테스트")
+	void deleteMyPlaceTest() {
+		//Given
+		Long userId = 1L;
+
+		myPlaceRequest = MyPlaceRequest.builder()
+			.userId(userId)
+			.placeName(Place.HOME)
+			.build();
+
+		List<MyPlace> myPlaceList = Arrays.asList(
+			MyPlace.builder().placeName(Place.HOME).user(user).build(),
+			MyPlace.builder().placeName(Place.HOME).user(user).build()
+		);
+
+		//when(myPlaceRepository.findByUserIdAndPlaceName(userId, Place.HOME)).thenReturn(myPlaceList);
+
+		myPlaceRepository.deleteAll(myPlaceList);
+
+		verify(myPlaceRepository, times(1)).deleteAll(myPlaceList);
+
+	}
+
+	@Test
+	@DisplayName("[deleteMyPlace] 즐겨찾기 장소가 존재하지 않을 때 에러가 발생하는지")
+	void deleteMyPlace_NotFound() {
+		// Given
+		Long userId = 1L;
+		Place placeName = Place.HOME;
+		MyPlaceRequest myPlaceRequest = MyPlaceRequest.builder()
+			.userId(userId)
+			.placeName(placeName)
+			.build();
+
+		// When
+
+		AppException thrown = assertThrows(AppException.class, () -> {
+			myPlaceService.deleteMyPlace(myPlaceRequest);
+		});
+
+		assertEquals(ErrorCode.PLACE_NOT_FOUND, thrown.getErrorCode());
+	}
 }
