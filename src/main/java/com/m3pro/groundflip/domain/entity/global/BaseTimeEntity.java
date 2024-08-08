@@ -22,7 +22,11 @@ public class BaseTimeEntity {
 	@LastModifiedDate
 	private LocalDateTime modifiedAt;
 
-	public void updateModifiedAt() {
+	public void updateModifiedAtToNow() {
 		modifiedAt = LocalDateTime.now();
+	}
+
+	public void updateModifiedAt(LocalDateTime localDateTime) {
+		modifiedAt = localDateTime;
 	}
 }

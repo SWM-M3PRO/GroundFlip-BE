@@ -21,6 +21,7 @@ import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.jwt.JwtProvider;
 import com.m3pro.groundflip.repository.AppleRefreshTokenRepository;
+import com.m3pro.groundflip.repository.FcmTokenRepository;
 import com.m3pro.groundflip.repository.RankingRedisRepository;
 import com.m3pro.groundflip.repository.UserCommunityRepository;
 import com.m3pro.groundflip.repository.UserRepository;
@@ -39,6 +40,7 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final AppleRefreshTokenRepository appleRefreshTokenRepository;
 	private final UserCommunityRepository userCommunityRepository;
+	private final FcmTokenRepository fcmTokenRepository;
 	private final S3Uploader s3Uploader;
 	private final JwtProvider jwtProvider;
 	private final AppleApiClient appleApiClient;
@@ -122,6 +124,8 @@ public class UserService {
 		if (deletedUser.getProvider() == Provider.APPLE) {
 			revokeAppleToken(deletedUser.getId());
 		}
+		fcmTokenRepository.deleteByUser(deletedUser);
+
 		deletedUser.updateBirthYear(convertToDate(1900));
 		deletedUser.updateNickName(null);
 		deletedUser.updateProfileImage(null);
