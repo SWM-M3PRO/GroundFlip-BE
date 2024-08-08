@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.m3pro.groundflip.domain.dto.Response;
+import com.m3pro.groundflip.domain.dto.user.FcmTokenRequest;
 import com.m3pro.groundflip.domain.dto.user.UserDeleteRequest;
 import com.m3pro.groundflip.domain.dto.user.UserInfoRequest;
 import com.m3pro.groundflip.domain.dto.user.UserInfoResponse;
@@ -60,6 +61,14 @@ public class UserController {
 		@RequestBody UserDeleteRequest userDeleteRequest
 	) {
 		userService.deleteUser(userId, userDeleteRequest);
+		return Response.createSuccessWithNoData();
+	}
+
+	@Operation(summary = "FCM 등록 토큰 등록", description = "푸시 알림을 위한 FCM 등록 토큰을 저장한다.")
+	@PutMapping("/fcm-token")
+	public Response<?> postFcmToken(
+		@RequestBody FcmTokenRequest fcmTokenRequest
+	) {
 		return Response.createSuccessWithNoData();
 	}
 }
