@@ -50,7 +50,7 @@ public class MyPlaceServiceTest {
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		User user = User.builder().id(1L).nickname("test User").build();
+		user = User.builder().id(1L).nickname("test User").build();
 
 	}
 
