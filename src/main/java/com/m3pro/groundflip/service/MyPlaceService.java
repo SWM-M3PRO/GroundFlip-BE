@@ -47,9 +47,6 @@ public class MyPlaceService {
 
 	public List<MyPlaceResponse> getMyPlace(Long userId) {
 		List<MyPlace> myPlaces = myPlaceRepository.findByUserId(userId);
-		if (myPlaces.isEmpty()) {
-			throw new AppException(ErrorCode.PLACE_NOT_FOUND);
-		}
 		return myPlaces.stream().map(MyPlaceResponse::from).toList();
 	}
 
