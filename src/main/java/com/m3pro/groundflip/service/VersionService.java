@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import com.m3pro.groundflip.domain.dto.version.VersionRequest;
 import com.m3pro.groundflip.domain.dto.version.VersionResponse;
 import com.m3pro.groundflip.domain.entity.AppVersion;
+import com.m3pro.groundflip.exception.AppException;
+import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.AppVersionRepository;
 
 import jakarta.transaction.Transactional;
@@ -25,7 +27,8 @@ public class VersionService {
 	}
 
 	public VersionResponse getVersion() {
-		AppVersion appVersion = appVersionRepository.findLaestetVersion();
+		AppVersion appVersion = appVersionRepository.findLaestetVersion()
+			.orElseThrow(() -> new AppException(ErrorCode.VERSION_NOT_FOUND));
 
 		return VersionResponse.builder()
 			.version(appVersion.getVersion())

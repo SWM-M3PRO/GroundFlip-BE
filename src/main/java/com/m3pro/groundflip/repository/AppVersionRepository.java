@@ -1,5 +1,7 @@
 package com.m3pro.groundflip.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
@@ -13,5 +15,5 @@ public interface AppVersionRepository extends CrudRepository<AppVersion, Long> {
 		ORDER BY av.created_date DESC 
 		limit 1
 		""", nativeQuery = true)
-	AppVersion findLaestetVersion();
+	Optional<AppVersion> findLaestetVersion();
 }
