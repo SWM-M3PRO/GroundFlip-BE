@@ -33,8 +33,6 @@ public class VersionServiceTest {
 	@DisplayName("[postVersion] version이 잘 post 되는지")
 	void postVersionTest() {
 		//Given
-		LocalDateTime localDate = LocalDateTime.now();
-
 		VersionRequest versionRequest = VersionRequest.builder().version("1.0.3").build();
 		//When
 		versionService.postVersion(versionRequest);
