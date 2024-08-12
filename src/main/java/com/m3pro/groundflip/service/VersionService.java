@@ -22,17 +22,19 @@ public class VersionService {
 		appVersionRepository.save(
 			AppVersion.builder()
 				.version(versionRequest.getVersion())
+				.needUpdate(versionRequest.getNeedUpdate())
 				.build()
 		);
 	}
 
-	public VersionResponse getVersion() {
-		AppVersion appVersion = appVersionRepository.findLaestetVersion()
+	public VersionResponse getVersion(String version) {
+		AppVersion appVersion = appVersionRepository.findByVersion(version)
 			.orElseThrow(() -> new AppException(ErrorCode.VERSION_NOT_FOUND));
 
 		return VersionResponse.builder()
 			.version(appVersion.getVersion())
 			.createdDate(appVersion.getCreatedDate())
+			.needUpdate(appVersion.getNeedUpdate())
 			.build();
 	}
 }

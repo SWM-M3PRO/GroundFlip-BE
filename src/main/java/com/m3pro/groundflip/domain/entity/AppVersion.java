@@ -33,6 +33,8 @@ public class AppVersion {
 
 	private String version;
 
+	private Integer needUpdate;
+
 	@CreatedDate
 	@Column(name = "created_date", updatable = false)
 	private LocalDateTime createdDate;

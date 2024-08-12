@@ -16,4 +16,6 @@ public interface AppVersionRepository extends CrudRepository<AppVersion, Long> {
 		limit 1
 		""", nativeQuery = true)
 	Optional<AppVersion> findLaestetVersion();
+
+	Optional<AppVersion> findByVersion(String version);
 }
