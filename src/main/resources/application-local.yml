@@ -85,4 +85,6 @@ cloud:
     s3:
       bucket: ${AWS_S3_BUCKET}
 
+version:
+  update: ${NEED_UPDATE_VERSION}
 
