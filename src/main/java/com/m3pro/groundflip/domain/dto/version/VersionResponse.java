@@ -14,5 +14,4 @@ import lombok.NoArgsConstructor;
 public class VersionResponse {
 	@Schema(description = "앱 버전", example = "1.0.5")
 	private String version;
-
 }
