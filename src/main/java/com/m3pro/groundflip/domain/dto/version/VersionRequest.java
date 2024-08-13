@@ -10,9 +10,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(title = "앱 버전 get")
-public class VersionResponse {
-	@Schema(description = "앱 버전", example = "1.0.5")
+@Schema(title = "앱 버전 등록")
+public class VersionRequest {
+	@Schema(description = "앱 버전", example = "1.0.1")
 	private String version;
-
+	
+	@Schema(description = "업데이트 필요 여부", example = "0")
+	private Integer needUpdate;
 }

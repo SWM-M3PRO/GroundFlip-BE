@@ -30,6 +30,7 @@ public class VersionServiceTest {
 		//Then
 		assertThat(versionResponse).isNotNull();
 		assertThat(versionResponse.getVersion()).isEqualTo("1.0.3");
+		assertThat(versionResponse.getCreatedDate()).isEqualTo(localDate);
 
 	}
 
