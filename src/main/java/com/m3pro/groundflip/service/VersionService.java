@@ -12,11 +12,20 @@ import lombok.RequiredArgsConstructor;
 public class VersionService {
 
 	@Value("${version.update}")
-	private String value;
+	private String lastestVersion;
 
-	public VersionResponse getVersion() {
+	private int needUpdate;
+
+	public VersionResponse getVersion(String currentVersion) {
+		if (!lastestVersion.equals(currentVersion)) {
+			needUpdate = 1;
+		} else {
+			needUpdate = 0;
+		}
+
 		return VersionResponse.builder()
-			.version(value)
+			.version(lastestVersion)
+			.needUpdate(needUpdate)
 			.build();
 	}
 }

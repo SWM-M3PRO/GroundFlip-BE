@@ -2,8 +2,6 @@ package com.m3pro.groundflip.service;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.time.LocalDateTime;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,15 +20,14 @@ public class VersionServiceTest {
 	@DisplayName("[getVersion] version이 잘 get 되는지")
 	void getVersionTest() {
 		//Given
-		LocalDateTime localDate = LocalDateTime.now();
+		String currentVersion = "1.0.3";
 
 		//When
-		VersionResponse versionResponse = versionService.getVersion();
+		VersionResponse versionResponse = versionService.getVersion(currentVersion);
 
 		//Then
 		assertThat(versionResponse).isNotNull();
 		assertThat(versionResponse.getVersion()).isEqualTo("1.0.3");
-		assertThat(versionResponse.getCreatedDate()).isEqualTo(localDate);
 
 	}
 
