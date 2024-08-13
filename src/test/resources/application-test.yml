@@ -82,4 +82,4 @@ cloud:
       bucket: test-value
 
 version:
-  update: ${NEED_UPDATE_VERSION}
+  update: 1.0.3
