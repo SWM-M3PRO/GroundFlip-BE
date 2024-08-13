@@ -80,3 +80,6 @@ cloud:
       secret-key: test-value
     s3:
       bucket: test-value
+
+version:
+  update: ${NEED_UPDATE_VERSION}

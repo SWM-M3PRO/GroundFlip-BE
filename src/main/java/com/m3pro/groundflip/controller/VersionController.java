@@ -21,10 +21,10 @@ import lombok.RequiredArgsConstructor;
 public class VersionController {
 	private final VersionService versionService;
 
-	@Operation(summary = "앱 버전 get", description = "현재 앱 버전을 가져온다.")
+	@Operation(summary = "버전 업데이트 필요 여부 확인", description = "현재 앱 버전 업데이트가 필요한지 판별")
 	@GetMapping("/version")
 	public Response<VersionResponse> getVersion(
-		@Parameter(description = "버전 get", required = true)
+		@Parameter(description = "현재 버전", required = true)
 		@RequestParam String currentVersion
 	) {
 		return Response.createSuccess(versionService.getVersion(currentVersion));

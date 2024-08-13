@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.m3pro.groundflip.domain.dto.version.VersionResponse;
+import com.m3pro.groundflip.enums.Version;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,13 +15,13 @@ public class VersionService {
 	@Value("${version.update}")
 	private String lastestVersion;
 
-	private int needUpdate;
+	private Version needUpdate;
 
 	public VersionResponse getVersion(String currentVersion) {
 		if (!lastestVersion.equals(currentVersion)) {
-			needUpdate = 1;
+			needUpdate = Version.NEED;
 		} else {
-			needUpdate = 0;
+			needUpdate = Version.OK;
 		}
 
 		return VersionResponse.builder()

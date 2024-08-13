@@ -1,5 +1,7 @@
 package com.m3pro.groundflip.domain.dto.version;
 
+import com.m3pro.groundflip.enums.Version;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +18,6 @@ public class VersionResponse {
 	private String version;
 
 	@Schema(description = "앱 버전", example = "1.0.5")
-	private Integer needUpdate;
+	private Version needUpdate;
 
 }
