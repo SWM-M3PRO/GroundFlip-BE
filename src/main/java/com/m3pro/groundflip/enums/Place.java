@@ -10,5 +10,5 @@ public enum Place {
 	COMPANY("회사/학교"),
 	ELSE("기타 장소");
 
-	private String place;
+	private final String place;
 }
