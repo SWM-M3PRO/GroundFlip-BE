@@ -11,13 +11,13 @@ import com.m3pro.groundflip.domain.dto.auth.LogoutRequest;
 import com.m3pro.groundflip.domain.dto.auth.OauthUserInfoResponse;
 import com.m3pro.groundflip.domain.dto.auth.ReissueReponse;
 import com.m3pro.groundflip.domain.entity.AppleRefreshToken;
-import com.m3pro.groundflip.domain.entity.Preference;
+import com.m3pro.groundflip.domain.entity.Permission;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.enums.Provider;
 import com.m3pro.groundflip.enums.UserStatus;
 import com.m3pro.groundflip.jwt.JwtProvider;
 import com.m3pro.groundflip.repository.AppleRefreshTokenRepository;
-import com.m3pro.groundflip.repository.PreferenceRepository;
+import com.m3pro.groundflip.repository.PermissionRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 import com.m3pro.groundflip.service.oauth.OauthService;
 
@@ -31,7 +31,7 @@ public class AuthService {
 	private final JwtProvider jwtProvider;
 	private final UserRepository userRepository;
 	private final AppleRefreshTokenRepository appleRefreshTokenRepository;
-	private final PreferenceRepository preferenceRepository;
+	private final PermissionRepository permissionRepository;
 
 	/**
 	 * Oauth Provider를 사용해 로그인을 진행한다.
@@ -76,7 +76,7 @@ public class AuthService {
 			.provider(provider)
 			.status(UserStatus.PENDING)
 			.build());
-		preferenceRepository.save(Preference.builder()
+		permissionRepository.save(Permission.builder()
 			.user(newUser)
 			.serviceNotificationsEnabled(false)
 			.marketingNotificationsEnabled(false)

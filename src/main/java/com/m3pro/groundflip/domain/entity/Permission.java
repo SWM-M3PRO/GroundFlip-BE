@@ -19,14 +19,14 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "user_preference")
+@Table(name = "permission")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Preference extends BaseTimeEntity {
+public class Permission extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "user_preference_id")
+	@Column(name = "permission_id")
 	private Long id;
 
 	@OneToOne(fetch = FetchType.LAZY)
