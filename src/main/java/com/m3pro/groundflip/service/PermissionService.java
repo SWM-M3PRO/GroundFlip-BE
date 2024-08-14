@@ -2,7 +2,7 @@ package com.m3pro.groundflip.service;
 
 import org.springframework.stereotype.Service;
 
-import com.m3pro.groundflip.domain.dto.preference.PreferenceRequest;
+import com.m3pro.groundflip.domain.dto.permission.PermissionRequest;
 import com.m3pro.groundflip.domain.entity.Permission;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.exception.AppException;
@@ -17,25 +17,25 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PreferenceService {
+public class PermissionService {
 	private final UserRepository userRepository;
 	private final PermissionRepository permissionRepository;
 
 	@Transactional
-	public void updateServiceNotificationsPreference(PreferenceRequest preferenceRequest) {
-		User user = userRepository.findById(preferenceRequest.getUserId()).orElseThrow(() -> new AppException(
+	public void updateServiceNotificationsPreference(PermissionRequest permissionRequest) {
+		User user = userRepository.findById(permissionRequest.getUserId()).orElseThrow(() -> new AppException(
 			ErrorCode.USER_NOT_FOUND));
 		Permission permission = permissionRepository.findByUser(user)
 			.orElseThrow(() -> new AppException(ErrorCode.INTERNAL_SERVER_ERROR));
-		permission.updateServiceNotificationsEnabled(preferenceRequest.isEnabled());
+		permission.updateServiceNotificationsEnabled(permissionRequest.isEnabled());
 	}
 
 	@Transactional
-	public void updateMarketingNotificationsPreference(PreferenceRequest preferenceRequest) {
-		User user = userRepository.findById(preferenceRequest.getUserId()).orElseThrow(() -> new AppException(
+	public void updateMarketingNotificationsPreference(PermissionRequest permissionRequest) {
+		User user = userRepository.findById(permissionRequest.getUserId()).orElseThrow(() -> new AppException(
 			ErrorCode.USER_NOT_FOUND));
 		Permission permission = permissionRepository.findByUser(user)
 			.orElseThrow(() -> new AppException(ErrorCode.INTERNAL_SERVER_ERROR));
-		permission.updateMarketingNotificationsEnabled(preferenceRequest.isEnabled());
+		permission.updateMarketingNotificationsEnabled(permissionRequest.isEnabled());
 	}
 }
