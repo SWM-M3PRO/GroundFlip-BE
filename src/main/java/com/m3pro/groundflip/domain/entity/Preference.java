@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class UserPreference extends BaseTimeEntity {
+public class Preference extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "user_preference_id")
@@ -33,9 +33,17 @@ public class UserPreference extends BaseTimeEntity {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	@Column(name = "push_notifications_enabled", nullable = false)
+	@Column(nullable = false)
 	private Boolean serviceNotificationsEnabled;
 
-	@Column(name = "email_notifications_enabled", nullable = false)
+	@Column(nullable = false)
 	private Boolean marketingNotificationsEnabled;
+
+	public void updateServiceNotificationsEnabled(boolean enabled) {
+		serviceNotificationsEnabled = enabled;
+	}
+
+	public void updateMarketingNotificationsEnabled(boolean enabled) {
+		marketingNotificationsEnabled = enabled;
+	}
 }
