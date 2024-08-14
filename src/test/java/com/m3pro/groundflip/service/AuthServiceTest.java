@@ -25,6 +25,7 @@ import com.m3pro.groundflip.enums.Provider;
 import com.m3pro.groundflip.enums.UserStatus;
 import com.m3pro.groundflip.jwt.JwtProvider;
 import com.m3pro.groundflip.repository.AppleRefreshTokenRepository;
+import com.m3pro.groundflip.repository.PermissionRepository;
 import com.m3pro.groundflip.repository.RankingRedisRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 import com.m3pro.groundflip.service.oauth.OauthService;
@@ -41,6 +42,8 @@ class AuthServiceTest {
 	private RankingRedisRepository rankingRedisRepository;
 	@Mock
 	private AppleRefreshTokenRepository appleRefreshTokenRepository;
+	@Mock
+	private PermissionRepository permissionRepository;
 	@InjectMocks
 	private AuthService authService;
 
