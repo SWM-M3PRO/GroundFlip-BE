@@ -31,6 +31,7 @@ public class FcmService {
 
 		if (fcmToken.isPresent()) {
 			fcmToken.get().updateModifiedAtToNow();
+			fcmToken.get().updateToken(fcmTokenRequest.getFcmToken());
 		} else {
 			fcmTokenRepository.save(
 				FcmToken.builder()

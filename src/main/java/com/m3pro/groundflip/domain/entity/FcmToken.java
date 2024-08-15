@@ -34,4 +34,8 @@ public class FcmToken extends BaseTimeEntity {
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
+
+	public void updateToken(String token) {
+		this.token = token;
+	}
 }
