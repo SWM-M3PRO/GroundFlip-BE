@@ -99,7 +99,7 @@ public class UserService {
 		user.updateStatus(UserStatus.COMPLETE);
 		user.updateProfileImage(fileS3Url);
 		userRepository.save(user);
-		rankingRedisRepository.saveUserInRedis(user.getId());
+		rankingRedisRepository.saveUserInRanking(user.getId());
 	}
 
 	private Date convertToDate(int year) {
@@ -133,6 +133,8 @@ public class UserService {
 
 		jwtProvider.expireToken(userDeleteRequest.getAccessToken());
 		jwtProvider.expireToken(userDeleteRequest.getRefreshToken());
+
+		rankingRedisRepository.deleteUserInRanking(userId);
 	}
 
 	private void revokeAppleToken(Long userId) {
