@@ -19,23 +19,31 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "fcm_token")
+@Table(name = "permission")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class FcmToken extends BaseTimeEntity {
+public class Permission extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "fcm_token_id")
+	@Column(name = "permission_id")
 	private Long id;
 
-	private String token;
-
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	public void updateToken(String token) {
-		this.token = token;
+	@Column(nullable = false)
+	private Boolean serviceNotificationsEnabled;
+
+	@Column(nullable = false)
+	private Boolean marketingNotificationsEnabled;
+
+	public void updateServiceNotificationsEnabled(boolean enabled) {
+		serviceNotificationsEnabled = enabled;
+	}
+
+	public void updateMarketingNotificationsEnabled(boolean enabled) {
+		marketingNotificationsEnabled = enabled;
 	}
 }
