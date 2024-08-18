@@ -3,11 +3,8 @@
 APP_NAME="ground_flip"
 REPOSITORY=/home/ubuntu/ground_flip
 
-echo "> Remove previous Docker image"
-docker rmi "$APP_NAME"
-
 echo "> Build Docker image"
-docker build -t "$APP_NAME" "$REPOSITORY"
+sudo docker build -t "$APP_NAME" "$REPOSITORY"
 
 TARGET_PORT=0
 CURRENT_PORT=$(sudo docker ps --filter "name=$APP_NAME" --format "{{.Ports}}" | cut -d: -f2 | cut -d- -f1)
@@ -31,13 +28,13 @@ for cnt in {1..10} # 10번 실행
 do
         echo "check server start.."
 
-        RESPONSE=$(curl -s http://127.0.0.1:${TARGET_PORT}/check)
-        SUCCESS=$(echo $RESPONSE | grep '"result":"success"')
-        if [ -z "$SUCCESS" ] # 실행되었다면 break
-        then
-                echo "server not start.."
+        RESPONSE=$(curl -s http://127.0.0.1:$TARGET_PORT/check)
+
+        if echo "$RESPONSE" | grep -q "success"; then
+            echo "Container Started"
+            break;
         else
-                break
+            echo "server not start.."
         fi
 
         echo "wait 10 seconds" # 10 초간 대기
@@ -51,7 +48,11 @@ sudo sed -i "s/$CURRENT_PORT/$TARGET_PORT/g" "$NGINX_CONF"
 echo "> Reload NGINX to apply the new configuration"
 sudo nginx -s reload
 
+echo "> Remove Old Container"
 sudo docker rm -f $OLD_CONTAINER_NAME
+
+echo "> Remove previous Docker image"
+sudo docker image prune -f
 
 echo "> Deployment to port $TARGET_PORT completed successfully."
 
