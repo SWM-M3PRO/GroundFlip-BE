@@ -24,15 +24,6 @@ echo "> TARGET_PORT = $TARGET_PORT"
 NEW_CONTAINER_NAME="$APP_NAME-$TARGET_PORT"
 OLD_CONTAINER_NAME="$APP_NAME-$CURRENT_PORT"
 
-echo "> Check the currently running container"
-CONTAINER_ID=$(sudo docker ps -aqf "name=$NEW_CONTAINER_NAME")
-
-if [ -n "$CONTAINER_ID" ]; then
-  echo "> Stopping and removing container: $CONTAINER_ID"
-  sudo docker stop "$CONTAINER_ID"
-  sudo docker rm "$CONTAINER_ID"
-fi
-
 echo "> Run the Docker container on port $TARGET_PORT"
 sudo docker run -d -p $TARGET_PORT:8080 --env-file  /home/ubuntu/ground_flip/.env -e TZ=Asia/Seoul -v /home/ubuntu/logs:/logs --name "$NEW_CONTAINER_NAME" "$APP_NAME"
 
