@@ -78,7 +78,7 @@ public class AuthService {
 			.build());
 		permissionRepository.save(Permission.builder()
 			.user(newUser)
-			.serviceNotificationsEnabled(false)
+			.serviceNotificationsEnabled(true)
 			.marketingNotificationsEnabled(false)
 			.build());
 		return newUser;
