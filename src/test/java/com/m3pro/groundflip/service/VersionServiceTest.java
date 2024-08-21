@@ -21,6 +21,7 @@ public class VersionServiceTest {
 	@BeforeEach
 	void setUp() {
 		ReflectionTestUtils.setField(versionService, "lastestVersion", "1.0.3");
+		ReflectionTestUtils.setField(versionService, "recommandUpdate", "1.0.0");
 	}
 
 	@Test
