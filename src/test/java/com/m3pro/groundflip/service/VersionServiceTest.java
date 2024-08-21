@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.m3pro.groundflip.domain.dto.version.VersionResponse;
+import com.m3pro.groundflip.enums.Version;
 
 @ExtendWith(MockitoExtension.class)
 public class VersionServiceTest {
@@ -20,7 +21,8 @@ public class VersionServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		ReflectionTestUtils.setField(versionService, "lastestVersion", "1.0.3");
+		ReflectionTestUtils.setField(versionService, "latestVersion", "2.0.3");
+		ReflectionTestUtils.setField(versionService, "recommendUpdate", "1.0.5");
 	}
 
 	@Test
@@ -28,13 +30,24 @@ public class VersionServiceTest {
 	void getVersionTest() {
 		//Given
 		String currentVersion = "1.0.3";
+		String currentVersion2 = "2.0.1";
+		String currentVersion3 = "2.0.4";
 
 		//When
 		VersionResponse versionResponse = versionService.getVersion(currentVersion);
+		VersionResponse versionResponse2 = versionService.getVersion(currentVersion2);
+		VersionResponse versionResponse3 = versionService.getVersion(currentVersion3);
 
 		//Then
 		assertThat(versionResponse).isNotNull();
-		assertThat(versionResponse.getVersion()).isEqualTo("1.0.3");
+		assertThat(versionResponse.getVersion()).isEqualTo("2.0.3");
+		assertThat(versionResponse.getNeedUpdate()).isEqualTo(Version.FORCE);
+
+		assertThat(versionResponse2.getVersion()).isEqualTo("2.0.3");
+		assertThat(versionResponse2.getNeedUpdate()).isEqualTo(Version.NEED);
+
+		assertThat(versionResponse3.getVersion()).isEqualTo("2.0.3");
+		assertThat(versionResponse3.getNeedUpdate()).isEqualTo(Version.OK);
 
 	}
 

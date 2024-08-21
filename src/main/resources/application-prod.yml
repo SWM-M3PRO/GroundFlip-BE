@@ -85,5 +85,6 @@ cloud:
 
 version:
   update: ${NEED_UPDATE_VERSION}
+  recommend: ${RECOMMEND_UPDATE}
 
 
