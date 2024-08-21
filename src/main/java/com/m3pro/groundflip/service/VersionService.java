@@ -13,27 +13,27 @@ import lombok.RequiredArgsConstructor;
 public class VersionService {
 
 	@Value("${version.update}")
-	private String lastestVersion;
+	private String latest;
 
-	@Value("${version.recommand}")
-	private String recommandUpdate;
-
-	private Version needUpdate;
+	@Value("${version.recommend}")
+	private String recommendUpdate;
 
 	public VersionResponse getVersion(String currentVersion) {
-		if (compareVersions(currentVersion, recommandUpdate) == -1) {
+		Version needUpdate = Version.OK;
+
+		if (compareVersions(currentVersion, recommendUpdate) == -1) {
 			needUpdate = Version.FORCE;
 		}
-		if (compareVersions(currentVersion, recommandUpdate) == 1
-			&& compareVersions(currentVersion, lastestVersion) == -1) {
+		if (compareVersions(currentVersion, recommendUpdate) == 1
+			&& compareVersions(currentVersion, latest) == -1) {
 			needUpdate = Version.NEED;
 		}
-		if (compareVersions(currentVersion, lastestVersion) == 1) {
+		if (compareVersions(currentVersion, latest) == 1) {
 			needUpdate = Version.OK;
 		}
 
 		return VersionResponse.builder()
-			.version(lastestVersion)
+			.version(latest)
 			.needUpdate(needUpdate)
 			.build();
 	}
