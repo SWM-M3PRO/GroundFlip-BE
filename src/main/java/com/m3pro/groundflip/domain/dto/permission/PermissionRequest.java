@@ -1,5 +1,7 @@
 package com.m3pro.groundflip.domain.dto.permission;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +18,7 @@ public class PermissionRequest {
 	private Long userId;
 
 	@Schema(description = "권한 동의 여부", example = "true")
+	@JsonProperty("isEnabled")
 	private boolean isEnabled;
 
 }
