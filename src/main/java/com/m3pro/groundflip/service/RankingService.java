@@ -1,8 +1,10 @@
 package com.m3pro.groundflip.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.m3pro.groundflip.domain.dto.ranking.Ranking;
 import com.m3pro.groundflip.domain.dto.ranking.UserRankingResponse;
+import com.m3pro.groundflip.domain.entity.Pixel;
 import com.m3pro.groundflip.domain.entity.RankingHistory;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.exception.AppException;
@@ -31,20 +34,23 @@ public class RankingService {
 	private final UserRepository userRepository;
 	private final RankingHistoryRepository rankingHistoryRepository;
 
-	/**
-	 * 현재 픽셀의 수를 1 증가 시킨다.
-	 * @param userId 사용자 id
-	 */
-	public void increaseCurrentPixelCount(Long userId) {
-		rankingRedisRepository.increaseCurrentPixelCount(userId);
-	}
+	public void updateRanking(Pixel targetPixel, Long occupyingUserId) {
+		Long originalOwnerUserId = targetPixel.getUserId();
+		LocalDateTime thisWeekStart = DateUtils.getThisWeekStartDate().atTime(0, 0);
+		LocalDateTime modifiedAt = targetPixel.getModifiedAt();
 
-	/**
-	 * 현재 픽셀의 수를 1 감소 시킨다.
-	 * @param userId 사용자 id
-	 */
-	public void decreaseCurrentPixelCount(Long userId) {
-		rankingRedisRepository.decreaseCurrentPixelCount(userId);
+		if (Objects.equals(originalOwnerUserId, occupyingUserId)) {
+			if (modifiedAt.isAfter(thisWeekStart)) {
+				return;
+			}
+			rankingRedisRepository.increaseCurrentPixelCount(occupyingUserId);
+		} else {
+			if (originalOwnerUserId == null || modifiedAt.isBefore(thisWeekStart)) {
+				rankingRedisRepository.increaseCurrentPixelCount(occupyingUserId);
+			} else {
+				updateRankingAfterOccupy(occupyingUserId, originalOwnerUserId);
+			}
+		}
 	}
 
 	/**
@@ -53,8 +59,8 @@ public class RankingService {
 	 * @param deprivedUserId 픽셀을 뺴앗긴 유저
 	 */
 	public void updateRankingAfterOccupy(Long occupyingUserId, Long deprivedUserId) {
-		increaseCurrentPixelCount(occupyingUserId);
-		decreaseCurrentPixelCount(deprivedUserId);
+		rankingRedisRepository.increaseCurrentPixelCount(occupyingUserId);
+		rankingRedisRepository.decreaseCurrentPixelCount(deprivedUserId);
 	}
 
 	/**

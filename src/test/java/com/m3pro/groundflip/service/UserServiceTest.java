@@ -36,6 +36,7 @@ import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.jwt.JwtProvider;
 import com.m3pro.groundflip.repository.AppleRefreshTokenRepository;
+import com.m3pro.groundflip.repository.FcmTokenRepository;
 import com.m3pro.groundflip.repository.RankingRedisRepository;
 import com.m3pro.groundflip.repository.UserCommunityRepository;
 import com.m3pro.groundflip.repository.UserRepository;
@@ -49,6 +50,9 @@ class UserServiceTest {
 
 	@Mock
 	private RankingRedisRepository rankingRedisRepository;
+
+	@Mock
+	private FcmTokenRepository fcmTokenRepository;
 
 	@Mock
 	private S3Uploader s3Uploader;
@@ -207,6 +211,7 @@ class UserServiceTest {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(deleteUser.getBirthYear());
 
+		verify(fcmTokenRepository, times(1)).deleteByUser(any());
 		assertThat(deleteUser.getNickname()).isEqualTo(null);
 		assertThat(deleteUser.getProfileImage()).isEqualTo(null);
 		assertThat(calendar.get(Calendar.YEAR)).isEqualTo(1900);
@@ -236,6 +241,7 @@ class UserServiceTest {
 
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(deleteUser.getBirthYear());
+		verify(fcmTokenRepository, times(1)).deleteByUser(any());
 		verify(appleApiClient, times(1)).revokeToken(any());
 		verify(appleRefreshTokenRepository, times(1)).delete(any());
 		assertThat(deleteUser.getNickname()).isEqualTo(null);

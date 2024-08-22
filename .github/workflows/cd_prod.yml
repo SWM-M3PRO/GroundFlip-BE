@@ -36,6 +36,8 @@ jobs:
           echo "APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}" >> .env
           echo "APPLE_KEY_ID=${{ secrets.APPLE_KEY_ID }}" >> .env
           echo "APPLE_PRIVATE_KEY=${{ secrets.APPLE_PRIVATE_KEY }}" >> .env
+          echo "NEED_UPDATE_VERSION=${{ secrets.NEED_UPDATE_VERSION_PROD }}" >> .env
+          echo "RECOMMEND_UPDATE=${{  secrets.RECOMMEND_UPDATE_VERSION_PROD  }}" >> .env
 
       - name: gradlew에 실행 권한 부여
         run: chmod +x ./gradlew

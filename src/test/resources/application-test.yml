@@ -80,3 +80,7 @@ cloud:
       secret-key: test-value
     s3:
       bucket: test-value
+
+version:
+  update: 1.0.3
+  recommend: 1.0.0
