@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.m3pro.groundflip.domain.dto.user.FcmTokenRequest;
 import com.m3pro.groundflip.domain.entity.FcmToken;
 import com.m3pro.groundflip.domain.entity.User;
+import com.m3pro.groundflip.enums.Device;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.FcmTokenRepository;
@@ -36,7 +37,7 @@ class FcmServiceTest {
 
 	@BeforeAll
 	static void beforeAll() {
-		fcmTokenRequest = new FcmTokenRequest(testUserId, testFcmToken);
+		fcmTokenRequest = new FcmTokenRequest(testUserId, testFcmToken, Device.IOS);
 	}
 
 	@Test

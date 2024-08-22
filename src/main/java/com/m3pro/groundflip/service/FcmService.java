@@ -32,11 +32,13 @@ public class FcmService {
 		if (fcmToken.isPresent()) {
 			fcmToken.get().updateModifiedAtToNow();
 			fcmToken.get().updateToken(fcmTokenRequest.getFcmToken());
+			fcmToken.get().updateDevice(fcmTokenRequest.getDevice());
 		} else {
 			fcmTokenRepository.save(
 				FcmToken.builder()
 					.user(user)
 					.token(fcmTokenRequest.getFcmToken())
+					.device(fcmTokenRequest.getDevice())
 					.build()
 			);
 		}
