@@ -5,6 +5,8 @@ import com.m3pro.groundflip.enums.Device;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,6 +34,7 @@ public class FcmToken extends BaseTimeEntity {
 
 	private String token;
 
+	@Enumerated(EnumType.STRING)
 	private Device device;
 
 	@OneToOne(fetch = FetchType.LAZY)
