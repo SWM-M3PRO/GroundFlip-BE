@@ -1,6 +1,7 @@
 package com.m3pro.groundflip.domain.entity;
 
 import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
+import com.m3pro.groundflip.enums.Device;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,11 +32,17 @@ public class FcmToken extends BaseTimeEntity {
 
 	private String token;
 
+	private Device device;
+
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
 
 	public void updateToken(String token) {
 		this.token = token;
+	}
+
+	public void updateDevice(Device device) {
+		this.device = device;
 	}
 }
