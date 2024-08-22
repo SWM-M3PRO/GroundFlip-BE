@@ -1,5 +1,7 @@
 package com.m3pro.groundflip.domain.dto.user;
 
+import com.m3pro.groundflip.enums.Device;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,4 +19,7 @@ public class FcmTokenRequest {
 
 	@Schema(description = "사용자 fcm token", example = "sdfghweredasdvasdfq/weqwefs;dvsdghrthwdffevdrer")
 	private String fcmToken;
+
+	@Schema(description = "사용자 기기 종류 (iOS, Android)", example = "iOS")
+	private Device device;
 }
