@@ -153,7 +153,7 @@ class RankingRedisRepositoryTest {
 
 	@Test
 	@DisplayName("[getUserRank] userId 에 해당하는 점수를 반환한다.")
-	void getUserRank() {
+	void getUserCurrentPixelRank() {
 		//Given
 		Long userId1 = 1L;
 		Long userId2 = 2L;
@@ -161,7 +161,7 @@ class RankingRedisRepositoryTest {
 		setRanking(userId1, userId2, userId3);
 
 		// When
-		Optional<Long> score = rankingRedisRepository.getUserRank(userId1);
+		Optional<Long> score = rankingRedisRepository.getUserCurrentPixelRank(userId1);
 
 		//Then
 		assertThat(score.isPresent()).isEqualTo(true);
@@ -171,12 +171,12 @@ class RankingRedisRepositoryTest {
 
 	@Test
 	@DisplayName("[getUserRank] 없는 userId를 넣으면 Optional에 값이 없다.")
-	void getUserRankTestNullPointException() {
+	void getUserCurrentPixelRankTestNullPointException() {
 		//Given
 		Long userId1 = 1L;
 
 		// When
-		Optional<Long> score = rankingRedisRepository.getUserRank(userId1);
+		Optional<Long> score = rankingRedisRepository.getUserCurrentPixelRank(userId1);
 
 		// Then
 		assertThat(score.isEmpty()).isEqualTo(true);

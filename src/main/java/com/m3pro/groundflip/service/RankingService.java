@@ -195,7 +195,7 @@ public class RankingService {
 	 * @return 사용자의 순위
 	 */
 	private Long getUserCurrentPixelRankFromCache(Long userId) {
-		return rankingRedisRepository.getUserRank(userId)
+		return rankingRedisRepository.getUserCurrentPixelRank(userId)
 			.orElseThrow(() -> {
 				log.error("User {} not register at redis", userId);
 				return new AppException(ErrorCode.INTERNAL_SERVER_ERROR);

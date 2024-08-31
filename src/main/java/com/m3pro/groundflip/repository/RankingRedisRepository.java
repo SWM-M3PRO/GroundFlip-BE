@@ -84,7 +84,7 @@ public class RankingRedisRepository {
 		return rankings;
 	}
 
-	public Optional<Long> getUserRank(Long userId) {
+	public Optional<Long> getUserCurrentPixelRank(Long userId) {
 		Long rank = zSetOperations.reverseRank(CURRENT_PIXEL_RANKING_KEY, userId.toString());
 		return Optional.ofNullable(rank).map(r -> r + 1);
 	}

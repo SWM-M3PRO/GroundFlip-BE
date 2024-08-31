@@ -164,7 +164,7 @@ class RankingServiceTest {
 			.build();
 		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 		when(rankingRedisRepository.getUserCurrentPixelCount(any())).thenReturn(Optional.of(15L));
-		when(rankingRedisRepository.getUserRank(any())).thenReturn(Optional.of(1L));
+		when(rankingRedisRepository.getUserCurrentPixelRank(any())).thenReturn(Optional.of(1L));
 
 		UserRankingResponse userRankingResponse = rankingService.getUserCurrentPixelRankInfo(userId, LocalDate.now());
 
@@ -183,7 +183,7 @@ class RankingServiceTest {
 			.id(1L)
 			.build()));
 
-		when(rankingRedisRepository.getUserRank(userId)).thenReturn(Optional.empty());
+		when(rankingRedisRepository.getUserCurrentPixelRank(userId)).thenReturn(Optional.empty());
 
 		AppException exception = assertThrows(AppException.class,
 			() -> rankingService.getUserCurrentPixelRankInfo(userId, LocalDate.now()));
