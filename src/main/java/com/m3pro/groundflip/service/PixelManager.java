@@ -69,7 +69,7 @@ public class PixelManager {
 
 		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
-		rankingService.updateRanking(targetPixel, occupyingUserId);
+		rankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
 		updateAccumulatePixelCount(targetPixel, occupyingUserId);
 		updatePixelOwner(targetPixel, occupyingUserId);
 

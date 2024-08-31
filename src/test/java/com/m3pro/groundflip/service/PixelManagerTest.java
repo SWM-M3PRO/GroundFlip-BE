@@ -23,11 +23,14 @@ import com.m3pro.groundflip.domain.dto.pixel.event.PixelAddressUpdateEvent;
 import com.m3pro.groundflip.domain.dto.pixel.event.PixelUserInsertEvent;
 import com.m3pro.groundflip.domain.entity.Pixel;
 import com.m3pro.groundflip.repository.PixelRepository;
+import com.m3pro.groundflip.repository.PixelUserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class PixelManagerTest {
 	@Mock
 	private PixelRepository pixelRepository;
+	@Mock
+	private PixelUserRepository pixelUserRepository;
 	@Mock
 	private ApplicationEventPublisher applicationEventPublisher;
 	@Mock
@@ -50,11 +53,13 @@ class PixelManagerTest {
 			.build();
 		when(pixelRepository.findByXAndY(222L, 233L)).thenReturn(Optional.of(pixel));
 		when(redissonClient.getLock(any())).thenReturn(new RedissonLock());
+		when(pixelUserRepository.existsByPixelIdAndUserId(any(), any())).thenReturn(false);
 		// When
 		pixelManager.occupyPixelWithLock(pixelOccupyRequest);
 
 		//Then
-		verify(rankingService, times(1)).updateRanking(any(), any());
+		verify(rankingService, times(1)).updateCurrentPixelRanking(any(), any());
+		verify(rankingService, times(1)).updateAccumulatedRanking(any());
 		assertEquals(5L, pixel.getUserId());
 	}
 
@@ -75,6 +80,7 @@ class PixelManagerTest {
 
 		// Then
 		verify(applicationEventPublisher, times(1)).publishEvent(any(PixelUserInsertEvent.class));
+		verify(rankingService, times(1)).updateAccumulatedRanking(any());
 	}
 
 	@Test
@@ -94,6 +100,7 @@ class PixelManagerTest {
 
 		// Then
 		verify(applicationEventPublisher, times(1)).publishEvent(any(PixelAddressUpdateEvent.class));
+		verify(rankingService, times(1)).updateAccumulatedRanking(any());
 	}
 
 	@Test
@@ -113,6 +120,7 @@ class PixelManagerTest {
 
 		// Then
 		verify(applicationEventPublisher, times(0)).publishEvent(any(PixelAddressUpdateEvent.class));
+		verify(rankingService, times(1)).updateAccumulatedRanking(any());
 	}
 
 	static class RedissonLock implements RLock {
