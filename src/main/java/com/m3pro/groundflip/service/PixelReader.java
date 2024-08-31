@@ -134,13 +134,16 @@ public class PixelReader {
 	 * @author 김민욱
 	 */
 	public PixelCountResponse getPixelCount(Long userId, LocalDate lookUpDate) {
+		Long accumulatePixelCount;
 		if (lookUpDate == null) {
-			lookUpDate = LocalDate.parse(DEFAULT_LOOK_UP_DATE);
+			accumulatePixelCount = rankingService.getAccumulatePixelCount(userId);
+		} else {
+			accumulatePixelCount = pixelUserRepository.countAccumulatePixelByUserId(userId, lookUpDate.atStartOfDay());
 		}
 
 		return PixelCountResponse.builder()
 			.currentPixelCount(rankingService.getCurrentPixelCountFromCache(userId))
-			.accumulatePixelCount(pixelUserRepository.countAccumulatePixelByUserId(userId, lookUpDate.atStartOfDay()))
+			.accumulatePixelCount(accumulatePixelCount)
 			.build();
 	}
 
