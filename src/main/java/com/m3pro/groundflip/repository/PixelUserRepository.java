@@ -51,4 +51,6 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 		""", nativeQuery = true)
 	void save(@Param("pixel_id") Long pixelId, @Param("user_id") Long userId,
 		@Param("community_id") Long communityId);
+
+	boolean existsByPixelIdAndUserId(Long pixelId, Long userId);
 }
