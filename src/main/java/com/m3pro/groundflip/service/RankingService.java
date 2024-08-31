@@ -53,6 +53,10 @@ public class RankingService {
 		}
 	}
 
+	public void updateAccumulatedRanking(Long userId) {
+		rankingRedisRepository.increaseAccumulatePixelCount(userId);
+	}
+
 	/**
 	 * 픽셀을 새로 차지하는 유저의 점수는 1증가, 빼앗긴 유저의 점수는 1감소
 	 * @param occupyingUserId 픽셀을 새로 차지하는 유저
@@ -70,6 +74,10 @@ public class RankingService {
 	 */
 	public Long getCurrentPixelCountFromCache(Long userId) {
 		return rankingRedisRepository.getUserCurrentPixelCount(userId).orElse(0L);
+	}
+
+	public Long getAccumulatePixelCount(Long userId) {
+		return rankingRedisRepository.getUserAccumulatePixelCount(userId).orElse(0L);
 	}
 
 	/**
