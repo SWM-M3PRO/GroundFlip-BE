@@ -19,7 +19,8 @@ import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelCountResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
-import com.m3pro.groundflip.service.PixelService;
+import com.m3pro.groundflip.service.PixelManager;
+import com.m3pro.groundflip.service.PixelReader;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -39,7 +40,8 @@ import lombok.extern.slf4j.Slf4j;
 @Tag(name = "pixels", description = "픽셀 API")
 @SecurityRequirement(name = "Authorization")
 public class PixelController {
-	private final PixelService pixelService;
+	private final PixelManager pixelManager;
+	private final PixelReader pixelReader;
 
 	@Operation(summary = "개인전 픽셀 조회", description = "특정 좌표를 중심으로 반경 내 개인전 픽셀 정보를 조회 API")
 	@Parameters({
@@ -53,7 +55,7 @@ public class PixelController {
 		@RequestParam(name = "current-longitude") @Min(-180) @Max(180) double currentLongitude,
 		@RequestParam(name = "radius") @Min(0) int radius) {
 		return Response.createSuccess(
-			pixelService.getNearIndividualModePixelsByCoordinate(currentLatitude, currentLongitude, radius));
+			pixelReader.getNearIndividualModePixelsByCoordinate(currentLatitude, currentLongitude, radius));
 	}
 
 	@Operation(summary = "개인기록 픽셀 조회", description = "특정 좌표를 중심으로 반경 내 개인 기록 픽셀 정보를 조회 API")
@@ -72,7 +74,7 @@ public class PixelController {
 		@RequestParam(required = false, name = "lookup-date")
 		@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lookUpDate) {
 		return Response.createSuccess(
-			pixelService
+			pixelReader
 				.getNearIndividualHistoryPixelsByCoordinate(currentLatitude, currentLongitude, radius, userId,
 					lookUpDate)
 		);
@@ -84,7 +86,7 @@ public class PixelController {
 		@Parameter(description = "찾고자 하는 pixelId", required = true)
 		@PathVariable Long pixelId) {
 		return Response.createSuccess(
-			pixelService.getIndividualModePixelInfo(pixelId)
+			pixelReader.getIndividualModePixelInfo(pixelId)
 		);
 	}
 
@@ -99,14 +101,14 @@ public class PixelController {
 		@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lookUpDate
 	) {
 		return Response.createSuccess(
-			pixelService.getIndividualHistoryPixelInfo(pixelId, userId, lookUpDate)
+			pixelReader.getIndividualHistoryPixelInfo(pixelId, userId, lookUpDate)
 		);
 	}
 
 	@Operation(summary = "픽셀 차지", description = "특정 픽셀의 id, 사용자 id, 커뮤니티 id를 사용해 소유권을 바꾸는 API ")
 	@PostMapping("")
 	public Response<?> occupyPixel(@RequestBody PixelOccupyRequest pixelOccupyRequest) {
-		pixelService.occupyPixelWithLock(pixelOccupyRequest);
+		pixelManager.occupyPixelWithLock(pixelOccupyRequest);
 		return Response.createSuccessWithNoData();
 	}
 
@@ -115,7 +117,7 @@ public class PixelController {
 	public Response<PixelCountResponse> getPixelCount(@RequestParam(name = "user-id") @NotNull() Long userId,
 		@RequestParam(required = false, name = "lookup-date")
 		@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lookUpDate) {
-		return Response.createSuccess(pixelService.getPixelCount(userId, lookUpDate));
+		return Response.createSuccess(pixelReader.getPixelCount(userId, lookUpDate));
 	}
 }
 
