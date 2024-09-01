@@ -295,11 +295,28 @@ public class PixelReaderTest {
 		Long userId = 1L;
 
 		when(rankingService.getCurrentPixelCountFromCache(userId)).thenReturn(3L);
+		when(rankingService.getAccumulatePixelCount(any())).thenReturn(5L);
+
+		// When
+		PixelCountResponse pixelCount = pixelReader.getPixelCount(userId, null);
+
+		// Then
+		assertEquals(pixelCount.getCurrentPixelCount(), 3L);
+		assertEquals(pixelCount.getAccumulatePixelCount(), 5L);
+	}
+
+	@Test
+	@DisplayName("[getPixelCount] lookup-date 가 있을 떄 픽셀 갯수가 정상적으로 불러와지는지 확인")
+	void getPixelCountLookupDate() {
+		// Given
+		Long userId = 1L;
+
+		when(rankingService.getCurrentPixelCountFromCache(userId)).thenReturn(3L);
 		when(pixelUserRepository.countAccumulatePixelByUserId(userId,
 			LocalDate.parse("2024-07-15").atStartOfDay())).thenReturn(5L);
 
 		// When
-		PixelCountResponse pixelCount = pixelReader.getPixelCount(userId, null);
+		PixelCountResponse pixelCount = pixelReader.getPixelCount(userId, LocalDate.parse("2024-07-15"));
 
 		// Then
 		assertEquals(pixelCount.getCurrentPixelCount(), 3L);

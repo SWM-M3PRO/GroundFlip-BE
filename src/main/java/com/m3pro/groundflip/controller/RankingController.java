@@ -35,7 +35,7 @@ public class RankingController {
 	public Response<List<UserRankingResponse>> getAllUserRanking(
 		@RequestParam(required = false, name = "lookup-date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lookUpDate) {
 		return Response.createSuccess(
-			rankingService.getAllUserRankings(lookUpDate)
+			rankingService.getCurrentPixelAllUserRankings(lookUpDate)
 		);
 	}
 
@@ -47,6 +47,6 @@ public class RankingController {
 		@RequestParam(required = false, name = "lookup-date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lookUpDate
 	) {
 		return Response.createSuccess(
-			rankingService.getUserRankInfo(userId, lookUpDate));
+			rankingService.getUserCurrentPixelRankInfo(userId, lookUpDate));
 	}
 }

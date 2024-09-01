@@ -17,6 +17,7 @@ import com.m3pro.groundflip.domain.entity.Pixel;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.PixelRepository;
+import com.m3pro.groundflip.repository.PixelUserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class PixelManager {
 	private final RankingService rankingService;
 	private final ApplicationEventPublisher eventPublisher;
 	private final RedissonClient redissonClient;
+	private final PixelUserRepository pixelUserRepository;
 
 	/**
 	 * 픽셀을 차지한다.
@@ -67,11 +69,18 @@ public class PixelManager {
 
 		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
-		rankingService.updateRanking(targetPixel, occupyingUserId);
+		rankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
+		updateAccumulatePixelCount(targetPixel, occupyingUserId);
 		updatePixelOwner(targetPixel, occupyingUserId);
 
 		updatePixelAddress(targetPixel);
 		eventPublisher.publishEvent(new PixelUserInsertEvent(targetPixel.getId(), occupyingUserId, communityId));
+	}
+
+	private void updateAccumulatePixelCount(Pixel targetPixel, Long userId) {
+		if (!pixelUserRepository.existsByPixelIdAndUserId(targetPixel.getId(), userId)) {
+			rankingService.updateAccumulatedRanking(userId);
+		}
 	}
 
 	private void updatePixelOwner(Pixel targetPixel, Long occupyingUserId) {
