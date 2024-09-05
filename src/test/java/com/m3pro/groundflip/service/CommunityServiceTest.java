@@ -1,5 +1,6 @@
 package com.m3pro.groundflip.service;
 
+import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -19,6 +20,7 @@ import com.m3pro.groundflip.domain.entity.Community;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.CommunityRepository;
+import com.m3pro.groundflip.repository.UserCommunityRepository;
 
 class CommunityServiceTest {
 	@InjectMocks
@@ -26,6 +28,9 @@ class CommunityServiceTest {
 
 	@Mock
 	private CommunityRepository communityRepository;
+
+	@Mock
+	private UserCommunityRepository userCommunityRepository;
 
 	private Community community;
 
@@ -37,6 +42,10 @@ class CommunityServiceTest {
 		community = Community.builder()
 			.id(1L)
 			.name("Test Community")
+			.communityColor("0xFF0DF69E")
+			.maxRanking(3)
+			.maxPixelCount(54)
+			.backgroundImageUrl("www.test.com")
 			.build();
 	}
 
@@ -63,6 +72,7 @@ class CommunityServiceTest {
 		// Given
 		Long communityId = 1L;
 		when(communityRepository.findById(communityId)).thenReturn(Optional.of(community));
+		when(userCommunityRepository.countByCommunityId(communityId)).thenReturn(3L);
 
 		// When
 		CommunityInfoResponse result = communityService.findCommunityById(communityId);
@@ -70,6 +80,10 @@ class CommunityServiceTest {
 		// Then
 		assertNotNull(result);
 		assertEquals("Test Community", result.getName());
+		assertThat(result.getMemberCount()).isEqualTo(3);
+		assertThat(result.getAccumulatePixelCount()).isEqualTo(0);
+		assertThat(result.getCurrentPixelCount()).isEqualTo(0);
+		assertThat(result.getCommunityRanking()).isEqualTo(0);
 	}
 
 	@Test
