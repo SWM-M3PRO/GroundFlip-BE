@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/groups")
+@RequestMapping("/api/communities")
 @SecurityRequirement(name = "Authorization")
 public class CommunityController {
 	private final CommunityService communityService;
@@ -34,8 +34,12 @@ public class CommunityController {
 		);
 	}
 
-	@GetMapping("/{groupId}")
-	public CommunityInfoResponse findGroupById(@PathVariable Long groupId) {
-		return communityService.findCommunityById(groupId);
+	@Operation(summary = "그룹 정보 조회", description = "특정 그룹의 정보를 반환한다.")
+	@GetMapping("/{communityId}")
+	public Response<CommunityInfoResponse> getCommunityInfo(
+		@Parameter(description = "찾고자 하는 userId", required = true)
+		@PathVariable Long communityId
+	) {
+		return Response.createSuccess(new CommunityInfoResponse());
 	}
 }
