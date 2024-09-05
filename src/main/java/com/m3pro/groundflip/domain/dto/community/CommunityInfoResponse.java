@@ -28,13 +28,13 @@ public class CommunityInfoResponse {
 	private int communityRanking;
 
 	@Schema(description = "그룹 멤버 수", example = "500")
-	private int memberCount;
+	private Long memberCount;
 
 	@Schema(description = "현재 차지하고 있는 픽셀 개수", example = "5")
-	private int currentPixelCount;
+	private Long currentPixelCount;
 
 	@Schema(description = "누적 픽셀 개수", example = "1000")
-	private int accumulatePixelCount;
+	private Long accumulatePixelCount;
 
 	@Schema(description = "최대 픽셀 개수", example = "5000")
 	private int maxPixelCount;
@@ -42,8 +42,8 @@ public class CommunityInfoResponse {
 	@Schema(description = "최고 랭킹", example = "1")
 	private int maxRanking;
 
-	public static CommunityInfoResponse from(Community community, int communityRanking, int memberCount,
-		int currentPixelCount, int accumulatePixelCount) {
+	public static CommunityInfoResponse from(Community community, int communityRanking, Long memberCount,
+		Long currentPixelCount, Long accumulatePixelCount) {
 		return CommunityInfoResponse.builder()
 			.name(community.getName())
 			.communityColor(community.getPixelColor())
