@@ -46,7 +46,7 @@ public class CommunityInfoResponse {
 		Long currentPixelCount, Long accumulatePixelCount) {
 		return CommunityInfoResponse.builder()
 			.name(community.getName())
-			.communityColor(community.getPixelColor())
+			.communityColor(community.getCommunityColor())
 			.backgroundImageUrl(community.getBackgroundImageUrl())
 			.maxPixelCount(community.getMaxPixelCount())
 			.maxRanking(community.getMaxRanking())

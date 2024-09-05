@@ -30,7 +30,7 @@ public class Community extends BaseTimeEntity {
 
 	private String name;
 
-	private String pixelColor;
+	private String communityColor;
 
 	private String profileImageUrl;
 
