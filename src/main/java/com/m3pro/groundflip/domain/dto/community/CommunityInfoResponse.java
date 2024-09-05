@@ -2,6 +2,7 @@ package com.m3pro.groundflip.domain.dto.community;
 
 import com.m3pro.groundflip.domain.entity.Community;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,21 +12,47 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Builder
+@Schema(title = "개인전 픽셀 정보")
 public class CommunityInfoResponse {
+
+	@Schema(description = "그룹 이름", example = "Pixel Group")
 	private String name;
-	private String pixelColor;
-	private String profileImageUrl;
+
+	@Schema(description = "그룹 색상", example = "#FF5733")
+	private String communityColor;
+
+	@Schema(description = "그룹 배경 이미지 URL", example = "https://example.com/background.jpg")
 	private String backgroundImageUrl;
-	private int groupRanking;
+
+	@Schema(description = "그룹 랭킹", example = "1")
+	private int communityRanking;
+
+	@Schema(description = "그룹 멤버 수", example = "500")
 	private int memberCount;
 
-	public static CommunityInfoResponse from(Community community, int groupRanking, int memberCount) {
+	@Schema(description = "현재 차지하고 있는 픽셀 개수", example = "5")
+	private int currentPixelCount;
+
+	@Schema(description = "누적 픽셀 개수", example = "1000")
+	private int accumulatePixelCount;
+
+	@Schema(description = "최대 픽셀 개수", example = "5000")
+	private int maxPixelCount;
+
+	@Schema(description = "최고 랭킹", example = "1")
+	private int maxRanking;
+
+	public static CommunityInfoResponse from(Community community, int communityRanking, int memberCount,
+		int currentPixelCount, int accumulatePixelCount) {
 		return CommunityInfoResponse.builder()
 			.name(community.getName())
-			.pixelColor(community.getPixelColor())
-			.profileImageUrl(community.getProfileImageUrl())
+			.communityColor(community.getPixelColor())
 			.backgroundImageUrl(community.getBackgroundImageUrl())
-			.groupRanking(groupRanking)
+			.maxPixelCount(community.getMaxPixelCount())
+			.maxRanking(community.getMaxRanking())
+			.currentPixelCount(currentPixelCount)
+			.accumulatePixelCount(accumulatePixelCount)
+			.communityRanking(communityRanking)
 			.memberCount(memberCount)
 			.build();
 	}
