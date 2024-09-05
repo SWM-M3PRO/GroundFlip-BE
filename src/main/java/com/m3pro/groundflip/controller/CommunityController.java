@@ -42,6 +42,6 @@ public class CommunityController {
 		@Parameter(description = "찾고자 하는 userId", required = true)
 		@PathVariable Long communityId
 	) {
-		return Response.createSuccess(new CommunityInfoResponse());
+		return Response.createSuccess(communityService.findCommunityById(communityId));
 	}
 }
