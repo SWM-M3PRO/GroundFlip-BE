@@ -38,6 +38,10 @@ public class Community extends BaseTimeEntity {
 
 	private String description;
 
+	private int maxPixelCount;
+
+	private int maxRanking;
+
 	private LocalDateTime deletedAt;
 
 }
