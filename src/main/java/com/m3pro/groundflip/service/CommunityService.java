@@ -10,14 +10,15 @@ import com.m3pro.groundflip.domain.entity.Community;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.CommunityRepository;
+import com.m3pro.groundflip.repository.UserCommunityRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class CommunityService {
-
 	private final CommunityRepository communityRepository;
+	private final UserCommunityRepository userCommunityRepository;
 
 	/*
 	 * 그룹명을 검색한다
@@ -29,9 +30,15 @@ public class CommunityService {
 		return community.stream().map(CommunitySearchResponse::from).toList();
 	}
 
-	public CommunityInfoResponse findCommunityById(Long id) {
-		Community community = communityRepository.findById(id)
+	public CommunityInfoResponse findCommunityById(Long communityId) {
+		Community community = communityRepository.findById(communityId)
 			.orElseThrow(() -> new AppException(ErrorCode.GROUP_NOT_FOUND));
-		return CommunityInfoResponse.from(community, 0, 0);
+		Long memberCount = getMemberCount(community);
+		// ToDo : 랭킹 하시는 분이 구현하신 것 토대로 communityRanking, currentPixelCount, accumulatePixelCount만 채워주세요.
+		return CommunityInfoResponse.from(community, 0, memberCount, 0L, 0L);
+	}
+
+	private Long getMemberCount(Community community) {
+		return userCommunityRepository.countByCommunityId(community.getId());
 	}
 }

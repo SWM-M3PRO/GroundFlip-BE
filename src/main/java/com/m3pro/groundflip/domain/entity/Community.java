@@ -30,13 +30,17 @@ public class Community extends BaseTimeEntity {
 
 	private String name;
 
-	private String pixelColor;
+	private String communityColor;
 
 	private String profileImageUrl;
 
 	private String backgroundImageUrl;
 
 	private String description;
+
+	private int maxPixelCount;
+
+	private int maxRanking;
 
 	private LocalDateTime deletedAt;
 
