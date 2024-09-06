@@ -25,7 +25,7 @@ public class VersionController {
 	@GetMapping("/version")
 	public Response<VersionResponse> getVersion(
 		@Parameter(description = "현재 버전", required = true)
-		@RequestParam String currentVersion
+		@RequestParam(name = "currentVersion") String currentVersion
 	) {
 		return Response.createSuccess(versionService.getVersion(currentVersion));
 	}
