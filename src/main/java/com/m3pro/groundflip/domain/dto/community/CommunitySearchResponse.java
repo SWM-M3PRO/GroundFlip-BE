@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class CommunitySearchResponse {
+	private Long id;
+
 	private String name;
 
 	private String backgroundImageUrl;
@@ -20,6 +22,7 @@ public class CommunitySearchResponse {
 
 	public static CommunitySearchResponse from(Community community) {
 		return CommunitySearchResponse.builder()
+			.id(community.getId())
 			.name(community.getName())
 			.backgroundImageUrl(community.getBackgroundImageUrl())
 			.communityColor(community.getCommunityColor())
