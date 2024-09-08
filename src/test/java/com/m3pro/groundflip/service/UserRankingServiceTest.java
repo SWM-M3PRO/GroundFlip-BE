@@ -27,24 +27,24 @@ import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.RankingHistoryRepository;
-import com.m3pro.groundflip.repository.RankingRedisRepository;
+import com.m3pro.groundflip.repository.UserRankingRedisRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 import com.m3pro.groundflip.util.DateUtils;
 
 @ExtendWith(MockitoExtension.class)
-class RankingServiceTest {
+class UserRankingServiceTest {
 	@Mock
-	private RankingRedisRepository rankingRedisRepository;
+	private UserRankingRedisRepository userRankingRedisRepository;
 	@Mock
 	private RankingHistoryRepository rankingHistoryRepository;
 	@Mock
 	private UserRepository userRepository;
 	@InjectMocks
-	private RankingService rankingService;
+	private UserRankingService userRankingService;
 
 	@BeforeEach
 	void init() {
-		reset(rankingRedisRepository);
+		reset(userRankingRedisRepository);
 	}
 
 	@Test
@@ -54,9 +54,9 @@ class RankingServiceTest {
 		Pixel targetPixel = Pixel.builder().userId(occupyingUserId).build();
 		targetPixel.updateModifiedAt(DateUtils.getThisWeekStartDate().atTime(0, 0, 0).plusDays(1));
 
-		rankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
+		userRankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
 
-		verify(rankingRedisRepository, never()).increaseCurrentPixelCount(occupyingUserId);
+		verify(userRankingRedisRepository, never()).increaseCurrentPixelCount(occupyingUserId);
 	}
 
 	@Test
@@ -66,9 +66,9 @@ class RankingServiceTest {
 		Pixel targetPixel = Pixel.builder().userId(occupyingUserId).build();
 		targetPixel.updateModifiedAt(DateUtils.getThisWeekStartDate().atTime(0, 0, 0).minusDays(3));
 
-		rankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
+		userRankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
 
-		verify(rankingRedisRepository, times(1)).increaseCurrentPixelCount(occupyingUserId);
+		verify(userRankingRedisRepository, times(1)).increaseCurrentPixelCount(occupyingUserId);
 	}
 
 	@Test
@@ -77,9 +77,9 @@ class RankingServiceTest {
 		Long occupyingUserId = 1L;
 		Pixel targetPixel = Pixel.builder().userId(null).build();
 
-		rankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
+		userRankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
 
-		verify(rankingRedisRepository, times(1)).increaseCurrentPixelCount(occupyingUserId);
+		verify(userRankingRedisRepository, times(1)).increaseCurrentPixelCount(occupyingUserId);
 	}
 
 	@Test
@@ -89,9 +89,9 @@ class RankingServiceTest {
 		Pixel targetPixel = Pixel.builder().userId(3L).build();
 		targetPixel.updateModifiedAt(DateUtils.getThisWeekStartDate().atTime(0, 0, 0).minusDays(3));
 
-		rankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
+		userRankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
 
-		verify(rankingRedisRepository, times(1)).increaseCurrentPixelCount(occupyingUserId);
+		verify(userRankingRedisRepository, times(1)).increaseCurrentPixelCount(occupyingUserId);
 	}
 
 	@Test
@@ -101,10 +101,10 @@ class RankingServiceTest {
 		Pixel targetPixel = Pixel.builder().userId(3L).build();
 		targetPixel.updateModifiedAt(DateUtils.getThisWeekStartDate().atTime(0, 0, 0).plusDays(3));
 
-		rankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
+		userRankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
 
-		verify(rankingRedisRepository, times(1)).increaseCurrentPixelCount(occupyingUserId);
-		verify(rankingRedisRepository, times(1)).decreaseCurrentPixelCount(3L);
+		verify(userRankingRedisRepository, times(1)).increaseCurrentPixelCount(occupyingUserId);
+		verify(userRankingRedisRepository, times(1)).decreaseCurrentPixelCount(3L);
 	}
 
 	@Test
@@ -113,19 +113,19 @@ class RankingServiceTest {
 		Long occupyingUserId = 1L;
 		Long deprivedUserId = 2L;
 
-		rankingService.updateCurrentPixelRankingAfterOccupy(occupyingUserId, deprivedUserId);
+		userRankingService.updateCurrentPixelRankingAfterOccupy(occupyingUserId, deprivedUserId);
 
-		verify(rankingRedisRepository, times(1)).decreaseCurrentPixelCount(deprivedUserId);
-		verify(rankingRedisRepository, times(1)).increaseCurrentPixelCount(occupyingUserId);
+		verify(userRankingRedisRepository, times(1)).decreaseCurrentPixelCount(deprivedUserId);
+		verify(userRankingRedisRepository, times(1)).increaseCurrentPixelCount(occupyingUserId);
 	}
 
 	@Test
 	@DisplayName("[getCurrentPixelCount] userId 가 소유한 픽셀의 개수를 반환한다.")
 	void getCurrentPixelCountFromCacheTest() {
 		Long userId = 1L;
-		when(rankingRedisRepository.getUserCurrentPixelCount(any())).thenReturn(Optional.of(15L));
+		when(userRankingRedisRepository.getUserCurrentPixelCount(any())).thenReturn(Optional.of(15L));
 
-		Long count = rankingService.getCurrentPixelCountFromCache(userId);
+		Long count = userRankingService.getCurrentPixelCountFromCache(userId);
 
 		assertThat(count).isEqualTo(15L);
 	}
@@ -134,9 +134,9 @@ class RankingServiceTest {
 	@DisplayName("[getCurrentPixelCount] userId가 sortedSet에 없다면 0 반환")
 	void getCurrentPixelCountFromCacheTestNull() {
 		Long userId = 1L;
-		when(rankingRedisRepository.getUserCurrentPixelCount(any())).thenReturn(Optional.empty());
+		when(userRankingRedisRepository.getUserCurrentPixelCount(any())).thenReturn(Optional.empty());
 
-		Long count = rankingService.getCurrentPixelCountFromCache(userId);
+		Long count = userRankingService.getCurrentPixelCountFromCache(userId);
 
 		assertThat(count).isEqualTo(0L);
 	}
@@ -148,7 +148,7 @@ class RankingServiceTest {
 		when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
 		AppException exception = assertThrows(AppException.class,
-			() -> rankingService.getUserCurrentPixelRankInfo(userId, LocalDate.now()));
+			() -> userRankingService.getUserCurrentPixelRankInfo(userId, LocalDate.now()));
 
 		assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
 	}
@@ -163,10 +163,11 @@ class RankingServiceTest {
 			.profileImage("test")
 			.build();
 		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-		when(rankingRedisRepository.getUserCurrentPixelCount(any())).thenReturn(Optional.of(15L));
-		when(rankingRedisRepository.getUserCurrentPixelRank(any())).thenReturn(Optional.of(1L));
+		when(userRankingRedisRepository.getUserCurrentPixelCount(any())).thenReturn(Optional.of(15L));
+		when(userRankingRedisRepository.getUserCurrentPixelRank(any())).thenReturn(Optional.of(1L));
 
-		UserRankingResponse userRankingResponse = rankingService.getUserCurrentPixelRankInfo(userId, LocalDate.now());
+		UserRankingResponse userRankingResponse = userRankingService.getUserCurrentPixelRankInfo(userId,
+			LocalDate.now());
 
 		assertThat(userRankingResponse.getUserId()).isEqualTo(userId);
 		assertThat(userRankingResponse.getCurrentPixelCount()).isEqualTo(15L);
@@ -183,10 +184,10 @@ class RankingServiceTest {
 			.id(1L)
 			.build()));
 
-		when(rankingRedisRepository.getUserCurrentPixelRank(userId)).thenReturn(Optional.empty());
+		when(userRankingRedisRepository.getUserCurrentPixelRank(userId)).thenReturn(Optional.empty());
 
 		AppException exception = assertThrows(AppException.class,
-			() -> rankingService.getUserCurrentPixelRankInfo(userId, LocalDate.now()));
+			() -> userRankingService.getUserCurrentPixelRankInfo(userId, LocalDate.now()));
 
 		assertEquals(ErrorCode.INTERNAL_SERVER_ERROR, exception.getErrorCode());
 	}
@@ -206,10 +207,10 @@ class RankingServiceTest {
 			User.builder().id(3L).nickname("User3").profileImage("url3").build()
 		);
 
-		when(rankingRedisRepository.getRankingsWithCurrentPixelCount()).thenReturn(rankings);
+		when(userRankingRedisRepository.getRankingsWithCurrentPixelCount()).thenReturn(rankings);
 		when(userRepository.findAllById(anySet())).thenReturn(users);
 
-		List<UserRankingResponse> responses = rankingService.getCurrentPixelAllUserRankings(LocalDate.now());
+		List<UserRankingResponse> responses = userRankingService.getCurrentPixelAllUserRankings(LocalDate.now());
 
 		assertEquals(3, responses.size());
 		assertEquals(1L, responses.get(0).getUserId());
@@ -231,11 +232,11 @@ class RankingServiceTest {
 			User.builder().id(2L).nickname("User2").profileImage("url2").build(),
 			User.builder().id(3L).nickname("User3").profileImage("url3").build()
 		);
-		when(rankingRedisRepository.getRankingsWithCurrentPixelCount()).thenReturn(rankings);
+		when(userRankingRedisRepository.getRankingsWithCurrentPixelCount()).thenReturn(rankings);
 		when(userRepository.findAllById(anySet())).thenReturn(
 			users.stream().filter(user -> user.getId() != 2L).collect(Collectors.toList()));
 
-		List<UserRankingResponse> responses = rankingService.getCurrentPixelAllUserRankings(LocalDate.now());
+		List<UserRankingResponse> responses = userRankingService.getCurrentPixelAllUserRankings(LocalDate.now());
 		assertEquals(2, responses.size());
 		assertEquals(1L, responses.get(0).getUserId());
 		assertEquals(3L, responses.get(1).getUserId());
@@ -248,7 +249,7 @@ class RankingServiceTest {
 		when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
 		AppException exception = assertThrows(AppException.class,
-			() -> rankingService.getUserCurrentPixelRankInfo(userId, LocalDate.of(2024, 07, 17)));
+			() -> userRankingService.getUserCurrentPixelRankInfo(userId, LocalDate.of(2024, 07, 17)));
 
 		assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
 	}
@@ -272,7 +273,8 @@ class RankingServiceTest {
 		when(rankingHistoryRepository.findByUserIdAndYearAndWeek(userId, 2024, 29))
 			.thenReturn(Optional.ofNullable(rankingHistory));
 
-		UserRankingResponse response = rankingService.getUserCurrentPixelRankInfo(userId, LocalDate.of(2024, 7, 17));
+		UserRankingResponse response = userRankingService.getUserCurrentPixelRankInfo(userId,
+			LocalDate.of(2024, 7, 17));
 
 		Assertions.assertThat(response.getUserId()).isEqualTo(userId);
 		Assertions.assertThat(response.getRank()).isEqualTo(1L);
@@ -290,7 +292,8 @@ class RankingServiceTest {
 		when(rankingHistoryRepository.findByUserIdAndYearAndWeek(userId, 2024, 29))
 			.thenReturn(Optional.empty());
 
-		UserRankingResponse response = rankingService.getUserCurrentPixelRankInfo(userId, LocalDate.of(2024, 7, 17));
+		UserRankingResponse response = userRankingService.getUserCurrentPixelRankInfo(userId,
+			LocalDate.of(2024, 7, 17));
 
 		Assertions.assertThat(response.getUserId()).isEqualTo(userId);
 		Assertions.assertThat(response.getRank()).isEqualTo(null);
@@ -302,18 +305,18 @@ class RankingServiceTest {
 	void updateAccumulatedRankingTest() {
 		Long userId = 1L;
 
-		rankingService.updateAccumulatedRanking(userId);
+		userRankingService.updateAccumulatedRanking(userId);
 
-		verify(rankingRedisRepository, times(1)).increaseAccumulatePixelCount(userId);
+		verify(userRankingRedisRepository, times(1)).increaseAccumulatePixelCount(userId);
 	}
 
 	@Test
 	@DisplayName("[getAccumulatePixelCount]")
 	void getAccumulatePixelCountTest() {
 		Long userId = 1L;
-		when(rankingRedisRepository.getUserAccumulatePixelCount(any())).thenReturn(Optional.of(15L));
+		when(userRankingRedisRepository.getUserAccumulatePixelCount(any())).thenReturn(Optional.of(15L));
 
-		Long count = rankingService.getAccumulatePixelCount(userId);
+		Long count = userRankingService.getAccumulatePixelCount(userId);
 
 		assertThat(count).isEqualTo(15L);
 	}

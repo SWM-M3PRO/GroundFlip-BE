@@ -41,7 +41,7 @@ public class PixelReader {
 	private final PixelRepository pixelRepository;
 	private final PixelUserRepository pixelUserRepository;
 	private final UserRepository userRepository;
-	private final RankingService rankingService;
+	private final UserRankingService userRankingService;
 
 	/**
 	 * 사용자를 중심으로 일정한 반경 내에 개인전 픽셀들을 가져온다.
@@ -136,13 +136,13 @@ public class PixelReader {
 	public PixelCountResponse getPixelCount(Long userId, LocalDate lookUpDate) {
 		Long accumulatePixelCount;
 		if (lookUpDate == null) {
-			accumulatePixelCount = rankingService.getAccumulatePixelCount(userId);
+			accumulatePixelCount = userRankingService.getAccumulatePixelCount(userId);
 		} else {
 			accumulatePixelCount = pixelUserRepository.countAccumulatePixelByUserId(userId, lookUpDate.atStartOfDay());
 		}
 
 		return PixelCountResponse.builder()
-			.currentPixelCount(rankingService.getCurrentPixelCountFromCache(userId))
+			.currentPixelCount(userRankingService.getCurrentPixelCountFromCache(userId))
 			.accumulatePixelCount(accumulatePixelCount)
 			.build();
 	}
@@ -159,7 +159,7 @@ public class PixelReader {
 		} else {
 			Long accumulatePixelCount = pixelUserRepository.countAccumulatePixelByUserId(ownerUserId,
 				LocalDate.parse(DEFAULT_LOOK_UP_DATE).atStartOfDay());
-			Long currentPixelCount = rankingService.getCurrentPixelCountFromCache(ownerUserId);
+			Long currentPixelCount = userRankingService.getCurrentPixelCountFromCache(ownerUserId);
 			User ownerUser = userRepository.findById(ownerUserId)
 				.orElseThrow(() -> {
 					log.error("pixel {} 의 소유자가 {} 인데 존재하지 않음.", pixel.getId(), ownerUserId);

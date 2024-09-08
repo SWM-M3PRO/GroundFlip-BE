@@ -42,7 +42,7 @@ public class PixelReaderTest {
 	@Mock
 	private UserRepository userRepository;
 	@Mock
-	private RankingService rankingService;
+	private UserRankingService userRankingService;
 	@InjectMocks
 	private PixelReader pixelReader;
 
@@ -120,7 +120,7 @@ public class PixelReaderTest {
 		when(userRepository.findById(ownerId)).thenReturn(Optional.of(ownerUser));
 		when(pixelUserRepository.countAccumulatePixelByUserId(ownerId,
 			LocalDate.parse("2024-07-15").atStartOfDay())).thenReturn(10L);
-		when(rankingService.getCurrentPixelCountFromCache(ownerId)).thenReturn(5L);
+		when(userRankingService.getCurrentPixelCountFromCache(ownerId)).thenReturn(5L);
 
 		// When
 		IndividualPixelInfoResponse response = pixelReader.getIndividualModePixelInfo(pixelId);
@@ -294,8 +294,8 @@ public class PixelReaderTest {
 		// Given
 		Long userId = 1L;
 
-		when(rankingService.getCurrentPixelCountFromCache(userId)).thenReturn(3L);
-		when(rankingService.getAccumulatePixelCount(any())).thenReturn(5L);
+		when(userRankingService.getCurrentPixelCountFromCache(userId)).thenReturn(3L);
+		when(userRankingService.getAccumulatePixelCount(any())).thenReturn(5L);
 
 		// When
 		PixelCountResponse pixelCount = pixelReader.getPixelCount(userId, null);
@@ -311,7 +311,7 @@ public class PixelReaderTest {
 		// Given
 		Long userId = 1L;
 
-		when(rankingService.getCurrentPixelCountFromCache(userId)).thenReturn(3L);
+		when(userRankingService.getCurrentPixelCountFromCache(userId)).thenReturn(3L);
 		when(pixelUserRepository.countAccumulatePixelByUserId(userId,
 			LocalDate.parse("2024-07-15").atStartOfDay())).thenReturn(5L);
 

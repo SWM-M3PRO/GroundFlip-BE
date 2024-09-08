@@ -26,7 +26,7 @@ import com.m3pro.groundflip.enums.UserStatus;
 import com.m3pro.groundflip.jwt.JwtProvider;
 import com.m3pro.groundflip.repository.AppleRefreshTokenRepository;
 import com.m3pro.groundflip.repository.PermissionRepository;
-import com.m3pro.groundflip.repository.RankingRedisRepository;
+import com.m3pro.groundflip.repository.UserRankingRedisRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 import com.m3pro.groundflip.service.oauth.OauthService;
 
@@ -39,7 +39,7 @@ class AuthServiceTest {
 	@Mock
 	private UserRepository userRepository;
 	@Mock
-	private RankingRedisRepository rankingRedisRepository;
+	private UserRankingRedisRepository userRankingRedisRepository;
 	@Mock
 	private AppleRefreshTokenRepository appleRefreshTokenRepository;
 	@Mock
@@ -115,7 +115,7 @@ class AuthServiceTest {
 		verify(userRepository, times(1)).save(any(User.class));
 		verify(jwtProvider, times(1)).createAccessToken(newUser.getId());
 		verify(jwtProvider, times(1)).createRefreshToken(newUser.getId());
-		verifyNoMoreInteractions(oauthUserInfoService, userRepository, jwtProvider, rankingRedisRepository);
+		verifyNoMoreInteractions(oauthUserInfoService, userRepository, jwtProvider, userRankingRedisRepository);
 	}
 
 	@Test
@@ -237,7 +237,7 @@ class AuthServiceTest {
 		verify(appleRefreshTokenRepository, times(1)).save(any(AppleRefreshToken.class));
 		verify(jwtProvider, times(1)).createAccessToken(newUser.getId());
 		verify(jwtProvider, times(1)).createRefreshToken(newUser.getId());
-		verifyNoMoreInteractions(oauthUserInfoService, userRepository, jwtProvider, rankingRedisRepository);
+		verifyNoMoreInteractions(oauthUserInfoService, userRepository, jwtProvider, userRankingRedisRepository);
 	}
 
 	@Test

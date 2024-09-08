@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.m3pro.groundflip.domain.dto.Response;
 import com.m3pro.groundflip.domain.dto.ranking.UserRankingResponse;
-import com.m3pro.groundflip.service.RankingService;
+import com.m3pro.groundflip.service.UserRankingService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -28,14 +28,14 @@ import lombok.extern.slf4j.Slf4j;
 @Tag(name = "ranking", description = "랭킹 API")
 @SecurityRequirement(name = "Authorization")
 public class RankingController {
-	private final RankingService rankingService;
+	private final UserRankingService userRankingService;
 
 	@Operation(summary = "개인전 전체 랭킹 조회", description = "현재 개인전 유저들의 차지 중인 픽셀 기준으로 상위 30명의 랭킹을 반환한다.")
 	@GetMapping("/user")
 	public Response<List<UserRankingResponse>> getAllUserRanking(
 		@RequestParam(required = false, name = "lookup-date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lookUpDate) {
 		return Response.createSuccess(
-			rankingService.getCurrentPixelAllUserRankings(lookUpDate)
+			userRankingService.getCurrentPixelAllUserRankings(lookUpDate)
 		);
 	}
 
@@ -47,6 +47,6 @@ public class RankingController {
 		@RequestParam(required = false, name = "lookup-date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lookUpDate
 	) {
 		return Response.createSuccess(
-			rankingService.getUserCurrentPixelRankInfo(userId, lookUpDate));
+			userRankingService.getUserCurrentPixelRankInfo(userId, lookUpDate));
 	}
 }

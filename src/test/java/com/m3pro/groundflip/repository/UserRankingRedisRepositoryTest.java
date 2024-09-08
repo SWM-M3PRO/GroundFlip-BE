@@ -19,10 +19,10 @@ import com.m3pro.groundflip.domain.dto.ranking.Ranking;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class RankingRedisRepositoryTest {
+class UserRankingRedisRepositoryTest {
 	private static final String RANKING_KEY = "current_pixel_ranking";
 	@Autowired
-	RankingRedisRepository rankingRedisRepository;
+	UserRankingRedisRepository userRankingRedisRepository;
 	@Autowired
 	private RedisTemplate<String, String> redisTemplate;
 
@@ -40,10 +40,10 @@ class RankingRedisRepositoryTest {
 		//Given
 		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
 		Long userId = 1L;
-		rankingRedisRepository.saveUserInRanking(userId);
+		userRankingRedisRepository.saveUserInRanking(userId);
 
 		// When
-		rankingRedisRepository.increaseCurrentPixelCount(userId);
+		userRankingRedisRepository.increaseCurrentPixelCount(userId);
 
 		// Then
 		Double score = zSetOperations.score(RANKING_KEY, userId.toString());
@@ -58,7 +58,7 @@ class RankingRedisRepositoryTest {
 		Long userId = 1L;
 
 		// When
-		rankingRedisRepository.increaseCurrentPixelCount(userId);
+		userRankingRedisRepository.increaseCurrentPixelCount(userId);
 
 		// Then
 		Double score = zSetOperations.score(RANKING_KEY, userId.toString());
@@ -71,12 +71,12 @@ class RankingRedisRepositoryTest {
 		//Given
 		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
 		Long userId = 1L;
-		rankingRedisRepository.saveUserInRanking(userId);
-		rankingRedisRepository.increaseCurrentPixelCount(userId);
-		rankingRedisRepository.increaseCurrentPixelCount(userId);
+		userRankingRedisRepository.saveUserInRanking(userId);
+		userRankingRedisRepository.increaseCurrentPixelCount(userId);
+		userRankingRedisRepository.increaseCurrentPixelCount(userId);
 
 		// When
-		rankingRedisRepository.decreaseCurrentPixelCount(userId);
+		userRankingRedisRepository.decreaseCurrentPixelCount(userId);
 
 		// Then
 		Double score = zSetOperations.score(RANKING_KEY, userId.toString());
@@ -89,10 +89,10 @@ class RankingRedisRepositoryTest {
 		//Given
 		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
 		Long userId = 1L;
-		rankingRedisRepository.saveUserInRanking(userId);
+		userRankingRedisRepository.saveUserInRanking(userId);
 
 		// When
-		rankingRedisRepository.decreaseCurrentPixelCount(userId);
+		userRankingRedisRepository.decreaseCurrentPixelCount(userId);
 
 		// Then
 		Double score = zSetOperations.score(RANKING_KEY, userId.toString());
@@ -107,7 +107,7 @@ class RankingRedisRepositoryTest {
 		Long userId = 1L;
 
 		// When
-		rankingRedisRepository.saveUserInRanking(userId);
+		userRankingRedisRepository.saveUserInRanking(userId);
 
 		// Then
 		Double score = zSetOperations.score(RANKING_KEY, userId.toString());
@@ -122,7 +122,7 @@ class RankingRedisRepositoryTest {
 		Long userId = 1L;
 
 		// When
-		rankingRedisRepository.deleteUserInRanking(userId);
+		userRankingRedisRepository.deleteUserInRanking(userId);
 
 		// Then
 		Double score = zSetOperations.score(RANKING_KEY, userId.toString());
@@ -139,7 +139,7 @@ class RankingRedisRepositoryTest {
 		setRanking(userId1, userId2, userId3);
 
 		// When
-		List<Ranking> rankings = rankingRedisRepository.getRankingsWithCurrentPixelCount();
+		List<Ranking> rankings = userRankingRedisRepository.getRankingsWithCurrentPixelCount();
 
 		//Then
 		assertThat(rankings).hasSize(3);
@@ -161,7 +161,7 @@ class RankingRedisRepositoryTest {
 		setRanking(userId1, userId2, userId3);
 
 		// When
-		Optional<Long> score = rankingRedisRepository.getUserCurrentPixelRank(userId1);
+		Optional<Long> score = userRankingRedisRepository.getUserCurrentPixelRank(userId1);
 
 		//Then
 		assertThat(score.isPresent()).isEqualTo(true);
@@ -176,7 +176,7 @@ class RankingRedisRepositoryTest {
 		Long userId1 = 1L;
 
 		// When
-		Optional<Long> score = rankingRedisRepository.getUserCurrentPixelRank(userId1);
+		Optional<Long> score = userRankingRedisRepository.getUserCurrentPixelRank(userId1);
 
 		// Then
 		assertThat(score.isEmpty()).isEqualTo(true);
@@ -192,7 +192,7 @@ class RankingRedisRepositoryTest {
 		setRanking(userId1, userId2, userId3);
 
 		// When
-		Optional<Long> currentPixelCount = rankingRedisRepository.getUserCurrentPixelCount(userId1);
+		Optional<Long> currentPixelCount = userRankingRedisRepository.getUserCurrentPixelCount(userId1);
 
 		//Then
 		assertThat(currentPixelCount.isPresent()).isEqualTo(true);
@@ -207,22 +207,22 @@ class RankingRedisRepositoryTest {
 		Long userId1 = 1L;
 
 		// When
-		Optional<Long> currentPixelCount = rankingRedisRepository.getUserCurrentPixelCount(userId1);
+		Optional<Long> currentPixelCount = userRankingRedisRepository.getUserCurrentPixelCount(userId1);
 
 		// Then
 		assertThat(currentPixelCount.isEmpty()).isEqualTo(true);
 	}
 
 	private void setRanking(Long userId1, Long userId2, Long userId3) {
-		rankingRedisRepository.saveUserInRanking(userId1);
-		rankingRedisRepository.saveUserInRanking(userId2);
-		rankingRedisRepository.saveUserInRanking(userId3);
+		userRankingRedisRepository.saveUserInRanking(userId1);
+		userRankingRedisRepository.saveUserInRanking(userId2);
+		userRankingRedisRepository.saveUserInRanking(userId3);
 
-		rankingRedisRepository.increaseCurrentPixelCount(userId1);
-		rankingRedisRepository.increaseCurrentPixelCount(userId1);
-		rankingRedisRepository.increaseCurrentPixelCount(userId2);
-		rankingRedisRepository.increaseCurrentPixelCount(userId3);
-		rankingRedisRepository.increaseCurrentPixelCount(userId3);
-		rankingRedisRepository.increaseCurrentPixelCount(userId3);
+		userRankingRedisRepository.increaseCurrentPixelCount(userId1);
+		userRankingRedisRepository.increaseCurrentPixelCount(userId1);
+		userRankingRedisRepository.increaseCurrentPixelCount(userId2);
+		userRankingRedisRepository.increaseCurrentPixelCount(userId3);
+		userRankingRedisRepository.increaseCurrentPixelCount(userId3);
+		userRankingRedisRepository.increaseCurrentPixelCount(userId3);
 	}
 }

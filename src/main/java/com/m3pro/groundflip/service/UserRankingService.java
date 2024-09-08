@@ -19,7 +19,7 @@ import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.RankingHistoryRepository;
-import com.m3pro.groundflip.repository.RankingRedisRepository;
+import com.m3pro.groundflip.repository.UserRankingRedisRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 import com.m3pro.groundflip.util.DateUtils;
 
@@ -29,8 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class RankingService {
-	private final RankingRedisRepository rankingRedisRepository;
+public class UserRankingService {
+	private final UserRankingRedisRepository userRankingRedisRepository;
 	private final UserRepository userRepository;
 	private final RankingHistoryRepository rankingHistoryRepository;
 
@@ -43,10 +43,10 @@ public class RankingService {
 			if (modifiedAt.isAfter(thisWeekStart)) {
 				return;
 			}
-			rankingRedisRepository.increaseCurrentPixelCount(occupyingUserId);
+			userRankingRedisRepository.increaseCurrentPixelCount(occupyingUserId);
 		} else {
 			if (originalOwnerUserId == null || modifiedAt.isBefore(thisWeekStart)) {
-				rankingRedisRepository.increaseCurrentPixelCount(occupyingUserId);
+				userRankingRedisRepository.increaseCurrentPixelCount(occupyingUserId);
 			} else {
 				updateCurrentPixelRankingAfterOccupy(occupyingUserId, originalOwnerUserId);
 			}
@@ -54,7 +54,7 @@ public class RankingService {
 	}
 
 	public void updateAccumulatedRanking(Long userId) {
-		rankingRedisRepository.increaseAccumulatePixelCount(userId);
+		userRankingRedisRepository.increaseAccumulatePixelCount(userId);
 	}
 
 	/**
@@ -63,8 +63,8 @@ public class RankingService {
 	 * @param deprivedUserId 픽셀을 뺴앗긴 유저
 	 */
 	public void updateCurrentPixelRankingAfterOccupy(Long occupyingUserId, Long deprivedUserId) {
-		rankingRedisRepository.increaseCurrentPixelCount(occupyingUserId);
-		rankingRedisRepository.decreaseCurrentPixelCount(deprivedUserId);
+		userRankingRedisRepository.increaseCurrentPixelCount(occupyingUserId);
+		userRankingRedisRepository.decreaseCurrentPixelCount(deprivedUserId);
 	}
 
 	/**
@@ -73,11 +73,11 @@ public class RankingService {
 	 * @return 현재 소유한 픽셀의 개수
 	 */
 	public Long getCurrentPixelCountFromCache(Long userId) {
-		return rankingRedisRepository.getUserCurrentPixelCount(userId).orElse(0L);
+		return userRankingRedisRepository.getUserCurrentPixelCount(userId).orElse(0L);
 	}
 
 	public Long getAccumulatePixelCount(Long userId) {
-		return rankingRedisRepository.getUserAccumulatePixelCount(userId).orElse(0L);
+		return userRankingRedisRepository.getUserAccumulatePixelCount(userId).orElse(0L);
 	}
 
 	/**
@@ -104,7 +104,7 @@ public class RankingService {
 	}
 
 	private List<UserRankingResponse> getCurrentWeekCurrentPixelRankings() {
-		List<Ranking> rankings = rankingRedisRepository.getRankingsWithCurrentPixelCount();
+		List<Ranking> rankings = userRankingRedisRepository.getRankingsWithCurrentPixelCount();
 		Map<Long, User> users = getRankedUsers(rankings);
 
 		rankings = filterNotExistUsers(rankings, users);
@@ -195,7 +195,7 @@ public class RankingService {
 	 * @return 사용자의 순위
 	 */
 	private Long getUserCurrentPixelRankFromCache(Long userId) {
-		return rankingRedisRepository.getUserCurrentPixelRank(userId)
+		return userRankingRedisRepository.getUserCurrentPixelRank(userId)
 			.orElseThrow(() -> {
 				log.error("User {} not register at redis", userId);
 				return new AppException(ErrorCode.INTERNAL_SERVER_ERROR);

@@ -29,7 +29,8 @@ public class PixelManager {
 	private static final String REDISSON_LOCK_PREFIX = "LOCK:";
 
 	private final PixelRepository pixelRepository;
-	private final RankingService rankingService;
+	private final UserRankingService userRankingService;
+	private final CommunityRankingService communityRankingService;
 	private final ApplicationEventPublisher eventPublisher;
 	private final RedissonClient redissonClient;
 	private final PixelUserRepository pixelUserRepository;
@@ -69,7 +70,9 @@ public class PixelManager {
 
 		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
-		rankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
+
+		userRankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
+
 		updateAccumulatePixelCount(targetPixel, occupyingUserId);
 		updatePixelOwner(targetPixel, occupyingUserId);
 
@@ -79,7 +82,7 @@ public class PixelManager {
 
 	private void updateAccumulatePixelCount(Pixel targetPixel, Long userId) {
 		if (!pixelUserRepository.existsByPixelIdAndUserId(targetPixel.getId(), userId)) {
-			rankingService.updateAccumulatedRanking(userId);
+			userRankingService.updateAccumulatedRanking(userId);
 		}
 	}
 

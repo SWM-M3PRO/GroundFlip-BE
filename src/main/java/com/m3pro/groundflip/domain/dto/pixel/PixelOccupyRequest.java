@@ -16,7 +16,7 @@ public class PixelOccupyRequest {
 	private Long userId;
 
 	@Schema(description = "커뮤니티 ID", nullable = true, example = "78611")
-	private Long communityId;
+	private Long communityId = -1L;
 
 	@Schema(description = "픽셀의 세로 상대좌표", example = "222")
 	private Long x;
