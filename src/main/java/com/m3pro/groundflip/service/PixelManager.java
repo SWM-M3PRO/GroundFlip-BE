@@ -1,6 +1,5 @@
 package com.m3pro.groundflip.service;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -72,9 +71,10 @@ public class PixelManager {
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
 
 		userRankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
-
 		updateAccumulatePixelCount(targetPixel, occupyingUserId);
-		updatePixelOwner(targetPixel, occupyingUserId);
+		updatePixelOwnUser(targetPixel, occupyingUserId);
+
+		pixelRepository.saveAndFlush(targetPixel);
 
 		updatePixelAddress(targetPixel);
 		eventPublisher.publishEvent(new PixelUserInsertEvent(targetPixel.getId(), occupyingUserId, communityId));
@@ -86,13 +86,9 @@ public class PixelManager {
 		}
 	}
 
-	private void updatePixelOwner(Pixel targetPixel, Long occupyingUserId) {
-		if (Objects.equals(targetPixel.getUserId(), occupyingUserId)) {
-			targetPixel.updateModifiedAtToNow();
-		} else {
-			targetPixel.updateUserId(occupyingUserId);
-		}
-		pixelRepository.saveAndFlush(targetPixel);
+	private void updatePixelOwnUser(Pixel targetPixel, Long occupyingUserId) {
+		targetPixel.updateUserId(occupyingUserId);
+		targetPixel.updateUserOccupiedAtToNow();
 	}
 
 	/**

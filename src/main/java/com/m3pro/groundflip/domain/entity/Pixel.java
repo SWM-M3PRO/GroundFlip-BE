@@ -1,8 +1,8 @@
 package com.m3pro.groundflip.domain.entity;
 
-import org.locationtech.jts.geom.Point;
+import java.time.LocalDateTime;
 
-import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
+import org.locationtech.jts.geom.Point;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Pixel extends BaseTimeEntity {
+public class Pixel {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "pixel_id")
@@ -40,11 +40,35 @@ public class Pixel extends BaseTimeEntity {
 	@Column(name = "user_id")
 	private Long userId;
 
+	private Long communityId;
+
+	private LocalDateTime createdAt;
+
+	private LocalDateTime userOccupiedAt;
+
+	private LocalDateTime communityOccupiedAt;
+
 	public void updateAddress(String address) {
 		this.address = address;
 	}
 
 	public void updateUserId(Long userId) {
 		this.userId = userId;
+	}
+
+	public void updateUserOccupiedAtToNow() {
+		userOccupiedAt = LocalDateTime.now();
+	}
+
+	public void updateCommunityOccupiedAtToNow() {
+		communityOccupiedAt = LocalDateTime.now();
+	}
+
+	public void updateUserOccupiedAt(LocalDateTime localDateTime) {
+		userOccupiedAt = localDateTime;
+	}
+
+	public void updateCommunityOccupiedAt(LocalDateTime localDateTime) {
+		communityOccupiedAt = localDateTime;
 	}
 }

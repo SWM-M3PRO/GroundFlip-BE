@@ -37,15 +37,15 @@ public class UserRankingService {
 	public void updateCurrentPixelRanking(Pixel targetPixel, Long occupyingUserId) {
 		Long originalOwnerUserId = targetPixel.getUserId();
 		LocalDateTime thisWeekStart = DateUtils.getThisWeekStartDate().atTime(0, 0);
-		LocalDateTime modifiedAt = targetPixel.getModifiedAt();
+		LocalDateTime userOccupiedAt = targetPixel.getUserOccupiedAt();
 
 		if (Objects.equals(originalOwnerUserId, occupyingUserId)) {
-			if (modifiedAt.isAfter(thisWeekStart)) {
+			if (userOccupiedAt.isAfter(thisWeekStart)) {
 				return;
 			}
 			userRankingRedisRepository.increaseCurrentPixelCount(occupyingUserId);
 		} else {
-			if (originalOwnerUserId == null || modifiedAt.isBefore(thisWeekStart)) {
+			if (originalOwnerUserId == null || userOccupiedAt.isBefore(thisWeekStart)) {
 				userRankingRedisRepository.increaseCurrentPixelCount(occupyingUserId);
 			} else {
 				updateCurrentPixelRankingAfterOccupy(occupyingUserId, originalOwnerUserId);

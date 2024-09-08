@@ -52,7 +52,7 @@ class UserRankingServiceTest {
 	void updateRanking_NoUpdateCurrentPixel() {
 		Long occupyingUserId = 1L;
 		Pixel targetPixel = Pixel.builder().userId(occupyingUserId).build();
-		targetPixel.updateModifiedAt(DateUtils.getThisWeekStartDate().atTime(0, 0, 0).plusDays(1));
+		targetPixel.updateUserOccupiedAt(DateUtils.getThisWeekStartDate().atTime(0, 0, 0).plusDays(1));
 
 		userRankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
 
@@ -64,7 +64,7 @@ class UserRankingServiceTest {
 	void updateRanking_UpdateCurrentPixelBeforeThisWeek() {
 		Long occupyingUserId = 1L;
 		Pixel targetPixel = Pixel.builder().userId(occupyingUserId).build();
-		targetPixel.updateModifiedAt(DateUtils.getThisWeekStartDate().atTime(0, 0, 0).minusDays(3));
+		targetPixel.updateUserOccupiedAt(DateUtils.getThisWeekStartDate().atTime(0, 0, 0).minusDays(3));
 
 		userRankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
 
@@ -87,7 +87,7 @@ class UserRankingServiceTest {
 	void updateCurrentPixelRanking_BeforeThisWeek() {
 		Long occupyingUserId = 1L;
 		Pixel targetPixel = Pixel.builder().userId(3L).build();
-		targetPixel.updateModifiedAt(DateUtils.getThisWeekStartDate().atTime(0, 0, 0).minusDays(3));
+		targetPixel.updateUserOccupiedAt(DateUtils.getThisWeekStartDate().atTime(0, 0, 0).minusDays(3));
 
 		userRankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
 
@@ -99,7 +99,7 @@ class UserRankingServiceTest {
 	void updateCurrentPixelRanking_OccupyPixel() {
 		Long occupyingUserId = 1L;
 		Pixel targetPixel = Pixel.builder().userId(3L).build();
-		targetPixel.updateModifiedAt(DateUtils.getThisWeekStartDate().atTime(0, 0, 0).plusDays(3));
+		targetPixel.updateUserOccupiedAt(DateUtils.getThisWeekStartDate().atTime(0, 0, 0).plusDays(3));
 
 		userRankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
 
