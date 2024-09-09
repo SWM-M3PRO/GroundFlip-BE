@@ -50,9 +50,9 @@ public class CommunityService {
 		Community community = communityRepository.findById(communityId)
 			.orElseThrow(() -> new AppException(ErrorCode.COMMUNITY_NOT_FOUND));
 
-		UserCommunity checkJoin = userCommunityRepository.findByUser(user);
+		UserCommunity isJoined = userCommunityRepository.findByUserAndCommunity(user, community);
 
-		if (checkJoin != null) {
+		if (isJoined != null) {
 			throw new AppException(ErrorCode.ALREADY_JOINED);
 		}
 
