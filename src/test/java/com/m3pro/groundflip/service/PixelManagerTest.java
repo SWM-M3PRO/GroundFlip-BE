@@ -37,6 +37,8 @@ class PixelManagerTest {
 	private RedissonClient redissonClient;
 	@Mock
 	private UserRankingService userRankingService;
+	@Mock
+	private CommunityRankingService communityRankingService;
 	@InjectMocks
 	private PixelManager pixelManager;
 
@@ -60,6 +62,7 @@ class PixelManagerTest {
 		//Then
 		verify(userRankingService, times(1)).updateCurrentPixelRanking(any(), any());
 		verify(userRankingService, times(1)).updateAccumulatedRanking(any());
+		verify(communityRankingService, times(1)).updateCurrentPixelRanking(any(), any());
 		assertEquals(5L, pixel.getUserId());
 	}
 
@@ -81,6 +84,7 @@ class PixelManagerTest {
 		// Then
 		verify(applicationEventPublisher, times(1)).publishEvent(any(PixelUserInsertEvent.class));
 		verify(userRankingService, times(1)).updateAccumulatedRanking(any());
+		verify(communityRankingService, times(1)).updateCurrentPixelRanking(any(), any());
 	}
 
 	@Test
@@ -101,6 +105,7 @@ class PixelManagerTest {
 		// Then
 		verify(applicationEventPublisher, times(1)).publishEvent(any(PixelAddressUpdateEvent.class));
 		verify(userRankingService, times(1)).updateAccumulatedRanking(any());
+		verify(communityRankingService, times(1)).updateCurrentPixelRanking(any(), any());
 	}
 
 	@Test
@@ -121,6 +126,7 @@ class PixelManagerTest {
 		// Then
 		verify(applicationEventPublisher, times(0)).publishEvent(any(PixelAddressUpdateEvent.class));
 		verify(userRankingService, times(1)).updateAccumulatedRanking(any());
+		verify(communityRankingService, times(1)).updateCurrentPixelRanking(any(), any());
 	}
 
 	static class RedissonLock implements RLock {

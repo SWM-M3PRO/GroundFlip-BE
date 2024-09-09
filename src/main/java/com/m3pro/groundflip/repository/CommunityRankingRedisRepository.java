@@ -22,4 +22,19 @@ public class CommunityRankingRedisRepository {
 		zSetOperations = redisTemplate.opsForZSet();
 	}
 
+	public void increaseCurrentPixelCount(Long communityId) {
+		zSetOperations.incrementScore(CURRENT_PIXEL_RANKING_KEY, communityId.toString(), 1);
+	}
+
+	public void decreaseCurrentPixelCount(Long communityId) {
+		Double currentScore = zSetOperations.score(CURRENT_PIXEL_RANKING_KEY, communityId.toString());
+		if (currentScore != null && currentScore > 0) {
+			zSetOperations.incrementScore(CURRENT_PIXEL_RANKING_KEY, communityId.toString(), -1);
+		}
+	}
+
+	public void increaseAccumulatePixelCount(Long communityId) {
+		zSetOperations.incrementScore(ACCUMULATE_PIXEL_RANKING_KEY, communityId.toString(), 1);
+		System.out.println("값 증가 +++++++++++++++++++++++");
+	}
 }

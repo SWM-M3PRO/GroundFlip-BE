@@ -53,4 +53,6 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 		@Param("community_id") Long communityId);
 
 	boolean existsByPixelIdAndUserId(Long pixelId, Long userId);
+
+	boolean existsByPixelIdAndCommunityId(Long pixelId, Long communityId);
 }

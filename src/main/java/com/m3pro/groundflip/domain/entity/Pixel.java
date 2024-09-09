@@ -71,4 +71,8 @@ public class Pixel {
 	public void updateCommunityOccupiedAt(LocalDateTime localDateTime) {
 		communityOccupiedAt = localDateTime;
 	}
+
+	public void updateCommunityId(Long communityId) {
+		this.communityId = communityId;
+	}
 }
