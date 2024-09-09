@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.domain.entity.UserCommunity;
 
 public interface UserCommunityRepository extends JpaRepository<UserCommunity, Long> {
@@ -14,4 +15,6 @@ public interface UserCommunityRepository extends JpaRepository<UserCommunity, Lo
 
 	@Query("SELECT COUNT(uc) FROM UserCommunity uc WHERE uc.community.id = :communityId AND uc.deletedAt IS NULL")
 	Long countByCommunityId(@Param("communityId") Long communityId);
+
+	UserCommunity findByUser(User user);
 }
