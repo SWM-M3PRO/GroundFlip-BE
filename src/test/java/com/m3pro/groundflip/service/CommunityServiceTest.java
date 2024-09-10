@@ -186,7 +186,7 @@ class CommunityServiceTest {
 		// Given
 		when(communityRepository.findById(1L)).thenReturn(Optional.of(community));
 		when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-		when(userCommunityRepository.findByUserAndCommunity(user, community)).thenReturn(userCommunity);
+		when(userCommunityRepository.existsByUserAndCommunityAndDeletedAtIsNull(user, community)).thenReturn(true);
 
 		communityJoinRequest = CommunityJoinRequest.builder()
 			.userId(1L)
