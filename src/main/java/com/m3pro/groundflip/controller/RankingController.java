@@ -61,4 +61,15 @@ public class RankingController {
 			communityRankingService.getCurrentPixelAllUCommunityRankings(lookUpDate)
 		);
 	}
+
+	@Operation(summary = "그룹 별 랭킹 조회", description = "특정 그룹의 현재 순위를 반환한다.")
+	@GetMapping("/community/{communityId}")
+	public Response<CommunityRankingResponse> getCommunityRank(
+		@Parameter(description = "찾고자 하는 communityId", required = true)
+		@PathVariable Long communityId,
+		@RequestParam(required = false, name = "lookup-date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lookUpDate
+	) {
+		return Response.createSuccess(
+			communityRankingService.getCommunityCurrentPixelRankInfo(communityId, lookUpDate));
+	}
 }
