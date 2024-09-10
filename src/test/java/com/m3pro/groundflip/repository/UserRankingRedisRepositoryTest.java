@@ -143,9 +143,9 @@ class UserRankingRedisRepositoryTest {
 
 		//Then
 		assertThat(rankings).hasSize(3);
-		assertThat(rankings.get(0).getUserId()).isEqualTo(userId3);
-		assertThat(rankings.get(1).getUserId()).isEqualTo(userId1);
-		assertThat(rankings.get(2).getUserId()).isEqualTo(userId2);
+		assertThat(rankings.get(0).getId()).isEqualTo(userId3);
+		assertThat(rankings.get(1).getId()).isEqualTo(userId1);
+		assertThat(rankings.get(2).getId()).isEqualTo(userId2);
 		assertThat(rankings.get(0).getRank()).isEqualTo(1);
 		assertThat(rankings.get(1).getRank()).isEqualTo(2);
 		assertThat(rankings.get(2).getRank()).isEqualTo(3);

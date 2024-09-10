@@ -119,7 +119,7 @@ class CommunityServiceTest {
 		// When & Then
 		AppException exception = assertThrows(AppException.class,
 			() -> communityService.findCommunityById(communityId));
-		assertEquals(ErrorCode.GROUP_NOT_FOUND, exception.getErrorCode());
+		assertEquals(ErrorCode.COMMUNITY_NOT_FOUND, exception.getErrorCode());
 	}
 
 	@Test

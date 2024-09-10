@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.m3pro.groundflip.domain.dto.Response;
+import com.m3pro.groundflip.domain.dto.ranking.CommunityRankingResponse;
 import com.m3pro.groundflip.domain.dto.ranking.UserRankingResponse;
+import com.m3pro.groundflip.service.CommunityRankingService;
 import com.m3pro.groundflip.service.UserRankingService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @SecurityRequirement(name = "Authorization")
 public class RankingController {
 	private final UserRankingService userRankingService;
+	private final CommunityRankingService communityRankingService;
 
 	@Operation(summary = "개인전 전체 랭킹 조회", description = "현재 개인전 유저들의 차지 중인 픽셀 기준으로 상위 30명의 랭킹을 반환한다.")
 	@GetMapping("/user")
@@ -48,5 +51,14 @@ public class RankingController {
 	) {
 		return Response.createSuccess(
 			userRankingService.getUserCurrentPixelRankInfo(userId, lookUpDate));
+	}
+
+	@Operation(summary = "그룹 전체 랭킹 조회", description = "현재 그룹들의 차지 중인 픽셀 기준으로 상위 30개의 랭킹을 반환한다.")
+	@GetMapping("/community")
+	public Response<List<CommunityRankingResponse>> getAllCommunityRanking(
+		@RequestParam(required = false, name = "lookup-date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lookUpDate) {
+		return Response.createSuccess(
+			communityRankingService.getCurrentPixelAllUCommunityRankings(lookUpDate)
+		);
 	}
 }

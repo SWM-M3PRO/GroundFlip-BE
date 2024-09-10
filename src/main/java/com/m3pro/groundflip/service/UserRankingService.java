@@ -111,7 +111,7 @@ public class UserRankingService {
 
 		return rankings.stream()
 			.map(ranking -> {
-				User user = users.get(ranking.getUserId());
+				User user = users.get(ranking.getId());
 				return UserRankingResponse.from(user, ranking.getRank(), ranking.getCurrentPixelCount());
 			})
 			.collect(Collectors.toList());
@@ -120,10 +120,10 @@ public class UserRankingService {
 	private List<Ranking> filterNotExistUsers(List<Ranking> rankings, Map<Long, User> users) {
 		return rankings.stream()
 			.filter(ranking -> {
-				if (users.containsKey(ranking.getUserId())) {
+				if (users.containsKey(ranking.getId())) {
 					return true;
 				} else {
-					log.error("[filterNotExistUsers] userId {}은 데이터베이스에 존재하지 않음", ranking.getUserId());
+					log.error("[filterNotExistUsers] userId {}은 데이터베이스에 존재하지 않음", ranking.getId());
 					return false;
 				}
 			})
@@ -137,7 +137,7 @@ public class UserRankingService {
 	 */
 	private Map<Long, User> getRankedUsers(List<Ranking> rankings) {
 		Set<Long> userIds = rankings.stream()
-			.map(Ranking::getUserId)
+			.map(Ranking::getId)
 			.collect(Collectors.toSet());
 		List<User> users = userRepository.findAllById(userIds);
 		return users.stream()
