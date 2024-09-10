@@ -17,5 +17,5 @@ public interface UserCommunityRepository extends JpaRepository<UserCommunity, Lo
 	@Query("SELECT COUNT(uc) FROM UserCommunity uc WHERE uc.community.id = :communityId AND uc.deletedAt IS NULL")
 	Long countByCommunityId(@Param("communityId") Long communityId);
 
-	UserCommunity findByUserAndCommunity(User user, Community community);
+	Boolean existsByUserAndCommunityAndDeletedAtIsNull(User user, Community community);
 }
