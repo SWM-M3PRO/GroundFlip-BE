@@ -39,6 +39,9 @@ class CommunityServiceTest {
 	@Mock
 	private UserRepository userRepository;
 
+	@Mock
+	private CommunityRankingService communityRankingService;
+
 	private Community community;
 
 	private User user;
