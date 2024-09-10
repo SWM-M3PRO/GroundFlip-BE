@@ -25,7 +25,7 @@ public class CommunityInfoResponse {
 	private String backgroundImageUrl;
 
 	@Schema(description = "그룹 랭킹", example = "1")
-	private int communityRanking;
+	private Long communityRanking;
 
 	@Schema(description = "그룹 멤버 수", example = "500")
 	private Long memberCount;
@@ -42,7 +42,7 @@ public class CommunityInfoResponse {
 	@Schema(description = "최고 랭킹", example = "1")
 	private int maxRanking;
 
-	public static CommunityInfoResponse from(Community community, int communityRanking, Long memberCount,
+	public static CommunityInfoResponse from(Community community, Long communityRanking, Long memberCount,
 		Long currentPixelCount, Long accumulatePixelCount) {
 		return CommunityInfoResponse.builder()
 			.name(community.getName())

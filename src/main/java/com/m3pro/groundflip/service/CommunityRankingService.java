@@ -184,7 +184,7 @@ public class CommunityRankingService {
 	 * @param communityId 그룹 Id
 	 * @return 그룹의 순위
 	 */
-	private Long getCommunityCurrentPixelRankFromCache(Long communityId) {
+	public Long getCommunityCurrentPixelRankFromCache(Long communityId) {
 		return communityRankingRedisRepository.getCommunityCurrentPixelRank(communityId)
 			.orElseThrow(() -> {
 				log.error("Community {} not register at redis", communityId);
