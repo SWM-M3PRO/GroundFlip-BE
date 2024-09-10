@@ -22,8 +22,8 @@ import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.jwt.JwtProvider;
 import com.m3pro.groundflip.repository.AppleRefreshTokenRepository;
 import com.m3pro.groundflip.repository.FcmTokenRepository;
-import com.m3pro.groundflip.repository.RankingRedisRepository;
 import com.m3pro.groundflip.repository.UserCommunityRepository;
+import com.m3pro.groundflip.repository.UserRankingRedisRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 import com.m3pro.groundflip.service.oauth.AppleApiClient;
 import com.m3pro.groundflip.util.S3Uploader;
@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
-	private final RankingRedisRepository rankingRedisRepository;
+	private final UserRankingRedisRepository userRankingRedisRepository;
 	private final UserRepository userRepository;
 	private final AppleRefreshTokenRepository appleRefreshTokenRepository;
 	private final UserCommunityRepository userCommunityRepository;
@@ -99,7 +99,7 @@ public class UserService {
 		user.updateStatus(UserStatus.COMPLETE);
 		user.updateProfileImage(fileS3Url);
 		userRepository.save(user);
-		rankingRedisRepository.saveUserInRanking(user.getId());
+		userRankingRedisRepository.saveUserInRanking(user.getId());
 	}
 
 	private Date convertToDate(int year) {
@@ -134,7 +134,7 @@ public class UserService {
 		jwtProvider.expireToken(userDeleteRequest.getAccessToken());
 		jwtProvider.expireToken(userDeleteRequest.getRefreshToken());
 
-		rankingRedisRepository.deleteUserInRanking(userId);
+		userRankingRedisRepository.deleteUserInRanking(userId);
 	}
 
 	private void revokeAppleToken(Long userId) {

@@ -39,6 +39,9 @@ class CommunityServiceTest {
 	@Mock
 	private UserRepository userRepository;
 
+	@Mock
+	private CommunityRankingService communityRankingService;
+
 	private Community community;
 
 	private User user;
@@ -96,10 +99,16 @@ class CommunityServiceTest {
 		Long communityId = 1L;
 		when(communityRepository.findById(communityId)).thenReturn(Optional.of(community));
 		when(userCommunityRepository.countByCommunityId(communityId)).thenReturn(3L);
+		when(communityRankingService.getCommunityCurrentPixelRankFromCache(communityId)).thenReturn(0L);
+		when(communityRankingService.getCurrentPixelCountFromCache(communityId)).thenReturn(0L);
+		when(communityRankingService.getAccumulatePixelCount(communityId)).thenReturn(0L);
 
 		// When
 		CommunityInfoResponse result = communityService.findCommunityById(communityId);
 
+		System.out.println("result.getCurrentPixelCount() = " + result.getCurrentPixelCount());
+		System.out.println("result.getAccumulatePixelCount() = " + result.getAccumulatePixelCount());
+		System.out.println("result.getCommunityRanking() = " + result.getCommunityRanking());
 		// Then
 		assertNotNull(result);
 		assertEquals("Test Community", result.getName());
@@ -119,7 +128,7 @@ class CommunityServiceTest {
 		// When & Then
 		AppException exception = assertThrows(AppException.class,
 			() -> communityService.findCommunityById(communityId));
-		assertEquals(ErrorCode.GROUP_NOT_FOUND, exception.getErrorCode());
+		assertEquals(ErrorCode.COMMUNITY_NOT_FOUND, exception.getErrorCode());
 	}
 
 	@Test

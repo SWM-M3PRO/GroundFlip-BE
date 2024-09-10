@@ -1,6 +1,5 @@
 package com.m3pro.groundflip.service;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -27,9 +26,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PixelManager {
 	private static final String REDISSON_LOCK_PREFIX = "LOCK:";
+	private static final Long DEFAULT_COMMUNITY_ID = -1L;
 
 	private final PixelRepository pixelRepository;
-	private final RankingService rankingService;
+	private final UserRankingService userRankingService;
+	private final CommunityRankingService communityRankingService;
 	private final ApplicationEventPublisher eventPublisher;
 	private final RedissonClient redissonClient;
 	private final PixelUserRepository pixelUserRepository;
@@ -65,31 +66,56 @@ public class PixelManager {
 
 	private void occupyPixel(PixelOccupyRequest pixelOccupyRequest) {
 		Long occupyingUserId = pixelOccupyRequest.getUserId();
-		Long communityId = Optional.ofNullable(pixelOccupyRequest.getCommunityId()).orElse(-1L);
+		Long occupyingCommunityId = Optional.ofNullable(pixelOccupyRequest.getCommunityId()).orElse(-1L);
 
 		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
-		rankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
-		updateAccumulatePixelCount(targetPixel, occupyingUserId);
-		updatePixelOwner(targetPixel, occupyingUserId);
 
-		updatePixelAddress(targetPixel);
-		eventPublisher.publishEvent(new PixelUserInsertEvent(targetPixel.getId(), occupyingUserId, communityId));
-	}
+		userRankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
+		updateUserAccumulatePixelCount(targetPixel, occupyingUserId);
+		updatePixelOwnerUser(targetPixel, occupyingUserId);
 
-	private void updateAccumulatePixelCount(Pixel targetPixel, Long userId) {
-		if (!pixelUserRepository.existsByPixelIdAndUserId(targetPixel.getId(), userId)) {
-			rankingService.updateAccumulatedRanking(userId);
-		}
-	}
+		updateCommunityCurrentPixelCount(targetPixel, occupyingCommunityId);
+		updateCommunityAccumulatePixelCount(targetPixel, occupyingCommunityId);
+		updatePixelOwnerCommunity(targetPixel, occupyingCommunityId);
 
-	private void updatePixelOwner(Pixel targetPixel, Long occupyingUserId) {
-		if (Objects.equals(targetPixel.getUserId(), occupyingUserId)) {
-			targetPixel.updateModifiedAtToNow();
-		} else {
-			targetPixel.updateUserId(occupyingUserId);
-		}
 		pixelRepository.saveAndFlush(targetPixel);
+		
+		updatePixelAddress(targetPixel);
+		eventPublisher.publishEvent(
+			new PixelUserInsertEvent(targetPixel.getId(), occupyingUserId, occupyingCommunityId));
+	}
+
+	private void updateCommunityAccumulatePixelCount(Pixel targetPixel, Long communityId) {
+		if (!pixelUserRepository.existsByPixelIdAndCommunityId(targetPixel.getId(), communityId)) {
+			if (!communityId.equals(DEFAULT_COMMUNITY_ID)) {
+				communityRankingService.updateAccumulatedRanking(communityId);
+			}
+		}
+	}
+
+	private void updateUserAccumulatePixelCount(Pixel targetPixel, Long userId) {
+		if (!pixelUserRepository.existsByPixelIdAndUserId(targetPixel.getId(), userId)) {
+			userRankingService.updateAccumulatedRanking(userId);
+		}
+	}
+
+	private void updateCommunityCurrentPixelCount(Pixel targetPixel, Long communityId) {
+		if (!communityId.equals(DEFAULT_COMMUNITY_ID)) {
+			communityRankingService.updateCurrentPixelRanking(targetPixel, communityId);
+		}
+	}
+
+	private void updatePixelOwnerUser(Pixel targetPixel, Long occupyingUserId) {
+		targetPixel.updateUserId(occupyingUserId);
+		targetPixel.updateUserOccupiedAtToNow();
+	}
+
+	private void updatePixelOwnerCommunity(Pixel targetPixel, Long occupyingCommunityId) {
+		if (!occupyingCommunityId.equals(DEFAULT_COMMUNITY_ID)) {
+			targetPixel.updateCommunityId(occupyingCommunityId);
+			targetPixel.updateCommunityOccupiedAtToNow();
+		}
 	}
 
 	/**

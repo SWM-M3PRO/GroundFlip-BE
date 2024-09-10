@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
-public class RankingRedisRepository {
+public class UserRankingRedisRepository {
 	private static final String CURRENT_PIXEL_RANKING_KEY = "current_pixel_ranking";
 	private static final String ACCUMULATE_PIXEL_RANKING_KEY = "accumulate_pixel_ranking";
 	private static final int RANKING_START_INDEX = 0;

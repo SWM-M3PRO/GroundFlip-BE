@@ -2,6 +2,7 @@ package com.m3pro.groundflip.repository;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -91,7 +92,8 @@ public class PixelRepositoryTest {
 
 	private Pixel savePixel(double latitude, double longitude, Long x, Long y, Long userId) {
 		Point point = createPoint(longitude, latitude);
-		return pixelRepository.save(Pixel.builder().coordinate(point).userId(userId).x(x).y(y).build());
+		return pixelRepository.save(
+			Pixel.builder().userOccupiedAt(LocalDateTime.now()).coordinate(point).userId(userId).x(x).y(y).build());
 	}
 
 	private Point createPoint(double longitude, double latitude) {

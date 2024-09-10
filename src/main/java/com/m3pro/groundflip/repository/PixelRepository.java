@@ -28,7 +28,7 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
 		WHERE
 			ST_CONTAINS((ST_Buffer(:center, :radius)), pixel.coordinate)
 			AND pixel.user_id IS NOT NULL
-			AND pixel.modified_at >= :weekStartDate
+			AND pixel.user_occupied_at >= :weekStartDate
 		""", nativeQuery = true)
 	List<IndividualModePixelResponse> findAllIndividualModePixelsByCoordinate(
 		@Param("center") Point center,

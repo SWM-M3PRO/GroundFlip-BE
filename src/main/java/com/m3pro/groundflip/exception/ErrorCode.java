@@ -11,13 +11,12 @@ public enum ErrorCode {
 	DUPLICATED_NICKNAME(HttpStatus.BAD_REQUEST, "중복된 닉네임입니다."),
 	ALREADY_JOINED(HttpStatus.BAD_REQUEST, "이미 가입된 유저입니다."),
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다."),
-	GROUP_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 그룹입니다."),
+	COMMUNITY_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 그룹입니다."),
 	PIXEL_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 픽셀입니다."),
 	IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 이미지입니다."),
 	PLACE_NOT_FOUND(HttpStatus.NOT_FOUND, "장소가 등록되어 있지 않습니다."),
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 에러 입니다"),
 	VERSION_NOT_FOUND(HttpStatus.NOT_FOUND, "버전이 존재하지 않습니다."),
-	COMMUNITY_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 그룹입니다."),
 
 	// 권한 관련 에러
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "권한이 없습니다"),

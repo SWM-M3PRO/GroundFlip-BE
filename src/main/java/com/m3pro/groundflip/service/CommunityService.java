@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class CommunityService {
 	private final CommunityRepository communityRepository;
 	private final UserCommunityRepository userCommunityRepository;
+	private final CommunityRankingService communityRankingService;
 	private final UserRepository userRepository;
 
 	/*
@@ -37,10 +38,14 @@ public class CommunityService {
 
 	public CommunityInfoResponse findCommunityById(Long communityId) {
 		Community community = communityRepository.findById(communityId)
-			.orElseThrow(() -> new AppException(ErrorCode.GROUP_NOT_FOUND));
+			.orElseThrow(() -> new AppException(ErrorCode.COMMUNITY_NOT_FOUND));
 		Long memberCount = getMemberCount(community);
-		// ToDo : 랭킹 하시는 분이 구현하신 것 토대로 communityRanking, currentPixelCount, accumulatePixelCount만 채워주세요.
-		return CommunityInfoResponse.from(community, 0, memberCount, 0L, 0L);
+
+		Long rank = communityRankingService.getCommunityCurrentPixelRankFromCache(communityId);
+		Long currentPixel = communityRankingService.getCurrentPixelCountFromCache(communityId);
+		Long accumulatePixel = communityRankingService.getAccumulatePixelCount(communityId);
+
+		return CommunityInfoResponse.from(community, rank, memberCount, currentPixel, accumulatePixel);
 	}
 
 	public void joinCommunity(Long communityId, CommunityJoinRequest communityJoinRequest) {

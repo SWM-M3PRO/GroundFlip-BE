@@ -37,8 +37,8 @@ import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.jwt.JwtProvider;
 import com.m3pro.groundflip.repository.AppleRefreshTokenRepository;
 import com.m3pro.groundflip.repository.FcmTokenRepository;
-import com.m3pro.groundflip.repository.RankingRedisRepository;
 import com.m3pro.groundflip.repository.UserCommunityRepository;
+import com.m3pro.groundflip.repository.UserRankingRedisRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 import com.m3pro.groundflip.service.oauth.AppleApiClient;
 import com.m3pro.groundflip.util.S3Uploader;
@@ -49,7 +49,7 @@ class UserServiceTest {
 	private UserRepository userRepository;
 
 	@Mock
-	private RankingRedisRepository rankingRedisRepository;
+	private UserRankingRedisRepository userRankingRedisRepository;
 
 	@Mock
 	private FcmTokenRepository fcmTokenRepository;
