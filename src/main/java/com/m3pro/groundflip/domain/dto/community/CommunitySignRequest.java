@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 @Schema(title = "그룹 가입 정보")
-public class CommunityJoinRequest {
+public class CommunitySignRequest {
 
 	@Schema(description = "가입 유저 id", example = "1")
 	private Long userId;

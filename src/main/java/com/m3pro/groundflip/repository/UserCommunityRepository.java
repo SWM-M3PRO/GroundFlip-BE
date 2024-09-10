@@ -1,6 +1,7 @@
 package com.m3pro.groundflip.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,4 +19,7 @@ public interface UserCommunityRepository extends JpaRepository<UserCommunity, Lo
 	Long countByCommunityId(@Param("communityId") Long communityId);
 
 	Boolean existsByUserAndCommunityAndDeletedAtIsNull(User user, Community community);
+
+	Optional<UserCommunity> findByUserAndCommunityAndDeletedAtIsNull(User user, Community community);
+
 }

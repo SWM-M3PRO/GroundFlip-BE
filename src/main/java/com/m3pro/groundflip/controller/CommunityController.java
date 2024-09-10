@@ -2,6 +2,7 @@ package com.m3pro.groundflip.controller;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.m3pro.groundflip.domain.dto.Response;
 import com.m3pro.groundflip.domain.dto.community.CommunityInfoResponse;
-import com.m3pro.groundflip.domain.dto.community.CommunityJoinRequest;
 import com.m3pro.groundflip.domain.dto.community.CommunitySearchResponse;
+import com.m3pro.groundflip.domain.dto.community.CommunitySignRequest;
 import com.m3pro.groundflip.service.CommunityService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -51,12 +52,23 @@ public class CommunityController {
 
 	@Operation(summary = "그룹 가입 api", description = "유저를 특정 그룹에 가입시킨다")
 	@PostMapping("/{communityId}")
-	public Response<?> joinCommunity(
-		@Parameter(description = "가입하고자 하는 groupId", required = true)
+	public Response<?> signInCommunity(
+		@Parameter(description = "가입하고자 하는 communityId", required = true)
 		@PathVariable("communityId") Long communityId,
-		@RequestBody CommunityJoinRequest communityJoinRequest
+		@RequestBody CommunitySignRequest communitySignRequest
 	) {
-		communityService.joinCommunity(communityId, communityJoinRequest);
+		communityService.signInCommunity(communityId, communitySignRequest);
+		return Response.createSuccessWithNoData();
+	}
+
+	@Operation(summary = "그룹 탈퇴 api", description = "유저를 특정 그룹에서 탈퇴시킨다")
+	@DeleteMapping("/{communityId}")
+	public Response<?> signOutCommunity(
+		@Parameter(description = "탈퇴하고자 하는 communityId", required = true)
+		@PathVariable("communityId") Long communityId,
+		@RequestBody CommunitySignRequest communitySignRequest
+	) {
+		communityService.signOutCommunity(communityId, communitySignRequest);
 		return Response.createSuccessWithNoData();
 	}
 }
