@@ -123,7 +123,7 @@ class UserRankingServiceTest {
 	@DisplayName("[getCurrentPixelCount] userId 가 소유한 픽셀의 개수를 반환한다.")
 	void getCurrentPixelCountFromCacheTest() {
 		Long userId = 1L;
-		when(userRankingRedisRepository.getUserCurrentPixelCount(any())).thenReturn(Optional.of(15L));
+		when(userRankingRedisRepository.getCurrentPixelCount(any())).thenReturn(Optional.of(15L));
 
 		Long count = userRankingService.getCurrentPixelCountFromCache(userId);
 
@@ -134,7 +134,7 @@ class UserRankingServiceTest {
 	@DisplayName("[getCurrentPixelCount] userId가 sortedSet에 없다면 0 반환")
 	void getCurrentPixelCountFromCacheTestNull() {
 		Long userId = 1L;
-		when(userRankingRedisRepository.getUserCurrentPixelCount(any())).thenReturn(Optional.empty());
+		when(userRankingRedisRepository.getCurrentPixelCount(any())).thenReturn(Optional.empty());
 
 		Long count = userRankingService.getCurrentPixelCountFromCache(userId);
 
@@ -163,8 +163,8 @@ class UserRankingServiceTest {
 			.profileImage("test")
 			.build();
 		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-		when(userRankingRedisRepository.getUserCurrentPixelCount(any())).thenReturn(Optional.of(15L));
-		when(userRankingRedisRepository.getUserCurrentPixelRank(any())).thenReturn(Optional.of(1L));
+		when(userRankingRedisRepository.getCurrentPixelCount(any())).thenReturn(Optional.of(15L));
+		when(userRankingRedisRepository.getCurrentPixelRank(any())).thenReturn(Optional.of(1L));
 
 		UserRankingResponse userRankingResponse = userRankingService.getUserCurrentPixelRankInfo(userId,
 			LocalDate.now());
@@ -184,7 +184,7 @@ class UserRankingServiceTest {
 			.id(1L)
 			.build()));
 
-		when(userRankingRedisRepository.getUserCurrentPixelRank(userId)).thenReturn(Optional.empty());
+		when(userRankingRedisRepository.getCurrentPixelRank(userId)).thenReturn(Optional.empty());
 
 		AppException exception = assertThrows(AppException.class,
 			() -> userRankingService.getUserCurrentPixelRankInfo(userId, LocalDate.now()));
@@ -314,7 +314,7 @@ class UserRankingServiceTest {
 	@DisplayName("[getAccumulatePixelCount]")
 	void getAccumulatePixelCountTest() {
 		Long userId = 1L;
-		when(userRankingRedisRepository.getUserAccumulatePixelCount(any())).thenReturn(Optional.of(15L));
+		when(userRankingRedisRepository.getAccumulatePixelCount(any())).thenReturn(Optional.of(15L));
 
 		Long count = userRankingService.getAccumulatePixelCount(userId);
 
