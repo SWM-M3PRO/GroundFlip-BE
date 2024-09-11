@@ -21,11 +21,13 @@ import com.m3pro.groundflip.domain.dto.pixel.VisitedUserInfo;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixelUser.VisitedCommunity;
 import com.m3pro.groundflip.domain.dto.pixelUser.VisitedUser;
+import com.m3pro.groundflip.domain.entity.Community;
 import com.m3pro.groundflip.domain.entity.Pixel;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
+import com.m3pro.groundflip.repository.CommunityRepository;
 import com.m3pro.groundflip.repository.PixelRepository;
 import com.m3pro.groundflip.repository.PixelUserRepository;
 import com.m3pro.groundflip.repository.UserRepository;
@@ -46,6 +48,8 @@ public class PixelReader {
 	private final PixelUserRepository pixelUserRepository;
 	private final UserRepository userRepository;
 	private final UserRankingService userRankingService;
+	private final CommunityRankingService communityRankingService;
+	private final CommunityRepository communityRepository;
 
 	/**
 	 * 사용자를 중심으로 일정한 반경 내에 개인전 픽셀들을 가져온다.
@@ -110,13 +114,13 @@ public class PixelReader {
 		Pixel pixel = pixelRepository.findById(pixelId)
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
 
-		List<VisitedCommunity> visitedUsers = pixelUserRepository.findAllVisitedCommunityByPixelId(pixelId);
-		PixelOwnerCommunityResponse pixelOwnerCommunityResponse = getPixelOwnerUserInfo(pixel);
+		List<VisitedCommunity> visitedCommunities = pixelUserRepository.findAllVisitedCommunityByPixelId(pixelId);
+		PixelOwnerCommunityResponse pixelOwnerCommunityResponse = getPixelOwnerCommunityInfo(pixel);
 
 		return CommunityPixelInfoResponse.from(
 			pixel,
 			pixelOwnerCommunityResponse,
-			visitedUsers.stream().map(VisitedCommunityInfo::from).toList()
+			visitedCommunities.stream().map(VisitedCommunityInfo::from).toList()
 		);
 	}
 
@@ -192,15 +196,14 @@ public class PixelReader {
 		if (ownerCommunityId == null) {
 			return null;
 		} else {
-			Long accumulatePixelCount = pixelUserRepository.countAccumulatePixelByUserId(ownerCommunityId,
-				LocalDate.parse(DEFAULT_LOOK_UP_DATE).atStartOfDay());
-			Long currentPixelCount = rankingService.getCurrentPixelCountFromCache(ownerCommunityId);
-			User ownerUser = userRepository.findById(ownerCommunityId)
+			Long accumulatePixelCount = communityRankingService.getAccumulatePixelCount(ownerCommunityId);
+			Long currentPixelCount = communityRankingService.getCurrentPixelCountFromCache(ownerCommunityId);
+			Community ownerCommunity = communityRepository.findById(ownerCommunityId)
 				.orElseThrow(() -> {
-					log.error("pixel {} 의 소유자가 {} 인데 존재하지 않음.", pixel.getId(), ownerCommunityId);
+					log.error("pixel {} 의 소유 그룹이 {} 인데 존재하지 않음.", pixel.getId(), ownerCommunityId);
 					return new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
 				});
-			return PixelOwnerUserResponse.from(ownerUser, currentPixelCount, accumulatePixelCount);
+			return PixelOwnerCommunityResponse.from(ownerCommunity, currentPixelCount, accumulatePixelCount);
 		}
 	}
 }
