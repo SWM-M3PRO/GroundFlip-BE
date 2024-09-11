@@ -192,7 +192,7 @@ public class PixelReader {
 	}
 
 	private PixelOwnerCommunityResponse getPixelOwnerCommunityInfo(Pixel pixel) {
-		Long ownerCommunityId = pixel.getId();
+		Long ownerCommunityId = pixel.getCommunityId();
 		if (ownerCommunityId == null) {
 			return null;
 		} else {

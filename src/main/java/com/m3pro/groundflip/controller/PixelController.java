@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.m3pro.groundflip.domain.dto.Response;
+import com.m3pro.groundflip.domain.dto.pixel.CommunityPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualHistoryPixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualModePixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelInfoResponse;
@@ -102,6 +103,16 @@ public class PixelController {
 	) {
 		return Response.createSuccess(
 			pixelReader.getIndividualHistoryPixelInfo(pixelId, userId, lookUpDate)
+		);
+	}
+
+	@Operation(summary = "그룹전 픽셀 정보 조회", description = "특정 그룹전 픽셀의 정보를 조회 API")
+	@GetMapping("/community-mode/{pixelId}")
+	public Response<CommunityPixelInfoResponse> getCommunityPixelInfo(
+		@Parameter(description = "찾고자 하는 pixelId", required = true)
+		@PathVariable Long pixelId) {
+		return Response.createSuccess(
+			pixelReader.getCommunityModePixelInfo(pixelId)
 		);
 	}
 
