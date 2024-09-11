@@ -54,7 +54,7 @@ public class CommunityRankingService {
 		}
 	}
 
-	private void updateCurrentPixelRankingAfterOccupy(Long occupyingCommunityId, Long deprivedCommunityId) {
+	public void updateCurrentPixelRankingAfterOccupy(Long occupyingCommunityId, Long deprivedCommunityId) {
 		communityRankingRedisRepository.increaseCurrentPixelCount(occupyingCommunityId);
 		communityRankingRedisRepository.decreaseCurrentPixelCount(deprivedCommunityId);
 	}
