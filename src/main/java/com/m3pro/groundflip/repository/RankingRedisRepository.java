@@ -19,7 +19,6 @@ public class RankingRedisRepository {
 
 	public RankingRedisRepository(RedisTemplate<String, String> redisTemplate, String currentPixelRankingKey,
 		String accumulatePixelRankingKey) {
-		// this.redisTemplate = redisTemplate;
 		this.currentPixelRankingKey = currentPixelRankingKey;
 		this.accumulatePixelRankingKey = accumulatePixelRankingKey;
 		zSetOperations = redisTemplate.opsForZSet();
