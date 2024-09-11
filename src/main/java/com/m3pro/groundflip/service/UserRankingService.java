@@ -73,11 +73,11 @@ public class UserRankingService {
 	 * @return 현재 소유한 픽셀의 개수
 	 */
 	public Long getCurrentPixelCountFromCache(Long userId) {
-		return userRankingRedisRepository.getUserCurrentPixelCount(userId).orElse(0L);
+		return userRankingRedisRepository.getCurrentPixelCount(userId).orElse(0L);
 	}
 
 	public Long getAccumulatePixelCount(Long userId) {
-		return userRankingRedisRepository.getUserAccumulatePixelCount(userId).orElse(0L);
+		return userRankingRedisRepository.getAccumulatePixelCount(userId).orElse(0L);
 	}
 
 	/**
@@ -195,7 +195,7 @@ public class UserRankingService {
 	 * @return 사용자의 순위
 	 */
 	private Long getUserCurrentPixelRankFromCache(Long userId) {
-		return userRankingRedisRepository.getUserCurrentPixelRank(userId)
+		return userRankingRedisRepository.getCurrentPixelRank(userId)
 			.orElseThrow(() -> {
 				log.error("User {} not register at redis", userId);
 				return new AppException(ErrorCode.INTERNAL_SERVER_ERROR);

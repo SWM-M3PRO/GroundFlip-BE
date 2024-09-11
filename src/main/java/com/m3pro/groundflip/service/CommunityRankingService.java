@@ -54,7 +54,7 @@ public class CommunityRankingService {
 		}
 	}
 
-	private void updateCurrentPixelRankingAfterOccupy(Long occupyingCommunityId, Long deprivedCommunityId) {
+	public void updateCurrentPixelRankingAfterOccupy(Long occupyingCommunityId, Long deprivedCommunityId) {
 		communityRankingRedisRepository.increaseCurrentPixelCount(occupyingCommunityId);
 		communityRankingRedisRepository.decreaseCurrentPixelCount(deprivedCommunityId);
 	}
@@ -64,11 +64,11 @@ public class CommunityRankingService {
 	}
 
 	public Long getCurrentPixelCountFromCache(Long communityId) {
-		return communityRankingRedisRepository.getCommunityCurrentPixelCount(communityId).orElse(0L);
+		return communityRankingRedisRepository.getCurrentPixelCount(communityId).orElse(0L);
 	}
 
 	public Long getAccumulatePixelCount(Long communityId) {
-		return communityRankingRedisRepository.getCommunityAccumulatePixelCount(communityId).orElse(0L);
+		return communityRankingRedisRepository.getAccumulatePixelCount(communityId).orElse(0L);
 	}
 
 	public List<CommunityRankingResponse> getCurrentPixelAllUCommunityRankings(LocalDate lookUpDate) {
@@ -185,7 +185,7 @@ public class CommunityRankingService {
 	 * @return 그룹의 순위
 	 */
 	public Long getCommunityCurrentPixelRankFromCache(Long communityId) {
-		return communityRankingRedisRepository.getCommunityCurrentPixelRank(communityId)
+		return communityRankingRedisRepository.getCurrentPixelRank(communityId)
 			.orElseThrow(() -> {
 				log.error("Community {} not register at redis", communityId);
 				return new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
