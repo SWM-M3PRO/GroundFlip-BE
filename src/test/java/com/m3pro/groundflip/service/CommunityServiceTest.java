@@ -15,8 +15,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.m3pro.groundflip.domain.dto.community.CommunityInfoResponse;
-import com.m3pro.groundflip.domain.dto.community.CommunityJoinRequest;
 import com.m3pro.groundflip.domain.dto.community.CommunitySearchResponse;
+import com.m3pro.groundflip.domain.dto.community.CommunitySignRequest;
 import com.m3pro.groundflip.domain.entity.Community;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.domain.entity.UserCommunity;
@@ -48,7 +48,7 @@ class CommunityServiceTest {
 
 	private UserCommunity userCommunity;
 
-	private CommunityJoinRequest communityJoinRequest;
+	private CommunitySignRequest communitySignRequest;
 
 	@BeforeEach
 	void setUp() {
@@ -132,7 +132,7 @@ class CommunityServiceTest {
 	}
 
 	@Test
-	@DisplayName("[joinCommunity] 그룹 가입 테스트")
+	@DisplayName("[signInCommunity] 그룹 가입 테스트")
 	void testJoinCommunity() {
 		//Given
 		Long communityId = 1L;
@@ -141,28 +141,28 @@ class CommunityServiceTest {
 		when(communityRepository.findById(communityId)).thenReturn(Optional.of(community));
 		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-		communityJoinRequest = CommunityJoinRequest.builder()
+		communitySignRequest = CommunitySignRequest.builder()
 			.userId(userId)
 			.build();
 
 		//When
-		communityService.joinCommunity(communityId, communityJoinRequest);
+		communityService.signInCommunity(communityId, communitySignRequest);
 
 		//Then
 		verify(userCommunityRepository).save(any(UserCommunity.class));
 	}
 
 	@Test
-	@DisplayName("[joinCommunity] 유저가 없을때 에러 테스트")
+	@DisplayName("[signInCommunity] 유저가 없을때 에러 테스트")
 	void testJoinCommunity_userNotFound() {
 		// Given
-		CommunityJoinRequest communityJoinRequest2 = CommunityJoinRequest.builder()
+		CommunitySignRequest communitySignRequest2 = CommunitySignRequest.builder()
 			.userId(2L)
 			.build();
 
 		// when
 		AppException thrown = assertThrows(AppException.class, () -> {
-			communityService.joinCommunity(2L, communityJoinRequest2);
+			communityService.signInCommunity(2L, communitySignRequest2);
 		});
 
 		// Then
@@ -170,19 +170,19 @@ class CommunityServiceTest {
 	}
 
 	@Test
-	@DisplayName("[joinCommunity] 그룹이 없을때 에러 테스트")
+	@DisplayName("[signInCommunity] 그룹이 없을때 에러 테스트")
 	void testJoinCommunity_communityNotFound() {
 		// Given
 		when(communityRepository.findById(2L)).thenReturn(Optional.empty());
 		when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
-		communityJoinRequest = CommunityJoinRequest.builder()
+		communitySignRequest = CommunitySignRequest.builder()
 			.userId(1L)
 			.build();
 
 		// when
 		AppException thrown = assertThrows(AppException.class, () -> {
-			communityService.joinCommunity(2L, communityJoinRequest);
+			communityService.signInCommunity(2L, communitySignRequest);
 		});
 
 		// Then
@@ -190,24 +190,105 @@ class CommunityServiceTest {
 	}
 
 	@Test
-	@DisplayName("[joinCommunity] 가입된 그룹이 이미 있을때 테스트")
+	@DisplayName("[signInCommunity] 가입된 그룹이 이미 있을때 테스트")
 	void testJoinCommunity_alreadyJoined() {
 		// Given
 		when(communityRepository.findById(1L)).thenReturn(Optional.of(community));
 		when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 		when(userCommunityRepository.existsByUserAndCommunityAndDeletedAtIsNull(user, community)).thenReturn(true);
 
-		communityJoinRequest = CommunityJoinRequest.builder()
+		communitySignRequest = CommunitySignRequest.builder()
 			.userId(1L)
 			.build();
 
 		// when
 		AppException thrown = assertThrows(AppException.class, () -> {
-			communityService.joinCommunity(1L, communityJoinRequest);
+			communityService.signInCommunity(1L, communitySignRequest);
 		});
 
 		// Then
 		assertEquals(ErrorCode.ALREADY_JOINED, thrown.getErrorCode());
+	}
+
+	@Test
+	@DisplayName("[signOutCommunity] 그룹 탈퇴 테스트")
+	void testSignOutCommunity() {
+		//Given
+		Long communityId = 1L;
+		Long userId = 1L;
+
+		when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+		when(communityRepository.findById(communityId)).thenReturn(Optional.of(community));
+		when(userCommunityRepository.findByUserAndCommunityAndDeletedAtIsNull(user, community)).thenReturn(
+			Optional.of(userCommunity));
+
+		communitySignRequest = CommunitySignRequest.builder()
+			.userId(userId)
+			.build();
+
+		//When
+		communityService.signOutCommunity(communityId, communitySignRequest);
+
+		//Then
+		assertNotNull(userCommunity.getDeletedAt());
+		verify(userCommunityRepository, times(1)).save(userCommunity);
+	}
+
+	@Test
+	@DisplayName("[signOutCommunity] 유저가 없을때 에러 테스트")
+	void testSignOutCommunity_userNotFound() {
+		// Given
+		CommunitySignRequest communitySignRequest2 = CommunitySignRequest.builder()
+			.userId(2L)
+			.build();
+
+		// when
+		AppException thrown = assertThrows(AppException.class, () -> {
+			communityService.signOutCommunity(2L, communitySignRequest2);
+		});
+
+		// Then
+		assertEquals(ErrorCode.USER_NOT_FOUND, thrown.getErrorCode());
+	}
+
+	@Test
+	@DisplayName("[signOutCommunity] 그룹이 없을때 에러 테스트")
+	void testSignOutCommunity_communityNotFound() {
+		// Given
+		when(communityRepository.findById(2L)).thenReturn(Optional.empty());
+		when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+		communitySignRequest = CommunitySignRequest.builder()
+			.userId(1L)
+			.build();
+
+		// when
+		AppException thrown = assertThrows(AppException.class, () -> {
+			communityService.signOutCommunity(2L, communitySignRequest);
+		});
+
+		// Then
+		assertEquals(ErrorCode.COMMUNITY_NOT_FOUND, thrown.getErrorCode());
+	}
+
+	@Test
+	@DisplayName("[signOutCommunity] 유저가 이미 탈퇴되어 있을때")
+	void testSignOutCommunity_alreadySignedOut() {
+		//Given
+		when(communityRepository.findById(1L)).thenReturn(Optional.of(community));
+		when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+		when(userCommunityRepository.findByUserAndCommunityAndDeletedAtIsNull(user, community)).thenReturn(
+			Optional.empty());
+
+		communitySignRequest = CommunitySignRequest.builder()
+			.userId(1L)
+			.build();
+
+		AppException thrown = assertThrows(AppException.class, () -> {
+			communityService.signOutCommunity(1L, communitySignRequest);
+		});
+
+		assertEquals(ErrorCode.ALREADY_SIGNED_OUT, thrown.getErrorCode());
 	}
 
 }

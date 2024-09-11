@@ -40,4 +40,8 @@ public class UserCommunity extends BaseTimeEntity {
 	private Community community;
 
 	private LocalDateTime deletedAt;
+
+	public void updateDeletedAt(LocalDateTime deletedAt) {
+		this.deletedAt = deletedAt;
+	}
 }

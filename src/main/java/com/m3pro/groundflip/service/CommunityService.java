@@ -1,12 +1,13 @@
 package com.m3pro.groundflip.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import com.m3pro.groundflip.domain.dto.community.CommunityInfoResponse;
-import com.m3pro.groundflip.domain.dto.community.CommunityJoinRequest;
 import com.m3pro.groundflip.domain.dto.community.CommunitySearchResponse;
+import com.m3pro.groundflip.domain.dto.community.CommunitySignRequest;
 import com.m3pro.groundflip.domain.entity.Community;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.domain.entity.UserCommunity;
@@ -48,8 +49,8 @@ public class CommunityService {
 		return CommunityInfoResponse.from(community, rank, memberCount, currentPixel, accumulatePixel);
 	}
 
-	public void joinCommunity(Long communityId, CommunityJoinRequest communityJoinRequest) {
-		User user = userRepository.findById(communityJoinRequest.getUserId())
+	public void signInCommunity(Long communityId, CommunitySignRequest communitySignRequest) {
+		User user = userRepository.findById(communitySignRequest.getUserId())
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
 		Community community = communityRepository.findById(communityId)
@@ -65,6 +66,21 @@ public class CommunityService {
 			.user(user)
 			.community(community)
 			.build();
+
+		userCommunityRepository.save(userCommunity);
+	}
+
+	public void signOutCommunity(Long communityId, CommunitySignRequest communitySignRequest) {
+		User user = userRepository.findById(communitySignRequest.getUserId())
+			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+		Community community = communityRepository.findById(communityId)
+			.orElseThrow(() -> new AppException(ErrorCode.COMMUNITY_NOT_FOUND));
+
+		UserCommunity userCommunity = userCommunityRepository.findByUserAndCommunityAndDeletedAtIsNull(user, community)
+			.orElseThrow(() -> new AppException(ErrorCode.ALREADY_SIGNED_OUT));
+
+		userCommunity.updateDeletedAt(LocalDateTime.now());
 
 		userCommunityRepository.save(userCommunity);
 	}
