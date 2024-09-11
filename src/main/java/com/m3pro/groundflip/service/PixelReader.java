@@ -9,13 +9,17 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
 
+import com.m3pro.groundflip.domain.dto.pixel.CommunityPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualHistoryPixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualModePixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelCountResponse;
+import com.m3pro.groundflip.domain.dto.pixel.PixelOwnerCommunityResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelOwnerUserResponse;
+import com.m3pro.groundflip.domain.dto.pixel.VisitedCommunityInfo;
 import com.m3pro.groundflip.domain.dto.pixel.VisitedUserInfo;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
+import com.m3pro.groundflip.domain.dto.pixelUser.VisitedCommunity;
 import com.m3pro.groundflip.domain.dto.pixelUser.VisitedUser;
 import com.m3pro.groundflip.domain.entity.Pixel;
 import com.m3pro.groundflip.domain.entity.User;
@@ -102,6 +106,20 @@ public class PixelReader {
 		);
 	}
 
+	public CommunityPixelInfoResponse getCommunityModePixelInfo(Long pixelId) {
+		Pixel pixel = pixelRepository.findById(pixelId)
+			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
+
+		List<VisitedCommunity> visitedUsers = pixelUserRepository.findAllVisitedCommunityByPixelId(pixelId);
+		PixelOwnerCommunityResponse pixelOwnerCommunityResponse = getPixelOwnerUserInfo(pixel);
+
+		return CommunityPixelInfoResponse.from(
+			pixel,
+			pixelOwnerCommunityResponse,
+			visitedUsers.stream().map(VisitedCommunityInfo::from).toList()
+		);
+	}
+
 	/**
 	 * 개인 기록 모드에서 픽셀 방문 기록을 가져온다
 	 * @param pixelId 기록을 조회할 픽셀
@@ -163,6 +181,23 @@ public class PixelReader {
 			User ownerUser = userRepository.findById(ownerUserId)
 				.orElseThrow(() -> {
 					log.error("pixel {} 의 소유자가 {} 인데 존재하지 않음.", pixel.getId(), ownerUserId);
+					return new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
+				});
+			return PixelOwnerUserResponse.from(ownerUser, currentPixelCount, accumulatePixelCount);
+		}
+	}
+
+	private PixelOwnerCommunityResponse getPixelOwnerCommunityInfo(Pixel pixel) {
+		Long ownerCommunityId = pixel.getId();
+		if (ownerCommunityId == null) {
+			return null;
+		} else {
+			Long accumulatePixelCount = pixelUserRepository.countAccumulatePixelByUserId(ownerCommunityId,
+				LocalDate.parse(DEFAULT_LOOK_UP_DATE).atStartOfDay());
+			Long currentPixelCount = rankingService.getCurrentPixelCountFromCache(ownerCommunityId);
+			User ownerUser = userRepository.findById(ownerCommunityId)
+				.orElseThrow(() -> {
+					log.error("pixel {} 의 소유자가 {} 인데 존재하지 않음.", pixel.getId(), ownerCommunityId);
 					return new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
 				});
 			return PixelOwnerUserResponse.from(ownerUser, currentPixelCount, accumulatePixelCount);
