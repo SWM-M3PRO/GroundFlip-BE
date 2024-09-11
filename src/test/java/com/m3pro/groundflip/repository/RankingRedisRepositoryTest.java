@@ -20,7 +20,7 @@ import com.m3pro.groundflip.domain.dto.ranking.Ranking;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class UserRankingRedisRepositoryTest {
+class RankingRedisRepositoryTest {
 	private static final String CURRENT_RANKING_KEY = "current_pixel_ranking";
 	private static final String ACCUMULATE_RANKING_KEY = "accumulate_pixel_ranking";
 	RankingRedisRepository rankingRedisRepository;
@@ -54,6 +54,22 @@ class UserRankingRedisRepositoryTest {
 
 		// Then
 		Double score = zSetOperations.score(CURRENT_RANKING_KEY, userId.toString());
+		assertThat(score).isEqualTo(1);
+	}
+
+	@Test
+	@DisplayName("[increaseAccumulatePixelCount] 기존 점수에 1을 추가한다.")
+	void increaseAccumulatePixelCountTest() {
+		//Given
+		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
+		Long userId = 1L;
+		rankingRedisRepository.saveUserInRanking(userId);
+
+		// When
+		rankingRedisRepository.increaseAccumulatePixelCount(userId);
+
+		// Then
+		Double score = zSetOperations.score(ACCUMULATE_RANKING_KEY, userId.toString());
 		assertThat(score).isEqualTo(1);
 	}
 
@@ -190,7 +206,7 @@ class UserRankingRedisRepositoryTest {
 	}
 
 	@Test
-	@DisplayName("[getUserRank] userId 에 해당하는 점수를 반환한다.")
+	@DisplayName("[getCurrentPixelCount] userId 에 해당하는 점수를 반환한다.")
 	void getCurrentPixelCountTest() {
 		//Given
 		Long userId1 = 1L;
@@ -205,6 +221,24 @@ class UserRankingRedisRepositoryTest {
 		assertThat(currentPixelCount.isPresent()).isEqualTo(true);
 		//noinspection OptionalGetWithoutIsPresent
 		assertThat(currentPixelCount.get()).isEqualTo(2);
+	}
+
+	@Test
+	@DisplayName("[getAccumulatePixelCount] userId 에 해당하는 점수를 반환한다.")
+	void getAccumulatePixelCountTest() {
+		//Given
+		Long userId1 = 1L;
+		Long userId2 = 2L;
+		Long userId3 = 3L;
+		setRankingAccumulate(userId1, userId2, userId3);
+
+		// When
+		Optional<Long> accumulatePixelCount = rankingRedisRepository.getAccumulatePixelCount(userId1);
+
+		//Then
+		assertThat(accumulatePixelCount.isPresent()).isEqualTo(true);
+		//noinspection OptionalGetWithoutIsPresent
+		assertThat(accumulatePixelCount.get()).isEqualTo(2);
 	}
 
 	@Test
@@ -231,5 +265,18 @@ class UserRankingRedisRepositoryTest {
 		rankingRedisRepository.increaseCurrentPixelCount(userId3);
 		rankingRedisRepository.increaseCurrentPixelCount(userId3);
 		rankingRedisRepository.increaseCurrentPixelCount(userId3);
+	}
+
+	private void setRankingAccumulate(Long userId1, Long userId2, Long userId3) {
+		rankingRedisRepository.saveUserInRanking(userId1);
+		rankingRedisRepository.saveUserInRanking(userId2);
+		rankingRedisRepository.saveUserInRanking(userId3);
+
+		rankingRedisRepository.increaseAccumulatePixelCount(userId1);
+		rankingRedisRepository.increaseAccumulatePixelCount(userId1);
+		rankingRedisRepository.increaseAccumulatePixelCount(userId2);
+		rankingRedisRepository.increaseAccumulatePixelCount(userId3);
+		rankingRedisRepository.increaseAccumulatePixelCount(userId3);
+		rankingRedisRepository.increaseAccumulatePixelCount(userId3);
 	}
 }
