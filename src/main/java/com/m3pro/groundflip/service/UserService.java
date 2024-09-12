@@ -22,10 +22,12 @@ import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.jwt.JwtProvider;
 import com.m3pro.groundflip.repository.AppleRefreshTokenRepository;
 import com.m3pro.groundflip.repository.FcmTokenRepository;
+import com.m3pro.groundflip.repository.RankingHistoryRepository;
 import com.m3pro.groundflip.repository.UserCommunityRepository;
 import com.m3pro.groundflip.repository.UserRankingRedisRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 import com.m3pro.groundflip.service.oauth.AppleApiClient;
+import com.m3pro.groundflip.util.DateUtils;
 import com.m3pro.groundflip.util.S3Uploader;
 
 import jakarta.transaction.Transactional;
@@ -36,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
+	private final RankingHistoryRepository rankingHistoryRepository;
 	private final UserRankingRedisRepository userRankingRedisRepository;
 	private final UserRepository userRepository;
 	private final AppleRefreshTokenRepository appleRefreshTokenRepository;
@@ -134,6 +137,10 @@ public class UserService {
 		jwtProvider.expireToken(userDeleteRequest.getAccessToken());
 		jwtProvider.expireToken(userDeleteRequest.getRefreshToken());
 
+		int year = LocalDate.now().getYear();
+		int week = DateUtils.getWeekOfDate(LocalDate.now());
+
+		rankingHistoryRepository.deleteByUserIdAndYearAndWeek(userId, year, week);
 		userRankingRedisRepository.deleteUserInRanking(userId);
 	}
 
