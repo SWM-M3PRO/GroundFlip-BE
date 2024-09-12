@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.m3pro.groundflip.domain.dto.Response;
+import com.m3pro.groundflip.domain.dto.pixel.CommunityModePixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.CommunityPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualHistoryPixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualModePixelResponse;
@@ -144,6 +145,13 @@ public class PixelController {
 		@RequestParam(required = false, name = "lookup-date")
 		@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lookUpDate) {
 		return Response.createSuccess(pixelReader.getPixelCount(userId, lookUpDate));
+	}
+
+	@Operation(summary = "픽셀 개수 조회", description = "특정 유저의 현재 소유중인 픽셀, 누적 픽셀을 조회하는 api")
+	@GetMapping("/community/count")
+	public Response<PixelCountResponse> getCommunityPixelCount(
+		@RequestParam(name = "community-id") @NotNull() Long communityId) {
+		return Response.createSuccess(pixelReader.getCommunityPixelCount(communityId));
 	}
 }
 

@@ -9,6 +9,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
 
+import com.m3pro.groundflip.domain.dto.pixel.CommunityModePixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.CommunityPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualHistoryPixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualModePixelResponse;
@@ -177,6 +178,13 @@ public class PixelReader {
 		return PixelCountResponse.builder()
 			.currentPixelCount(userRankingService.getCurrentPixelCountFromCache(userId))
 			.accumulatePixelCount(accumulatePixelCount)
+			.build();
+	}
+
+	public PixelCountResponse getCommunityPixelCount(Long communityId) {
+		return PixelCountResponse.builder()
+			.currentPixelCount(communityRankingService.getCurrentPixelCountFromCache(communityId))
+			.accumulatePixelCount(0L)
 			.build();
 	}
 
