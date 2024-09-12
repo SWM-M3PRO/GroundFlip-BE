@@ -17,7 +17,7 @@ public interface CommunityModePixelResponse {
 	Long getCommunityId();
 
 	@Schema(description = "소유 그룹의 ID", example = "3")
-	Long getPixelColor();
+	String getCommunityColor();
 
 	@Schema(description = "픽셀 세로 상대 좌표", example = "224")
 	Integer getX();

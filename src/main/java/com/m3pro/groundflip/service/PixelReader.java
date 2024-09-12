@@ -70,6 +70,17 @@ public class PixelReader {
 		return pixelRepository.findAllIndividualModePixelsByCoordinate(point, radius, thisWeekStartDate);
 	}
 
+	public List<CommunityModePixelResponse> getNearCommunityModePixelsByCoordinate(
+		double currentLatitude,
+		double currentLongitude,
+		int radius
+	) {
+		Point point = geometryFactory.createPoint(new Coordinate(currentLongitude, currentLatitude));
+		point.setSRID(WGS84_SRID);
+		LocalDate thisWeekStartDate = DateUtils.getThisWeekStartDate();
+		return pixelRepository.findAllCommunityModePixelsByCoordinate(point, radius, thisWeekStartDate);
+	}
+
 	/**
 	 * 위도 경도를 기준으로 radius 범위 안에서 userId 의 유저가 방문한 픽셀을 가져온다,.
 	 * @param currentLatitude 사용자의 위도

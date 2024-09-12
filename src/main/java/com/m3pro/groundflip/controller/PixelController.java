@@ -59,6 +59,21 @@ public class PixelController {
 			pixelReader.getNearIndividualModePixelsByCoordinate(currentLatitude, currentLongitude, radius));
 	}
 
+	@Operation(summary = "그룹전 픽셀 조회", description = "특정 좌표를 중심으로 반경 내 개인전 픽셀 정보를 조회 API")
+	@Parameters({
+		@Parameter(name = "current-latitude", description = "원의 중심 좌표의 위도", example = "37.503717"),
+		@Parameter(name = "current-longitude", description = "원의 중심 좌표의 경도", example = "127.044317"),
+		@Parameter(name = "radius", description = "미터 단위의 반경", example = "1000"),
+	})
+	@GetMapping("/community-mode")
+	public Response<List<CommunityModePixelResponse>> getNearCommunityPixels(
+		@RequestParam(name = "current-latitude") @Min(-90) @Max(90) double currentLatitude,
+		@RequestParam(name = "current-longitude") @Min(-180) @Max(180) double currentLongitude,
+		@RequestParam(name = "radius") @Min(0) int radius) {
+		return Response.createSuccess(
+			pixelReader.getNearCommunityModePixelsByCoordinate(currentLatitude, currentLongitude, radius));
+	}
+
 	@Operation(summary = "개인기록 픽셀 조회", description = "특정 좌표를 중심으로 반경 내 개인 기록 픽셀 정보를 조회 API")
 	@Parameters({
 		@Parameter(name = "current-latitude", description = "원의 중심 좌표의 위도", example = "37.503717"),
