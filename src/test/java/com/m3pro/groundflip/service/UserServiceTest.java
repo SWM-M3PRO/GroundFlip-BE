@@ -37,6 +37,7 @@ import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.jwt.JwtProvider;
 import com.m3pro.groundflip.repository.AppleRefreshTokenRepository;
 import com.m3pro.groundflip.repository.FcmTokenRepository;
+import com.m3pro.groundflip.repository.RankingHistoryRepository;
 import com.m3pro.groundflip.repository.UserCommunityRepository;
 import com.m3pro.groundflip.repository.UserRankingRedisRepository;
 import com.m3pro.groundflip.repository.UserRepository;
@@ -68,6 +69,9 @@ class UserServiceTest {
 
 	@Mock
 	private JwtProvider jwtProvider;
+
+	@Mock
+	private RankingHistoryRepository rankingHistoryRepository;
 
 	@InjectMocks
 	private UserService userService;
@@ -205,6 +209,7 @@ class UserServiceTest {
 			.build();
 
 		when(userRepository.findById(deleteUser.getId())).thenReturn(Optional.of(deleteUser));
+		doNothing().when(rankingHistoryRepository).deleteByUserIdAndYearAndWeek(1L, 2024, 37);
 
 		userService.deleteUser(1L, new UserDeleteRequest("acessToken", "refreshToken"));
 
@@ -236,6 +241,7 @@ class UserServiceTest {
 		when(userRepository.findById(deleteUser.getId())).thenReturn(Optional.of(deleteUser));
 		when(appleRefreshTokenRepository.findByUserId(any())).thenReturn(
 			Optional.of(AppleRefreshToken.builder().refreshToken("test").build()));
+		doNothing().when(rankingHistoryRepository).deleteByUserIdAndYearAndWeek(1L, 2024, 37);
 
 		userService.deleteUser(1L, new UserDeleteRequest("acessToken", "refreshToken"));
 
