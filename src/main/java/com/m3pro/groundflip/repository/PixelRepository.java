@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.m3pro.groundflip.domain.dto.pixel.CommunityModePixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualHistoryPixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualModePixelResponse;
 import com.m3pro.groundflip.domain.entity.Pixel;
@@ -31,6 +32,28 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
 			AND pixel.user_occupied_at >= :weekStartDate
 		""", nativeQuery = true)
 	List<IndividualModePixelResponse> findAllIndividualModePixelsByCoordinate(
+		@Param("center") Point center,
+		@Param("radius") int radius,
+		@Param("weekStartDate") LocalDate weekStartDate);
+
+	@Query(value = """
+		SELECT
+			pixel.pixel_id AS pixelId,
+			ST_LATITUDE(pixel.coordinate) AS latitude,
+			ST_LONGITUDE(pixel.coordinate) AS longitude,
+			pixel.community_id AS communityId,
+			c.community_color AS communityColor,
+			pixel.x,
+			pixel.y
+		FROM
+			pixel
+		JOIN community c on pixel.community_id = c.community_id
+		WHERE
+			ST_CONTAINS((ST_Buffer(:center, :radius)), pixel.coordinate)
+			AND pixel.community_id IS NOT NULL
+			AND pixel.community_occupied_at >= :weekStartDate
+		""", nativeQuery = true)
+	List<CommunityModePixelResponse> findAllCommunityModePixelsByCoordinate(
 		@Param("center") Point center,
 		@Param("radius") int radius,
 		@Param("weekStartDate") LocalDate weekStartDate);

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.m3pro.groundflip.domain.dto.Response;
+import com.m3pro.groundflip.domain.dto.pixel.CommunityModePixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.CommunityPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualHistoryPixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualModePixelResponse;
@@ -57,6 +58,21 @@ public class PixelController {
 		@RequestParam(name = "radius") @Min(0) int radius) {
 		return Response.createSuccess(
 			pixelReader.getNearIndividualModePixelsByCoordinate(currentLatitude, currentLongitude, radius));
+	}
+
+	@Operation(summary = "그룹전 픽셀 조회", description = "특정 좌표를 중심으로 반경 내 개인전 픽셀 정보를 조회 API")
+	@Parameters({
+		@Parameter(name = "current-latitude", description = "원의 중심 좌표의 위도", example = "37.503717"),
+		@Parameter(name = "current-longitude", description = "원의 중심 좌표의 경도", example = "127.044317"),
+		@Parameter(name = "radius", description = "미터 단위의 반경", example = "1000"),
+	})
+	@GetMapping("/community-mode")
+	public Response<List<CommunityModePixelResponse>> getNearCommunityPixels(
+		@RequestParam(name = "current-latitude") @Min(-90) @Max(90) double currentLatitude,
+		@RequestParam(name = "current-longitude") @Min(-180) @Max(180) double currentLongitude,
+		@RequestParam(name = "radius") @Min(0) int radius) {
+		return Response.createSuccess(
+			pixelReader.getNearCommunityModePixelsByCoordinate(currentLatitude, currentLongitude, radius));
 	}
 
 	@Operation(summary = "개인기록 픽셀 조회", description = "특정 좌표를 중심으로 반경 내 개인 기록 픽셀 정보를 조회 API")
@@ -129,6 +145,13 @@ public class PixelController {
 		@RequestParam(required = false, name = "lookup-date")
 		@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate lookUpDate) {
 		return Response.createSuccess(pixelReader.getPixelCount(userId, lookUpDate));
+	}
+
+	@Operation(summary = "픽셀 개수 조회", description = "특정 유저의 현재 소유중인 픽셀, 누적 픽셀을 조회하는 api")
+	@GetMapping("/community/count")
+	public Response<PixelCountResponse> getCommunityPixelCount(
+		@RequestParam(name = "community-id") @NotNull() Long communityId) {
+		return Response.createSuccess(pixelReader.getCommunityPixelCount(communityId));
 	}
 }
 
