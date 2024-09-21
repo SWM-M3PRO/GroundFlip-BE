@@ -15,6 +15,7 @@ import com.m3pro.groundflip.domain.dto.Response;
 import com.m3pro.groundflip.domain.dto.community.CommunityInfoResponse;
 import com.m3pro.groundflip.domain.dto.community.CommunitySearchResponse;
 import com.m3pro.groundflip.domain.dto.community.CommunitySignRequest;
+import com.m3pro.groundflip.domain.dto.ranking.UserRankingResponse;
 import com.m3pro.groundflip.service.CommunityService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,17 +38,17 @@ public class CommunityController {
 	public Response<List<CommunitySearchResponse>> getAllCommunityByName(
 		@RequestParam(name = "searchKeyword") String searchKeyword) {
 		return Response.createSuccess(
-			communityService.findAllCommunityByName(searchKeyword)
+			communityService.getCommunitiesByName(searchKeyword)
 		);
 	}
 
 	@Operation(summary = "그룹 정보 조회", description = "특정 그룹의 정보를 반환한다.")
 	@GetMapping("/{communityId}")
 	public Response<CommunityInfoResponse> getCommunityInfo(
-		@Parameter(description = "찾고자 하는 userId", required = true)
+		@Parameter(description = "찾고자 하는 communityId", required = true)
 		@PathVariable Long communityId
 	) {
-		return Response.createSuccess(communityService.findCommunityById(communityId));
+		return Response.createSuccess(communityService.getCommunityInfo(communityId));
 	}
 
 	@Operation(summary = "그룹 가입 api", description = "유저를 특정 그룹에 가입시킨다")
@@ -70,5 +71,14 @@ public class CommunityController {
 	) {
 		communityService.signOutCommunity(communityId, communitySignRequest);
 		return Response.createSuccessWithNoData();
+	}
+
+	@Operation(summary = "그룹 멤버 조회", description = "특정 그룹의 멤버 리스트를 반환한다.")
+	@GetMapping("/{communityId}/members")
+	public Response<List<UserRankingResponse>> getCommunityMemberList(
+		@Parameter(description = "찾고자 하는 communityId", required = true)
+		@PathVariable Long communityId
+	) {
+		return Response.createSuccess(communityService.getCommunityMembers(communityId));
 	}
 }
