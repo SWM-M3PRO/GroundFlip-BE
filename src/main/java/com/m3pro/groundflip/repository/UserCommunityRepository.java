@@ -22,4 +22,11 @@ public interface UserCommunityRepository extends JpaRepository<UserCommunity, Lo
 
 	Optional<UserCommunity> findByUserAndCommunityAndDeletedAtIsNull(User user, Community community);
 
+	@Query("""
+		SELECT uc.user FROM UserCommunity uc
+		WHERE uc.community.id = :communityId
+		AND uc.deletedAt IS NULL
+		""")
+	List<User> findUsersByCommunityId(@Param("communityId") Long communityId);
+
 }
