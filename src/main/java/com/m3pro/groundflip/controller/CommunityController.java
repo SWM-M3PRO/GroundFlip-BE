@@ -81,4 +81,13 @@ public class CommunityController {
 	) {
 		return Response.createSuccess(communityService.getCommunityMembers(communityId));
 	}
+
+	@Operation(summary = "그룹 멤버 조회", description = "특정 그룹의 멤버 리스트를 반환한다.")
+	@GetMapping("/{communityId}/members2")
+	public Response<List<UserRankingResponse>> getCommunityMemberList2(
+		@Parameter(description = "찾고자 하는 communityId", required = true)
+		@PathVariable Long communityId
+	) {
+		return Response.createSuccess(communityService.getCommunityMembers2(communityId));
+	}
 }
