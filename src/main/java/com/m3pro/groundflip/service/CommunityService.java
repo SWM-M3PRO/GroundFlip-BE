@@ -2,13 +2,17 @@ package com.m3pro.groundflip.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
 import com.m3pro.groundflip.domain.dto.community.CommunityInfoResponse;
 import com.m3pro.groundflip.domain.dto.community.CommunitySearchResponse;
 import com.m3pro.groundflip.domain.dto.community.CommunitySignRequest;
+import com.m3pro.groundflip.domain.dto.ranking.Ranking;
 import com.m3pro.groundflip.domain.dto.ranking.UserRankingResponse;
 import com.m3pro.groundflip.domain.entity.Community;
 import com.m3pro.groundflip.domain.entity.User;
@@ -17,6 +21,7 @@ import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.CommunityRepository;
 import com.m3pro.groundflip.repository.UserCommunityRepository;
+import com.m3pro.groundflip.repository.UserRankingRedisRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -28,6 +33,7 @@ public class CommunityService {
 	private final UserCommunityRepository userCommunityRepository;
 	private final CommunityRankingService communityRankingService;
 	private final UserRepository userRepository;
+	private final UserRankingRedisRepository userRankingRedisRepository;
 
 	/*
 	 * 그룹명을 검색한다
@@ -92,6 +98,44 @@ public class CommunityService {
 	}
 
 	public List<UserRankingResponse> getCommunityMembers(Long communityId) {
-		return new ArrayList<>();
+		List<User> members = userCommunityRepository.findUsersByCommunityId(communityId);
+		Map<Long, Long> memberScore = userRankingRedisRepository.getCurrentPixelCountByUser(members);
+
+		long startTime = System.nanoTime();
+		List<UserRankingResponse> userRankingResponses = new ArrayList<>(members.stream()
+			.map((member) -> UserRankingResponse.from(member, 0L, memberScore.get(member.getId())))
+			.toList());
+		userRankingResponses
+			.sort(Comparator.comparingLong(UserRankingResponse::getCurrentPixelCount).reversed());
+		for (int i = 0; i < userRankingResponses.size(); i++) {
+			userRankingResponses.get(i).setRank((long)i);
+		}
+		long endTime = System.nanoTime();
+		long duration = (endTime - startTime) / 1_000_000;
+		System.out.println("가공 각각" + " 실행 시간: " + duration + " ms");
+		return userRankingResponses;
+	}
+
+	public List<UserRankingResponse> getCommunityMembers2(Long communityId) {
+		List<User> members = userCommunityRepository.findUsersByCommunityId(communityId);
+		List<Ranking> rankings = userRankingRedisRepository.getCurrentPixelCountByUser2();
+
+		long startTime = System.nanoTime();
+		Map<Long, User> memberMap = new HashMap<>();
+		members.forEach((member) -> memberMap.put(member.getId(), member));
+		List<UserRankingResponse> userRankingResponses = new ArrayList<>();
+		Long rank = 1L;
+		rankings.forEach((ranking) -> {
+			if (memberMap.containsKey(ranking.getId())) {
+				userRankingResponses.add(
+					UserRankingResponse
+						.from(memberMap.get(ranking.getId()), rank, ranking.getCurrentPixelCount())
+				);
+			}
+		});
+		long endTime = System.nanoTime();
+		long duration = (endTime - startTime) / 1_000_000;
+		System.out.println("가공 한번에" + " 실행 시간: " + duration + " ms");
+		return userRankingResponses;
 	}
 }
