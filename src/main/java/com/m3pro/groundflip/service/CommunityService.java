@@ -96,23 +96,29 @@ public class CommunityService {
 		return userCommunityRepository.countByCommunityId(community.getId());
 	}
 
-	public List<UserRankingResponse> getCommunityMembers(Long communityId) {
+	public List<UserRankingResponse> getCommunityMembers(Long communityId, int count) {
 		List<User> members = userCommunityRepository.findUsersByCommunityId(communityId);
 		List<Ranking> rankings = userRankingRedisRepository.getRankingsWithCurrentPixelCount(-1);
 
 		Map<Long, User> memberMap = new HashMap<>();
 		members.forEach((member) -> memberMap.put(member.getId(), member));
 		List<UserRankingResponse> userRankingResponses = new ArrayList<>();
-		Long rank = 1L;
+		long rank = 1L;
+		int totalCount = 0;
 
-		rankings.forEach((ranking) -> {
+		for (Ranking ranking : rankings) {
 			if (memberMap.containsKey(ranking.getId())) {
 				userRankingResponses.add(
 					UserRankingResponse
 						.from(memberMap.get(ranking.getId()), rank, ranking.getCurrentPixelCount())
 				);
+				totalCount += 1;
+				rank += 1;
+				if (totalCount == count) {
+					break;
+				}
 			}
-		});
+		}
 		return userRankingResponses;
 	}
 }

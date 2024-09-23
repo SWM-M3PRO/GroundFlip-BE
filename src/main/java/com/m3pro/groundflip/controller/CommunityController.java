@@ -77,8 +77,9 @@ public class CommunityController {
 	@GetMapping("/{communityId}/members")
 	public Response<List<UserRankingResponse>> getCommunityMemberList(
 		@Parameter(description = "찾고자 하는 communityId", required = true)
-		@PathVariable Long communityId
+		@PathVariable Long communityId,
+		@RequestParam(name = "count", defaultValue = "1000") int count
 	) {
-		return Response.createSuccess(communityService.getCommunityMembers(communityId));
+		return Response.createSuccess(communityService.getCommunityMembers(communityId, count));
 	}
 }
