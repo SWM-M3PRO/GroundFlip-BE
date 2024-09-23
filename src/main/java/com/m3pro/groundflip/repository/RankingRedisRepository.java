@@ -66,9 +66,17 @@ public class RankingRedisRepository {
 	}
 
 	public List<Ranking> getRankingsWithCurrentPixelCount() {
+		return getRankings(currentPixelRankingKey, 50);
+	}
+
+	public List<Ranking> getRankingsWithCurrentPixelCount(int endIndex) {
+		return getRankings(currentPixelRankingKey, -1);
+	}
+
+	private List<Ranking> getRankings(String key, int endIndex) {
 		Set<ZSetOperations.TypedTuple<String>> typedTuples = zSetOperations.reverseRangeWithScores(
-			currentPixelRankingKey,
-			RANKING_START_INDEX, RANKING_END_INDEX);
+			key,
+			RANKING_START_INDEX, endIndex);
 		if (typedTuples == null) {
 			return new ArrayList<>();
 		}
