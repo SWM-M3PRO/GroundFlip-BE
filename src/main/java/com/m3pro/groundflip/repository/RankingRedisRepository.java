@@ -12,7 +12,7 @@ import com.m3pro.groundflip.domain.dto.ranking.Ranking;
 
 public class RankingRedisRepository {
 	protected static final int RANKING_START_INDEX = 0;
-	protected static final int RANKING_END_INDEX = 29;
+	protected static final int RANKING_END_INDEX = 49;
 	protected final String currentPixelRankingKey;
 	protected final String accumulatePixelRankingKey;
 	protected final ZSetOperations<String, String> zSetOperations;
@@ -66,7 +66,7 @@ public class RankingRedisRepository {
 	}
 
 	public List<Ranking> getRankingsWithCurrentPixelCount() {
-		return getRankings(currentPixelRankingKey, 50);
+		return getRankings(currentPixelRankingKey, RANKING_END_INDEX);
 	}
 
 	public List<Ranking> getRankingsWithCurrentPixelCount(int endIndex) {
