@@ -77,14 +77,14 @@ class CommunityServiceTest {
 
 	@Test
 	@DisplayName("[findAllCommunityByName_] searchName 과 일치하는 모든 그룹 정보 반환")
-	void findAllCommunityByName_shouldReturnMatchingCommunities() {
+	void getCommunitiesByName_shouldReturnMatchingCommunities() {
 		// Given
 		String searchName = "Test";
 		when(communityRepository.findAllByNameLike("%" + searchName + "%"))
 			.thenReturn(List.of(community));
 
 		// When
-		List<CommunitySearchResponse> results = communityService.findAllCommunityByName(searchName);
+		List<CommunitySearchResponse> results = communityService.getCommunitiesByName(searchName);
 
 		// Then
 		assertNotNull(results);
@@ -94,7 +94,7 @@ class CommunityServiceTest {
 
 	@Test
 	@DisplayName("[findCommunityById] 그룹 아이디에 해당하는 그룹 정보 반환")
-	void findCommunityById_shouldReturnCommunityInfoResponse() {
+	void getCommunityById_shouldReturnCommunityInfoResponse() {
 		// Given
 		Long communityId = 1L;
 		when(communityRepository.findById(communityId)).thenReturn(Optional.of(community));
@@ -104,7 +104,7 @@ class CommunityServiceTest {
 		when(communityRankingService.getAccumulatePixelCount(communityId)).thenReturn(0L);
 
 		// When
-		CommunityInfoResponse result = communityService.findCommunityById(communityId);
+		CommunityInfoResponse result = communityService.getCommunityInfo(communityId);
 
 		System.out.println("result.getCurrentPixelCount() = " + result.getCurrentPixelCount());
 		System.out.println("result.getAccumulatePixelCount() = " + result.getAccumulatePixelCount());
@@ -120,14 +120,14 @@ class CommunityServiceTest {
 
 	@Test
 	@DisplayName("[findCommunityById] 없는 그룹인 경우 에러")
-	void findCommunityById_shouldThrowExceptionWhenCommunityNotFound() {
+	void getCommunityById_shouldThrowExceptionWhenCommunityNotFound() {
 		// Given
 		Long communityId = 2L;
 		when(communityRepository.findById(communityId)).thenReturn(Optional.empty());
 
 		// When & Then
 		AppException exception = assertThrows(AppException.class,
-			() -> communityService.findCommunityById(communityId));
+			() -> communityService.getCommunityInfo(communityId));
 		assertEquals(ErrorCode.COMMUNITY_NOT_FOUND, exception.getErrorCode());
 	}
 

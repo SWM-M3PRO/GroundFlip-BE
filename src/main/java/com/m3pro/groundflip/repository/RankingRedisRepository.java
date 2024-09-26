@@ -11,16 +11,18 @@ import org.springframework.data.redis.core.ZSetOperations;
 import com.m3pro.groundflip.domain.dto.ranking.Ranking;
 
 public class RankingRedisRepository {
-	private static final int RANKING_START_INDEX = 0;
-	private static final int RANKING_END_INDEX = 29;
-	private final String currentPixelRankingKey;
-	private final String accumulatePixelRankingKey;
-	private final ZSetOperations<String, String> zSetOperations;
+	protected static final int RANKING_START_INDEX = 0;
+	protected static final int RANKING_END_INDEX = 99;
+	protected final String currentPixelRankingKey;
+	protected final String accumulatePixelRankingKey;
+	protected final ZSetOperations<String, String> zSetOperations;
+	protected final RedisTemplate<String, String> redisTemplate;
 
 	public RankingRedisRepository(RedisTemplate<String, String> redisTemplate, String currentPixelRankingKey,
 		String accumulatePixelRankingKey) {
 		this.currentPixelRankingKey = currentPixelRankingKey;
 		this.accumulatePixelRankingKey = accumulatePixelRankingKey;
+		this.redisTemplate = redisTemplate;
 		zSetOperations = redisTemplate.opsForZSet();
 	}
 
@@ -64,9 +66,17 @@ public class RankingRedisRepository {
 	}
 
 	public List<Ranking> getRankingsWithCurrentPixelCount() {
+		return getRankings(currentPixelRankingKey, RANKING_END_INDEX);
+	}
+
+	public List<Ranking> getRankingsWithCurrentPixelCount(int endIndex) {
+		return getRankings(currentPixelRankingKey, -1);
+	}
+
+	private List<Ranking> getRankings(String key, int endIndex) {
 		Set<ZSetOperations.TypedTuple<String>> typedTuples = zSetOperations.reverseRangeWithScores(
-			currentPixelRankingKey,
-			RANKING_START_INDEX, RANKING_END_INDEX);
+			key,
+			RANKING_START_INDEX, endIndex);
 		if (typedTuples == null) {
 			return new ArrayList<>();
 		}
