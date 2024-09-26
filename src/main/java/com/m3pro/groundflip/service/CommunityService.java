@@ -1,13 +1,18 @@
 package com.m3pro.groundflip.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
 import com.m3pro.groundflip.domain.dto.community.CommunityInfoResponse;
 import com.m3pro.groundflip.domain.dto.community.CommunitySearchResponse;
 import com.m3pro.groundflip.domain.dto.community.CommunitySignRequest;
+import com.m3pro.groundflip.domain.dto.ranking.Ranking;
+import com.m3pro.groundflip.domain.dto.ranking.UserRankingResponse;
 import com.m3pro.groundflip.domain.entity.Community;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.domain.entity.UserCommunity;
@@ -15,6 +20,7 @@ import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.CommunityRepository;
 import com.m3pro.groundflip.repository.UserCommunityRepository;
+import com.m3pro.groundflip.repository.UserRankingRedisRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -26,18 +32,19 @@ public class CommunityService {
 	private final UserCommunityRepository userCommunityRepository;
 	private final CommunityRankingService communityRankingService;
 	private final UserRepository userRepository;
+	private final UserRankingRedisRepository userRankingRedisRepository;
 
 	/*
 	 * 그룹명을 검색한다
 	 * @param 그룹 name String
 	 * @return 해당 String이 포함된 모든 그룹 name List
 	 * */
-	public List<CommunitySearchResponse> findAllCommunityByName(String name) {
+	public List<CommunitySearchResponse> getCommunitiesByName(String name) {
 		List<Community> community = communityRepository.findAllByNameLike("%" + name + "%");
 		return community.stream().map(CommunitySearchResponse::from).toList();
 	}
 
-	public CommunityInfoResponse findCommunityById(Long communityId) {
+	public CommunityInfoResponse getCommunityInfo(Long communityId) {
 		Community community = communityRepository.findById(communityId)
 			.orElseThrow(() -> new AppException(ErrorCode.COMMUNITY_NOT_FOUND));
 		Long memberCount = getMemberCount(community);
@@ -87,5 +94,31 @@ public class CommunityService {
 
 	private Long getMemberCount(Community community) {
 		return userCommunityRepository.countByCommunityId(community.getId());
+	}
+
+	public List<UserRankingResponse> getCommunityMembers(Long communityId, int count) {
+		List<User> members = userCommunityRepository.findUsersByCommunityId(communityId);
+		List<Ranking> rankings = userRankingRedisRepository.getRankingsWithCurrentPixelCount(-1);
+
+		Map<Long, User> memberMap = new HashMap<>();
+		members.forEach((member) -> memberMap.put(member.getId(), member));
+		List<UserRankingResponse> userRankingResponses = new ArrayList<>();
+		long rank = 1L;
+		int totalCount = 0;
+
+		for (Ranking ranking : rankings) {
+			if (memberMap.containsKey(ranking.getId())) {
+				userRankingResponses.add(
+					UserRankingResponse
+						.from(memberMap.get(ranking.getId()), rank, ranking.getCurrentPixelCount())
+				);
+				totalCount += 1;
+				rank += 1;
+				if (totalCount == count) {
+					break;
+				}
+			}
+		}
+		return userRankingResponses;
 	}
 }
