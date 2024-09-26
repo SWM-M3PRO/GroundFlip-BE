@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.m3pro.groundflip.domain.dto.pixelUser.VisitedCommunity;
 import com.m3pro.groundflip.domain.dto.pixelUser.VisitedUser;
 import com.m3pro.groundflip.domain.entity.Pixel;
 import com.m3pro.groundflip.domain.entity.PixelUser;
@@ -25,6 +26,19 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 			GROUP BY pu.user_id;
 		""", nativeQuery = true)
 	List<VisitedUser> findAllVisitedUserByPixelId(
+		@Param("pixel_id") Long pixelId);
+
+	@Query(value = """
+			SELECT pu.pixel_id AS pixelId,
+				pu.community_id AS communityId,
+				c.name AS name,
+				c.background_image_url AS profileImage
+			FROM pixel_user pu
+			JOIN community c ON pu.community_id = c.community_id
+			WHERE pu.pixel_id = :pixel_id AND pu.created_at >= current_date()
+			GROUP BY pu.community_id;
+		""", nativeQuery = true)
+	List<VisitedCommunity> findAllVisitedCommunityByPixelId(
 		@Param("pixel_id") Long pixelId);
 
 	@Query(value = """
@@ -51,4 +65,8 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 		""", nativeQuery = true)
 	void save(@Param("pixel_id") Long pixelId, @Param("user_id") Long userId,
 		@Param("community_id") Long communityId);
+
+	boolean existsByPixelIdAndUserId(Long pixelId, Long userId);
+
+	boolean existsByPixelIdAndCommunityId(Long pixelId, Long communityId);
 }

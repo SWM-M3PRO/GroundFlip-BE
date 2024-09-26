@@ -26,4 +26,6 @@ public interface RankingHistoryRepository extends JpaRepository<RankingHistory, 
 		@Param("userId") Long userId,
 		@Param("requestYear") int year,
 		@Param("requestWeek") int week);
+
+	void deleteByUserIdAndYearAndWeek(Long userId, int year, int week);
 }

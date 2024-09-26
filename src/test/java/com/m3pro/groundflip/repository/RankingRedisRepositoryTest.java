@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +21,17 @@ import com.m3pro.groundflip.domain.dto.ranking.Ranking;
 @SpringBootTest
 @ActiveProfiles("test")
 class RankingRedisRepositoryTest {
-	private static final String RANKING_KEY = "current_pixel_ranking";
-	@Autowired
+	private static final String CURRENT_RANKING_KEY = "current_pixel_ranking";
+	private static final String ACCUMULATE_RANKING_KEY = "accumulate_pixel_ranking";
 	RankingRedisRepository rankingRedisRepository;
 	@Autowired
 	private RedisTemplate<String, String> redisTemplate;
+
+	@BeforeEach
+	public void beforeAll() {
+		rankingRedisRepository = new RankingRedisRepository(redisTemplate, CURRENT_RANKING_KEY,
+			ACCUMULATE_RANKING_KEY);
+	}
 
 	@AfterEach
 	public void tearDown() {
@@ -46,7 +53,23 @@ class RankingRedisRepositoryTest {
 		rankingRedisRepository.increaseCurrentPixelCount(userId);
 
 		// Then
-		Double score = zSetOperations.score(RANKING_KEY, userId.toString());
+		Double score = zSetOperations.score(CURRENT_RANKING_KEY, userId.toString());
+		assertThat(score).isEqualTo(1);
+	}
+
+	@Test
+	@DisplayName("[increaseAccumulatePixelCount] 기존 점수에 1을 추가한다.")
+	void increaseAccumulatePixelCountTest() {
+		//Given
+		ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
+		Long userId = 1L;
+		rankingRedisRepository.saveUserInRanking(userId);
+
+		// When
+		rankingRedisRepository.increaseAccumulatePixelCount(userId);
+
+		// Then
+		Double score = zSetOperations.score(ACCUMULATE_RANKING_KEY, userId.toString());
 		assertThat(score).isEqualTo(1);
 	}
 
@@ -61,7 +84,7 @@ class RankingRedisRepositoryTest {
 		rankingRedisRepository.increaseCurrentPixelCount(userId);
 
 		// Then
-		Double score = zSetOperations.score(RANKING_KEY, userId.toString());
+		Double score = zSetOperations.score(CURRENT_RANKING_KEY, userId.toString());
 		assertThat(score).isEqualTo(1);
 	}
 
@@ -79,7 +102,7 @@ class RankingRedisRepositoryTest {
 		rankingRedisRepository.decreaseCurrentPixelCount(userId);
 
 		// Then
-		Double score = zSetOperations.score(RANKING_KEY, userId.toString());
+		Double score = zSetOperations.score(CURRENT_RANKING_KEY, userId.toString());
 		assertThat(score).isEqualTo(1);
 	}
 
@@ -95,7 +118,7 @@ class RankingRedisRepositoryTest {
 		rankingRedisRepository.decreaseCurrentPixelCount(userId);
 
 		// Then
-		Double score = zSetOperations.score(RANKING_KEY, userId.toString());
+		Double score = zSetOperations.score(CURRENT_RANKING_KEY, userId.toString());
 		assertThat(score).isEqualTo(0);
 	}
 
@@ -110,7 +133,7 @@ class RankingRedisRepositoryTest {
 		rankingRedisRepository.saveUserInRanking(userId);
 
 		// Then
-		Double score = zSetOperations.score(RANKING_KEY, userId.toString());
+		Double score = zSetOperations.score(CURRENT_RANKING_KEY, userId.toString());
 		assertThat(score).isEqualTo(0);
 	}
 
@@ -125,7 +148,7 @@ class RankingRedisRepositoryTest {
 		rankingRedisRepository.deleteUserInRanking(userId);
 
 		// Then
-		Double score = zSetOperations.score(RANKING_KEY, userId.toString());
+		Double score = zSetOperations.score(CURRENT_RANKING_KEY, userId.toString());
 		assertThat(score).isEqualTo(null);
 	}
 
@@ -143,9 +166,9 @@ class RankingRedisRepositoryTest {
 
 		//Then
 		assertThat(rankings).hasSize(3);
-		assertThat(rankings.get(0).getUserId()).isEqualTo(userId3);
-		assertThat(rankings.get(1).getUserId()).isEqualTo(userId1);
-		assertThat(rankings.get(2).getUserId()).isEqualTo(userId2);
+		assertThat(rankings.get(0).getId()).isEqualTo(userId3);
+		assertThat(rankings.get(1).getId()).isEqualTo(userId1);
+		assertThat(rankings.get(2).getId()).isEqualTo(userId2);
 		assertThat(rankings.get(0).getRank()).isEqualTo(1);
 		assertThat(rankings.get(1).getRank()).isEqualTo(2);
 		assertThat(rankings.get(2).getRank()).isEqualTo(3);
@@ -153,7 +176,7 @@ class RankingRedisRepositoryTest {
 
 	@Test
 	@DisplayName("[getUserRank] userId 에 해당하는 점수를 반환한다.")
-	void getUserRank() {
+	void getCurrentPixelRank() {
 		//Given
 		Long userId1 = 1L;
 		Long userId2 = 2L;
@@ -161,7 +184,7 @@ class RankingRedisRepositoryTest {
 		setRanking(userId1, userId2, userId3);
 
 		// When
-		Optional<Long> score = rankingRedisRepository.getUserRank(userId1);
+		Optional<Long> score = rankingRedisRepository.getCurrentPixelRank(userId1);
 
 		//Then
 		assertThat(score.isPresent()).isEqualTo(true);
@@ -171,20 +194,20 @@ class RankingRedisRepositoryTest {
 
 	@Test
 	@DisplayName("[getUserRank] 없는 userId를 넣으면 Optional에 값이 없다.")
-	void getUserRankTestNullPointException() {
+	void getCurrentPixelRankTestNullPointException() {
 		//Given
 		Long userId1 = 1L;
 
 		// When
-		Optional<Long> score = rankingRedisRepository.getUserRank(userId1);
+		Optional<Long> score = rankingRedisRepository.getCurrentPixelRank(userId1);
 
 		// Then
 		assertThat(score.isEmpty()).isEqualTo(true);
 	}
 
 	@Test
-	@DisplayName("[getUserRank] userId 에 해당하는 점수를 반환한다.")
-	void getUserCurrentPixelCountTest() {
+	@DisplayName("[getCurrentPixelCount] userId 에 해당하는 점수를 반환한다.")
+	void getCurrentPixelCountTest() {
 		//Given
 		Long userId1 = 1L;
 		Long userId2 = 2L;
@@ -192,7 +215,7 @@ class RankingRedisRepositoryTest {
 		setRanking(userId1, userId2, userId3);
 
 		// When
-		Optional<Long> currentPixelCount = rankingRedisRepository.getUserCurrentPixelCount(userId1);
+		Optional<Long> currentPixelCount = rankingRedisRepository.getCurrentPixelCount(userId1);
 
 		//Then
 		assertThat(currentPixelCount.isPresent()).isEqualTo(true);
@@ -201,13 +224,31 @@ class RankingRedisRepositoryTest {
 	}
 
 	@Test
+	@DisplayName("[getAccumulatePixelCount] userId 에 해당하는 점수를 반환한다.")
+	void getAccumulatePixelCountTest() {
+		//Given
+		Long userId1 = 1L;
+		Long userId2 = 2L;
+		Long userId3 = 3L;
+		setRankingAccumulate(userId1, userId2, userId3);
+
+		// When
+		Optional<Long> accumulatePixelCount = rankingRedisRepository.getAccumulatePixelCount(userId1);
+
+		//Then
+		assertThat(accumulatePixelCount.isPresent()).isEqualTo(true);
+		//noinspection OptionalGetWithoutIsPresent
+		assertThat(accumulatePixelCount.get()).isEqualTo(2);
+	}
+
+	@Test
 	@DisplayName("[getUserCurrentPixelCount] 없는 userId를 넣으면 Optional에 값이 없다.")
-	void getUserCurrentPixelCountTestNull() {
+	void getCurrentPixelCountTestNull() {
 		//Given
 		Long userId1 = 1L;
 
 		// When
-		Optional<Long> currentPixelCount = rankingRedisRepository.getUserCurrentPixelCount(userId1);
+		Optional<Long> currentPixelCount = rankingRedisRepository.getCurrentPixelCount(userId1);
 
 		// Then
 		assertThat(currentPixelCount.isEmpty()).isEqualTo(true);
@@ -224,5 +265,18 @@ class RankingRedisRepositoryTest {
 		rankingRedisRepository.increaseCurrentPixelCount(userId3);
 		rankingRedisRepository.increaseCurrentPixelCount(userId3);
 		rankingRedisRepository.increaseCurrentPixelCount(userId3);
+	}
+
+	private void setRankingAccumulate(Long userId1, Long userId2, Long userId3) {
+		rankingRedisRepository.saveUserInRanking(userId1);
+		rankingRedisRepository.saveUserInRanking(userId2);
+		rankingRedisRepository.saveUserInRanking(userId3);
+
+		rankingRedisRepository.increaseAccumulatePixelCount(userId1);
+		rankingRedisRepository.increaseAccumulatePixelCount(userId1);
+		rankingRedisRepository.increaseAccumulatePixelCount(userId2);
+		rankingRedisRepository.increaseAccumulatePixelCount(userId3);
+		rankingRedisRepository.increaseAccumulatePixelCount(userId3);
+		rankingRedisRepository.increaseAccumulatePixelCount(userId3);
 	}
 }

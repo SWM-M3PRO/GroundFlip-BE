@@ -3,35 +3,32 @@ package com.m3pro.groundflip.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import com.m3pro.groundflip.domain.dto.pixel.CommunityModePixelResponse;
+import com.m3pro.groundflip.domain.dto.pixel.CommunityPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualHistoryPixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualModePixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelCountResponse;
-import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
+import com.m3pro.groundflip.domain.dto.pixel.PixelOwnerCommunityResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelOwnerUserResponse;
+import com.m3pro.groundflip.domain.dto.pixel.VisitedCommunityInfo;
 import com.m3pro.groundflip.domain.dto.pixel.VisitedUserInfo;
-import com.m3pro.groundflip.domain.dto.pixel.event.PixelAddressUpdateEvent;
-import com.m3pro.groundflip.domain.dto.pixel.event.PixelUserInsertEvent;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
+import com.m3pro.groundflip.domain.dto.pixelUser.VisitedCommunity;
 import com.m3pro.groundflip.domain.dto.pixelUser.VisitedUser;
+import com.m3pro.groundflip.domain.entity.Community;
 import com.m3pro.groundflip.domain.entity.Pixel;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
+import com.m3pro.groundflip.repository.CommunityRepository;
 import com.m3pro.groundflip.repository.PixelRepository;
 import com.m3pro.groundflip.repository.PixelUserRepository;
 import com.m3pro.groundflip.repository.UserRepository;
@@ -43,18 +40,17 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class PixelService {
+public class PixelReader {
 	private static final int WGS84_SRID = 4326;
-	private static final String REDISSON_LOCK_PREFIX = "LOCK:";
 	private static final String DEFAULT_LOOK_UP_DATE = "2024-07-15";
 
 	private final GeometryFactory geometryFactory;
 	private final PixelRepository pixelRepository;
 	private final PixelUserRepository pixelUserRepository;
 	private final UserRepository userRepository;
-	private final RankingService rankingService;
-	private final ApplicationEventPublisher eventPublisher;
-	private final RedissonClient redissonClient;
+	private final UserRankingService userRankingService;
+	private final CommunityRankingService communityRankingService;
+	private final CommunityRepository communityRepository;
 
 	/**
 	 * 사용자를 중심으로 일정한 반경 내에 개인전 픽셀들을 가져온다.
@@ -73,6 +69,17 @@ public class PixelService {
 		point.setSRID(WGS84_SRID);
 		LocalDate thisWeekStartDate = DateUtils.getThisWeekStartDate();
 		return pixelRepository.findAllIndividualModePixelsByCoordinate(point, radius, thisWeekStartDate);
+	}
+
+	public List<CommunityModePixelResponse> getNearCommunityModePixelsByCoordinate(
+		double currentLatitude,
+		double currentLongitude,
+		int radius
+	) {
+		Point point = geometryFactory.createPoint(new Coordinate(currentLongitude, currentLatitude));
+		point.setSRID(WGS84_SRID);
+		LocalDate thisWeekStartDate = DateUtils.getThisWeekStartDate();
+		return pixelRepository.findAllCommunityModePixelsByCoordinate(point, radius, thisWeekStartDate);
 	}
 
 	/**
@@ -115,67 +122,18 @@ public class PixelService {
 		);
 	}
 
-	/**
-	 * 픽셀을 차지한다.
-	 * @param pixelOccupyRequest 픽셀을 차지하기 위해 필요한 정보
-	 * @return
-	 * @author 김민욱
-	 */
-	@Transactional
-	public void occupyPixelWithLock(PixelOccupyRequest pixelOccupyRequest) {
-		String lockName = REDISSON_LOCK_PREFIX + pixelOccupyRequest.getX() + pixelOccupyRequest.getY();
-		RLock rLock = redissonClient.getLock(lockName);
-
-		long waitTime = 5L;
-		long leaseTime = 3L;
-		TimeUnit timeUnit = TimeUnit.SECONDS;
-		try {
-			boolean available = rLock.tryLock(waitTime, leaseTime, timeUnit);
-			if (!available) {
-				throw new AppException(ErrorCode.LOCK_ACQUISITION_ERROR);
-			}
-
-			occupyPixel(pixelOccupyRequest);
-
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		} finally {
-			rLock.unlock();
-		}
-	}
-
-	private void occupyPixel(PixelOccupyRequest pixelOccupyRequest) {
-		Long occupyingUserId = pixelOccupyRequest.getUserId();
-		Long communityId = Optional.ofNullable(pixelOccupyRequest.getCommunityId()).orElse(-1L);
-
-		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
+	public CommunityPixelInfoResponse getCommunityModePixelInfo(Long pixelId) {
+		Pixel pixel = pixelRepository.findById(pixelId)
 			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
-		rankingService.updateRanking(targetPixel, occupyingUserId);
-		updatePixelOwner(targetPixel, occupyingUserId);
 
-		updatePixelAddress(targetPixel);
-		eventPublisher.publishEvent(new PixelUserInsertEvent(targetPixel.getId(), occupyingUserId, communityId));
-	}
+		List<VisitedCommunity> visitedCommunities = pixelUserRepository.findAllVisitedCommunityByPixelId(pixelId);
+		PixelOwnerCommunityResponse pixelOwnerCommunityResponse = getPixelOwnerCommunityInfo(pixel);
 
-	private void updatePixelOwner(Pixel targetPixel, Long occupyingUserId) {
-		if (Objects.equals(targetPixel.getUserId(), occupyingUserId)) {
-			targetPixel.updateModifiedAtToNow();
-		} else {
-			targetPixel.updateUserId(occupyingUserId);
-		}
-		pixelRepository.saveAndFlush(targetPixel);
-	}
-
-	/**
-	 * 픽셀의 주소를 업데이트한다..
-	 * @param targetPixel 주소를 얻기 위한 픽셀
-	 * @return
-	 * @author 김민욱
-	 */
-	private void updatePixelAddress(Pixel targetPixel) {
-		if (targetPixel.getAddress() == null) {
-			eventPublisher.publishEvent(new PixelAddressUpdateEvent(targetPixel));
-		}
+		return CommunityPixelInfoResponse.from(
+			pixel,
+			pixelOwnerCommunityResponse,
+			visitedCommunities.stream().map(VisitedCommunityInfo::from).toList()
+		);
 	}
 
 	/**
@@ -210,13 +168,23 @@ public class PixelService {
 	 * @author 김민욱
 	 */
 	public PixelCountResponse getPixelCount(Long userId, LocalDate lookUpDate) {
+		Long accumulatePixelCount;
 		if (lookUpDate == null) {
-			lookUpDate = LocalDate.parse(DEFAULT_LOOK_UP_DATE);
+			accumulatePixelCount = userRankingService.getAccumulatePixelCount(userId);
+		} else {
+			accumulatePixelCount = pixelUserRepository.countAccumulatePixelByUserId(userId, lookUpDate.atStartOfDay());
 		}
 
 		return PixelCountResponse.builder()
-			.currentPixelCount(rankingService.getCurrentPixelCountFromCache(userId))
-			.accumulatePixelCount(pixelUserRepository.countAccumulatePixelByUserId(userId, lookUpDate.atStartOfDay()))
+			.currentPixelCount(userRankingService.getCurrentPixelCountFromCache(userId))
+			.accumulatePixelCount(accumulatePixelCount)
+			.build();
+	}
+
+	public PixelCountResponse getCommunityPixelCount(Long communityId) {
+		return PixelCountResponse.builder()
+			.currentPixelCount(communityRankingService.getCurrentPixelCountFromCache(communityId))
+			.accumulatePixelCount(0L)
 			.build();
 	}
 
@@ -232,13 +200,29 @@ public class PixelService {
 		} else {
 			Long accumulatePixelCount = pixelUserRepository.countAccumulatePixelByUserId(ownerUserId,
 				LocalDate.parse(DEFAULT_LOOK_UP_DATE).atStartOfDay());
-			Long currentPixelCount = rankingService.getCurrentPixelCountFromCache(ownerUserId);
+			Long currentPixelCount = userRankingService.getCurrentPixelCountFromCache(ownerUserId);
 			User ownerUser = userRepository.findById(ownerUserId)
 				.orElseThrow(() -> {
 					log.error("pixel {} 의 소유자가 {} 인데 존재하지 않음.", pixel.getId(), ownerUserId);
 					return new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
 				});
 			return PixelOwnerUserResponse.from(ownerUser, currentPixelCount, accumulatePixelCount);
+		}
+	}
+
+	private PixelOwnerCommunityResponse getPixelOwnerCommunityInfo(Pixel pixel) {
+		Long ownerCommunityId = pixel.getCommunityId();
+		if (ownerCommunityId == null) {
+			return null;
+		} else {
+			Long accumulatePixelCount = communityRankingService.getAccumulatePixelCount(ownerCommunityId);
+			Long currentPixelCount = communityRankingService.getCurrentPixelCountFromCache(ownerCommunityId);
+			Community ownerCommunity = communityRepository.findById(ownerCommunityId)
+				.orElseThrow(() -> {
+					log.error("pixel {} 의 소유 그룹이 {} 인데 존재하지 않음.", pixel.getId(), ownerCommunityId);
+					return new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
+				});
+			return PixelOwnerCommunityResponse.from(ownerCommunity, currentPixelCount, accumulatePixelCount);
 		}
 	}
 }

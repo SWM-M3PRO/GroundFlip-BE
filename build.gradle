@@ -45,6 +45,10 @@ dependencies {
     // 클라우드 워치를 위한 의존성
     implementation 'ca.pjer:logback-awslogs-appender:1.6.0'
 
+    // 프로메테우스를 위한 의존성
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
+
     implementation "javax.xml.bind:jaxb-api:2.3.0"
 
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'

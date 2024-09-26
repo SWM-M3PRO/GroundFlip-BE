@@ -86,8 +86,8 @@ cloud:
       bucket: ${AWS_S3_BUCKET}
 
 version:
-  update: ${NEED_UPDATE_VERSION}
-  recommend: ${RECOMMEND_UPDATE}
+  update: ${LATEST_VERSION}
+  recommend: ${FORCE_UPDATE_VERSION}
 
 
 

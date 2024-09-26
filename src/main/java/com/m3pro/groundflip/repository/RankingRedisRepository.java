@@ -7,56 +7,65 @@ import java.util.Set;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
-import org.springframework.stereotype.Repository;
 
 import com.m3pro.groundflip.domain.dto.ranking.Ranking;
 
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-
-@Repository
-@RequiredArgsConstructor
 public class RankingRedisRepository {
-	private static final String RANKING_KEY = "current_pixel_ranking";
 	private static final int RANKING_START_INDEX = 0;
 	private static final int RANKING_END_INDEX = 29;
-	private final RedisTemplate<String, String> redisTemplate;
-	private ZSetOperations<String, String> zSetOperations;
+	private final String currentPixelRankingKey;
+	private final String accumulatePixelRankingKey;
+	private final ZSetOperations<String, String> zSetOperations;
 
-	@PostConstruct
-	void init() {
+	public RankingRedisRepository(RedisTemplate<String, String> redisTemplate, String currentPixelRankingKey,
+		String accumulatePixelRankingKey) {
+		this.currentPixelRankingKey = currentPixelRankingKey;
+		this.accumulatePixelRankingKey = accumulatePixelRankingKey;
 		zSetOperations = redisTemplate.opsForZSet();
 	}
 
 	public void increaseCurrentPixelCount(Long userId) {
-		zSetOperations.incrementScore(RANKING_KEY, userId.toString(), 1);
+		zSetOperations.incrementScore(currentPixelRankingKey, userId.toString(), 1);
+	}
+
+	public void increaseAccumulatePixelCount(Long userId) {
+		zSetOperations.incrementScore(accumulatePixelRankingKey, userId.toString(), 1);
 	}
 
 	public void decreaseCurrentPixelCount(Long userId) {
-		Double currentScore = zSetOperations.score(RANKING_KEY, userId.toString());
+		Double currentScore = zSetOperations.score(currentPixelRankingKey, userId.toString());
 		if (currentScore != null && currentScore > 0) {
-			zSetOperations.incrementScore(RANKING_KEY, userId.toString(), -1);
+			zSetOperations.incrementScore(currentPixelRankingKey, userId.toString(), -1);
 		}
 	}
 
 	public void saveUserInRanking(Long userId) {
-		Double score = zSetOperations.score(RANKING_KEY, userId.toString());
+		Double currentPixelScore = zSetOperations.score(currentPixelRankingKey, userId.toString());
+		Double accumulatePixelScore = zSetOperations.score(accumulatePixelRankingKey, userId.toString());
 
-		if (score == null) {
-			zSetOperations.add(RANKING_KEY, userId.toString(), 0);
+		if (currentPixelScore == null) {
+			zSetOperations.add(currentPixelRankingKey, userId.toString(), 0);
+		}
+		if (accumulatePixelScore == null) {
+			zSetOperations.add(accumulatePixelRankingKey, userId.toString(), 0);
 		}
 	}
 
 	public void deleteUserInRanking(Long userId) {
-		Double score = zSetOperations.score(RANKING_KEY, userId.toString());
+		Double currentPixelScore = zSetOperations.score(currentPixelRankingKey, userId.toString());
+		Double accumulatePixelScore = zSetOperations.score(accumulatePixelRankingKey, userId.toString());
 
-		if (score != null) {
-			zSetOperations.remove(RANKING_KEY, userId.toString());
+		if (currentPixelScore != null) {
+			zSetOperations.remove(currentPixelRankingKey, userId.toString());
+		}
+		if (accumulatePixelScore == null) {
+			zSetOperations.remove(accumulatePixelRankingKey, userId.toString());
 		}
 	}
 
 	public List<Ranking> getRankingsWithCurrentPixelCount() {
-		Set<ZSetOperations.TypedTuple<String>> typedTuples = zSetOperations.reverseRangeWithScores(RANKING_KEY,
+		Set<ZSetOperations.TypedTuple<String>> typedTuples = zSetOperations.reverseRangeWithScores(
+			currentPixelRankingKey,
 			RANKING_START_INDEX, RANKING_END_INDEX);
 		if (typedTuples == null) {
 			return new ArrayList<>();
@@ -70,13 +79,18 @@ public class RankingRedisRepository {
 		return rankings;
 	}
 
-	public Optional<Long> getUserRank(Long userId) {
-		Long rank = zSetOperations.reverseRank(RANKING_KEY, userId.toString());
+	public Optional<Long> getCurrentPixelRank(Long userId) {
+		Long rank = zSetOperations.reverseRank(currentPixelRankingKey, userId.toString());
 		return Optional.ofNullable(rank).map(r -> r + 1);
 	}
 
-	public Optional<Long> getUserCurrentPixelCount(Long userId) {
-		Double currentPixelCount = zSetOperations.score(RANKING_KEY, userId.toString());
+	public Optional<Long> getCurrentPixelCount(Long userId) {
+		Double currentPixelCount = zSetOperations.score(currentPixelRankingKey, userId.toString());
 		return Optional.ofNullable(currentPixelCount).map(Double::longValue);
+	}
+
+	public Optional<Long> getAccumulatePixelCount(Long userId) {
+		Double accumulatePixelCount = zSetOperations.score(accumulatePixelRankingKey, userId.toString());
+		return Optional.ofNullable(accumulatePixelCount).map(Double::longValue);
 	}
 }
