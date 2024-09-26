@@ -209,7 +209,7 @@ class UserServiceTest {
 			.build();
 
 		when(userRepository.findById(deleteUser.getId())).thenReturn(Optional.of(deleteUser));
-		doNothing().when(rankingHistoryRepository).deleteByUserIdAndYearAndWeek(1L, 2024, 37);
+		doNothing().when(rankingHistoryRepository).deleteByUserIdAndYearAndWeek(1L, 2024, 39);
 
 		userService.deleteUser(1L, new UserDeleteRequest("acessToken", "refreshToken"));
 
@@ -241,7 +241,7 @@ class UserServiceTest {
 		when(userRepository.findById(deleteUser.getId())).thenReturn(Optional.of(deleteUser));
 		when(appleRefreshTokenRepository.findByUserId(any())).thenReturn(
 			Optional.of(AppleRefreshToken.builder().refreshToken("test").build()));
-		doNothing().when(rankingHistoryRepository).deleteByUserIdAndYearAndWeek(1L, 2024, 37);
+		doNothing().when(rankingHistoryRepository).deleteByUserIdAndYearAndWeek(1L, 2024, 39);
 
 		userService.deleteUser(1L, new UserDeleteRequest("acessToken", "refreshToken"));
 
