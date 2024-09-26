@@ -35,7 +35,7 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 				c.background_image_url AS profileImage
 			FROM pixel_user pu
 			JOIN community c ON pu.community_id = c.community_id
-			WHERE pu.pixel_id = :pixel_id AND pu.created_at >= current_date() AND pu.pixel_id != -1
+			WHERE pu.pixel_id = :pixel_id AND pu.created_at >= current_date() AND pu.community_id <> -1
 			GROUP BY pu.community_id;
 		""", nativeQuery = true)
 	List<VisitedCommunity> findAllVisitedCommunityByPixelId(
