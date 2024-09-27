@@ -60,6 +60,17 @@ public class PixelController {
 			pixelReader.getNearIndividualModePixelsByCoordinate(currentLatitude, currentLongitude, radius));
 	}
 
+	@GetMapping("/individual-mode/test")
+	public Response<List<IndividualModePixelResponse>> getNearIndividualPixelsTest(
+		@RequestParam(name = "x") int x,
+		@RequestParam(name = "y") int y,
+		@RequestParam(name = "width") int width,
+		@RequestParam(name = "height") int height
+	) {
+		return Response.createSuccess(
+			pixelReader.getNeaerIndividualModePixelsTest(x, y, width, height));
+	}
+
 	@Operation(summary = "그룹전 픽셀 조회", description = "특정 좌표를 중심으로 반경 내 개인전 픽셀 정보를 조회 API")
 	@Parameters({
 		@Parameter(name = "current-latitude", description = "원의 중심 좌표의 위도", example = "37.503717"),

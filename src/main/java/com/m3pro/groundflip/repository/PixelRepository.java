@@ -91,4 +91,28 @@ public interface PixelRepository extends JpaRepository<Pixel, Long> {
 	Optional<Pixel> findByXAndY(Long x, Long y);
 
 	Long countCurrentPixelByUserId(Long userId);
+
+	@Query(value = """
+		SELECT
+			pixel.pixel_id AS pixelId,
+			ST_LATITUDE(pixel.coordinate) AS latitude,
+			ST_LONGITUDE(pixel.coordinate) AS longitude,
+			pixel.user_id AS userId,
+			pixel.x,
+			pixel.y
+		FROM
+			pixel
+		WHERE
+		    pixel.x between :x - (:height / 2) and :x + (:height / 2)
+		  	AND pixel.y between :y - (:width / 2) and :y + (:width / 2)
+			AND pixel.user_id IS NOT NULL
+			AND pixel.user_occupied_at >= :weekStartDate
+		""", nativeQuery = true)
+	List<IndividualModePixelResponse> findAllIndividualModePixelTest(
+		@Param("x") int x,
+		@Param("y") int y,
+		@Param("width") int width,
+		@Param("height") int height,
+		@Param("weekStartDate") LocalDate weekStartDate);
+
 }

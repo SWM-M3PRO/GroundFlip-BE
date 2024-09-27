@@ -71,6 +71,16 @@ public class PixelReader {
 		return pixelRepository.findAllIndividualModePixelsByCoordinate(point, radius, thisWeekStartDate);
 	}
 
+	public List<IndividualModePixelResponse> getNeaerIndividualModePixelsTest(
+		int x,
+		int y,
+		int width,
+		int height
+	) {
+		LocalDate thisWeekStartDate = DateUtils.getThisWeekStartDate();
+		return pixelRepository.findAllIndividualModePixelTest(x, y, width, height, thisWeekStartDate);
+	}
+
 	public List<CommunityModePixelResponse> getNearCommunityModePixelsByCoordinate(
 		double currentLatitude,
 		double currentLongitude,
