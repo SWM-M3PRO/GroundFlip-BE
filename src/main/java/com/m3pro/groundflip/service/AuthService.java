@@ -1,5 +1,7 @@
 package com.m3pro.groundflip.service;
 
+import static org.hibernate.query.sqm.tree.SqmNode.*;
+
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -51,6 +53,7 @@ public class AuthService {
 			loginRequest.getAccessToken());
 
 		if (oauthUserInfo.getEmail() == null) {
+			log.error("email is null");
 			throw new AppException(ErrorCode.EMAIL_NOT_FOUND);
 		}
 
