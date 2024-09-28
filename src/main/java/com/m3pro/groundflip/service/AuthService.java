@@ -126,6 +126,12 @@ public class AuthService {
 
 		OauthUserInfoResponse oauthUserInfo = oauthUserInfoService.requestUserInfo(Provider.APPLE,
 			loginRequest.getAccessToken());
+
+		if (oauthUserInfo.getEmail() == null) {
+			log.error("email is null");
+			throw new AppException(ErrorCode.EMAIL_NOT_FOUND);
+		}
+
 		Optional<User> loginUser = userRepository.findByProviderAndEmail(Provider.APPLE, oauthUserInfo.getEmail());
 
 		if (loginUser.isPresent()) {
