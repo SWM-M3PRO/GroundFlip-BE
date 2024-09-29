@@ -3,6 +3,9 @@ package com.m3pro.groundflip.service;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.context.ApplicationEventPublisher;
@@ -27,6 +30,11 @@ import lombok.extern.slf4j.Slf4j;
 public class PixelManager {
 	private static final String REDISSON_LOCK_PREFIX = "LOCK:";
 	private static final Long DEFAULT_COMMUNITY_ID = -1L;
+	private static final int WGS84_SRID = 4326;
+	private static final double lat_per_pixel = 0.000724;
+	private static final double lon_per_pixel = 0.000909;
+	private static final double upper_left_lat = 38.240675;
+	private static final double upper_left_lon = 125.905952;
 
 	private final PixelRepository pixelRepository;
 	private final UserRankingService userRankingService;
@@ -34,6 +42,7 @@ public class PixelManager {
 	private final ApplicationEventPublisher eventPublisher;
 	private final RedissonClient redissonClient;
 	private final PixelUserRepository pixelUserRepository;
+	private final GeometryFactory geometryFactory;
 
 	/**
 	 * 픽셀을 차지한다.
@@ -80,10 +89,35 @@ public class PixelManager {
 		updatePixelOwnerCommunity(targetPixel, occupyingCommunityId);
 
 		pixelRepository.saveAndFlush(targetPixel);
-		
+
 		updatePixelAddress(targetPixel);
 		eventPublisher.publishEvent(
 			new PixelUserInsertEvent(targetPixel.getId(), occupyingUserId, occupyingCommunityId));
+	}
+
+	private Pixel createPixel(Long x, Long y) {
+		Long pixelId = getPixelId(x, y);
+		Point coordinate = getCoordinate(x, y);
+		
+		return Pixel.builder()
+			.id(pixelId)
+			.x(x)
+			.y(y)
+			.coordinate(coordinate)
+			.build();
+
+	}
+
+	private Point getCoordinate(Long x, Long y) {
+		double currentLongitude = upper_left_lon + (y * lon_per_pixel);
+		double currentLatitude = upper_left_lat - (x * lat_per_pixel);
+		Point point = geometryFactory.createPoint(new Coordinate(currentLongitude, currentLatitude));
+		point.setSRID(WGS84_SRID);
+		return point;
+	}
+
+	private Long getPixelId(Long x, Long y) {
+		return x * 4156 + y + 1;
 	}
 
 	private void updateCommunityAccumulatePixelCount(Pixel targetPixel, Long communityId) {
