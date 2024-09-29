@@ -1,5 +1,6 @@
 package com.m3pro.groundflip.service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -77,8 +78,12 @@ public class PixelManager {
 		Long occupyingUserId = pixelOccupyRequest.getUserId();
 		Long occupyingCommunityId = Optional.ofNullable(pixelOccupyRequest.getCommunityId()).orElse(-1L);
 
+		if (!isValidCoordinate(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())) {
+			throw new AppException(ErrorCode.PIXEL_NOT_FOUND);
+		}
+
 		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
-			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
+			.orElse(createPixel(pixelOccupyRequest.getX(), pixelOccupyRequest.getY()));
 
 		userRankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
 		updateUserAccumulatePixelCount(targetPixel, occupyingUserId);
@@ -95,17 +100,23 @@ public class PixelManager {
 			new PixelUserInsertEvent(targetPixel.getId(), occupyingUserId, occupyingCommunityId));
 	}
 
+	private boolean isValidCoordinate(Long x, Long y) {
+		return x >= 0 && x < 7000 && y >= 0 && y < 4156;
+	}
+
 	private Pixel createPixel(Long x, Long y) {
 		Long pixelId = getPixelId(x, y);
 		Point coordinate = getCoordinate(x, y);
-		
-		return Pixel.builder()
+		log.info("x: {}, y: {} pixel 생성", x, y);
+
+		Pixel pixel = Pixel.builder()
 			.id(pixelId)
 			.x(x)
 			.y(y)
 			.coordinate(coordinate)
+			.createdAt(LocalDateTime.now())
 			.build();
-
+		return pixelRepository.save(pixel);
 	}
 
 	private Point getCoordinate(Long x, Long y) {
