@@ -1,5 +1,7 @@
 package com.m3pro.groundflip.service;
 
+import static org.hibernate.query.sqm.tree.SqmNode.*;
+
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
@@ -15,6 +17,8 @@ import com.m3pro.groundflip.domain.entity.Permission;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.enums.Provider;
 import com.m3pro.groundflip.enums.UserStatus;
+import com.m3pro.groundflip.exception.AppException;
+import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.jwt.JwtProvider;
 import com.m3pro.groundflip.repository.AppleRefreshTokenRepository;
 import com.m3pro.groundflip.repository.PermissionRepository;
@@ -47,6 +51,12 @@ public class AuthService {
 
 		OauthUserInfoResponse oauthUserInfo = oauthUserInfoService.requestUserInfo(provider,
 			loginRequest.getAccessToken());
+
+		if (oauthUserInfo.getEmail() == null) {
+			log.error("email is null");
+			throw new AppException(ErrorCode.EMAIL_NOT_FOUND);
+		}
+
 		Optional<User> loginUser = userRepository.findByProviderAndEmail(provider, oauthUserInfo.getEmail());
 
 		if (loginUser.isPresent()) {
@@ -116,6 +126,12 @@ public class AuthService {
 
 		OauthUserInfoResponse oauthUserInfo = oauthUserInfoService.requestUserInfo(Provider.APPLE,
 			loginRequest.getAccessToken());
+
+		if (oauthUserInfo.getEmail() == null) {
+			log.error("email is null");
+			throw new AppException(ErrorCode.EMAIL_NOT_FOUND);
+		}
+
 		Optional<User> loginUser = userRepository.findByProviderAndEmail(Provider.APPLE, oauthUserInfo.getEmail());
 
 		if (loginUser.isPresent()) {
