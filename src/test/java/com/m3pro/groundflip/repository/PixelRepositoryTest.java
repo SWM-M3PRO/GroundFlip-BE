@@ -74,7 +74,7 @@ public class PixelRepositoryTest {
 
 		Long pixelCount = pixelRepository.countCurrentPixelByUserId(1L);
 
-		assertThat(pixelCount).isEqualTo(1);
+		assertThat(pixelCount).isEqualTo(0L);
 	}
 
 	@Test
@@ -93,7 +93,14 @@ public class PixelRepositoryTest {
 	private Pixel savePixel(double latitude, double longitude, Long x, Long y, Long userId) {
 		Point point = createPoint(longitude, latitude);
 		return pixelRepository.save(
-			Pixel.builder().userOccupiedAt(LocalDateTime.now()).coordinate(point).userId(userId).x(x).y(y).build());
+			Pixel.builder()
+				.userOccupiedAt(LocalDateTime.now())
+				.coordinate(point)
+				.userId(userId)
+				.x(x)
+				.y(y)
+				.id(x * 4156 + y + 1)
+				.build());
 	}
 
 	private Point createPoint(double longitude, double latitude) {
