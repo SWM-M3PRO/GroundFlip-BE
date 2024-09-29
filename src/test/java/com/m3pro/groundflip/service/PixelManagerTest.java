@@ -10,6 +10,7 @@ import java.util.concurrent.locks.Condition;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -39,6 +40,8 @@ class PixelManagerTest {
 	private UserRankingService userRankingService;
 	@Mock
 	private CommunityRankingService communityRankingService;
+	@Mock
+	private GeometryFactory geometryFactory;
 	@InjectMocks
 	private PixelManager pixelManager;
 
