@@ -1,5 +1,6 @@
 package com.m3pro.groundflip.service;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -10,7 +11,9 @@ import java.util.concurrent.locks.Condition;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -23,11 +26,19 @@ import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
 import com.m3pro.groundflip.domain.dto.pixel.event.PixelAddressUpdateEvent;
 import com.m3pro.groundflip.domain.dto.pixel.event.PixelUserInsertEvent;
 import com.m3pro.groundflip.domain.entity.Pixel;
+import com.m3pro.groundflip.exception.AppException;
+import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.PixelRepository;
 import com.m3pro.groundflip.repository.PixelUserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class PixelManagerTest {
+	private static final double lat_per_pixel = 0.000724;
+	private static final double lon_per_pixel = 0.000909;
+	private static final double upper_left_lat = 38.240675;
+	private static final double upper_left_lon = 125.905952;
+	private static final int WGS84_SRID = 4326;
+
 	@Mock
 	private PixelRepository pixelRepository;
 	@Mock
@@ -130,6 +141,46 @@ class PixelManagerTest {
 		verify(applicationEventPublisher, times(0)).publishEvent(any(PixelAddressUpdateEvent.class));
 		verify(userRankingService, times(1)).updateAccumulatedRanking(any());
 		verify(communityRankingService, times(1)).updateCurrentPixelRanking(any(), any());
+	}
+
+	@Test
+	@DisplayName("[occupyPixel] 대한민국에 속한 pixel 이 아니라면 에러 발생")
+	void pixelIncorrectPixel() {
+		PixelOccupyRequest pixelOccupyRequest = new PixelOccupyRequest(5L, 78611L, 9000L, 233L);
+		when(redissonClient.getLock(any())).thenReturn(new RedissonLock());
+
+		// Then
+		AppException exception = assertThrows(AppException.class,
+			() -> pixelManager.occupyPixelWithLock(pixelOccupyRequest));
+		assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.PIXEL_NOT_FOUND);
+	}
+
+	@Test
+	@DisplayName("[occupyPixel] pixel 테이블에 등록되지 않는 픽셀 이라면 새로 생성후 작업 진행")
+	void pixelOccupyTestNotRegisteredPixel() {
+		PixelOccupyRequest pixelOccupyRequest = new PixelOccupyRequest(5L, 78611L, 213L, 233L);
+		Pixel pixel = Pixel.builder()
+			.x(222L)
+			.y(233L)
+			.userId(1L)
+			.address("대한민국 ")
+			.build();
+		when(redissonClient.getLock(any())).thenReturn(new RedissonLock());
+		double expectedLongitude = upper_left_lon + (233L * lon_per_pixel);
+		double expectedLatitude = upper_left_lat - (213L * lat_per_pixel);
+
+		Coordinate coordinate = new Coordinate(expectedLongitude, expectedLatitude);
+		Point mockPoint = new GeometryFactory().createPoint(coordinate);
+		mockPoint.setSRID(WGS84_SRID);
+
+		// When - geometryFactory.createPoint를 모킹
+		when(geometryFactory.createPoint(any(Coordinate.class))).thenReturn(mockPoint);
+		when(pixelRepository.save(any())).thenReturn(pixel);
+		// When
+		pixelManager.occupyPixelWithLock(pixelOccupyRequest);
+
+		// Then
+		verify(pixelRepository, times(1)).save(any());
 	}
 
 	static class RedissonLock implements RLock {
