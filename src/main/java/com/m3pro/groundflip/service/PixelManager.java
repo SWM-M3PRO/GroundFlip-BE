@@ -1,8 +1,12 @@
 package com.m3pro.groundflip.service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.context.ApplicationEventPublisher;
@@ -27,6 +31,11 @@ import lombok.extern.slf4j.Slf4j;
 public class PixelManager {
 	private static final String REDISSON_LOCK_PREFIX = "LOCK:";
 	private static final Long DEFAULT_COMMUNITY_ID = -1L;
+	private static final int WGS84_SRID = 4326;
+	private static final double lat_per_pixel = 0.000724;
+	private static final double lon_per_pixel = 0.000909;
+	private static final double upper_left_lat = 38.240675;
+	private static final double upper_left_lon = 125.905952;
 
 	private final PixelRepository pixelRepository;
 	private final UserRankingService userRankingService;
@@ -34,6 +43,7 @@ public class PixelManager {
 	private final ApplicationEventPublisher eventPublisher;
 	private final RedissonClient redissonClient;
 	private final PixelUserRepository pixelUserRepository;
+	private final GeometryFactory geometryFactory;
 
 	/**
 	 * 픽셀을 차지한다.
@@ -68,8 +78,13 @@ public class PixelManager {
 		Long occupyingUserId = pixelOccupyRequest.getUserId();
 		Long occupyingCommunityId = Optional.ofNullable(pixelOccupyRequest.getCommunityId()).orElse(-1L);
 
-		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
-			.orElseThrow(() -> new AppException(ErrorCode.PIXEL_NOT_FOUND));
+		if (!isValidCoordinate(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())) {
+			throw new AppException(ErrorCode.PIXEL_NOT_FOUND);
+		}
+
+		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(),
+				pixelOccupyRequest.getY())
+			.orElseGet(() -> createPixel(pixelOccupyRequest.getX(), pixelOccupyRequest.getY()));
 
 		userRankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
 		updateUserAccumulatePixelCount(targetPixel, occupyingUserId);
@@ -80,10 +95,41 @@ public class PixelManager {
 		updatePixelOwnerCommunity(targetPixel, occupyingCommunityId);
 
 		pixelRepository.saveAndFlush(targetPixel);
-		
+
 		updatePixelAddress(targetPixel);
 		eventPublisher.publishEvent(
 			new PixelUserInsertEvent(targetPixel.getId(), occupyingUserId, occupyingCommunityId));
+	}
+
+	private boolean isValidCoordinate(Long x, Long y) {
+		return x >= 0 && x < 7000 && y >= 0 && y < 4156;
+	}
+
+	private Pixel createPixel(Long x, Long y) {
+		Long pixelId = getPixelId(x, y);
+		Point coordinate = getCoordinate(x, y);
+		log.info("x: {}, y: {} pixel 생성", x, y);
+
+		Pixel pixel = Pixel.builder()
+			.id(pixelId)
+			.x(x)
+			.y(y)
+			.coordinate(coordinate)
+			.createdAt(LocalDateTime.now())
+			.build();
+		return pixelRepository.save(pixel);
+	}
+
+	private Point getCoordinate(Long x, Long y) {
+		double currentLongitude = upper_left_lon + (y * lon_per_pixel);
+		double currentLatitude = upper_left_lat - (x * lat_per_pixel);
+		Point point = geometryFactory.createPoint(new Coordinate(currentLongitude, currentLatitude));
+		point.setSRID(WGS84_SRID);
+		return point;
+	}
+
+	private Long getPixelId(Long x, Long y) {
+		return x * 4156 + y + 1;
 	}
 
 	private void updateCommunityAccumulatePixelCount(Pixel targetPixel, Long communityId) {
