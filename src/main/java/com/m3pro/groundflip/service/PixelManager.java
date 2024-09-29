@@ -82,8 +82,9 @@ public class PixelManager {
 			throw new AppException(ErrorCode.PIXEL_NOT_FOUND);
 		}
 
-		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())
-			.orElse(createPixel(pixelOccupyRequest.getX(), pixelOccupyRequest.getY()));
+		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(),
+				pixelOccupyRequest.getY())
+			.orElseGet(() -> createPixel(pixelOccupyRequest.getX(), pixelOccupyRequest.getY()));
 
 		userRankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
 		updateUserAccumulatePixelCount(targetPixel, occupyingUserId);
