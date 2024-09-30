@@ -33,26 +33,14 @@ public class ClusteredPixelCount {
 	private RegionLevel regionLevel;
 
 	public static ClusteredPixelCount from(Long regionId, String regionName, int count, double latitude,
-		double longitude) {
+		double longitude, RegionLevel regionLevel) {
 		return ClusteredPixelCount.builder()
 			.regionId(regionId)
 			.regionName(regionName)
 			.count(count)
 			.latitude(latitude)
 			.longitude(longitude)
-			.regionLevel(RegionLevel.CITY)
-			.build();
-	}
-
-	public static ClusteredPixelCount from2(Long regionId, String regionName, int count, double latitude,
-		double longitude) {
-		return ClusteredPixelCount.builder()
-			.regionId(regionId)
-			.regionName(regionName)
-			.count(count)
-			.latitude(latitude)
-			.longitude(longitude)
-			.regionLevel(RegionLevel.PROVINCE)
+			.regionLevel(regionLevel)
 			.build();
 	}
 }
