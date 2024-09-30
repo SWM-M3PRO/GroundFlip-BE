@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 
 import com.m3pro.groundflip.domain.dto.pixel.RegionInfo;
 import com.m3pro.groundflip.domain.entity.Region;
-import com.m3pro.groundflip.enums.RegionLevel;
 
 public interface RegionRepository extends JpaRepository<Region, Long> {
 	@Query(value = """
@@ -22,11 +21,11 @@ public interface RegionRepository extends JpaRepository<Region, Long> {
 				region r
 			WHERE
 				ST_CONTAINS((ST_Buffer(:center, :radius)), r.coordinate)
-			AND r.region_level = :region_level
+				AND r.region_level = :region_level
 		""", nativeQuery = true)
 	List<RegionInfo> findAllCityRegionsByCoordinate(
 		@Param("center") Point center,
 		@Param("radius") int radius,
-		@Param("region_level") RegionLevel regionLevel
+		@Param("region_level") String regionLevel
 	);
 }

@@ -33,7 +33,8 @@ public class RegionService {
 		point.setSRID(WGS84_SRID);
 		RegionLevel regionLevel = radius < CITY_LEVEL_THRESHOLD ? RegionLevel.CITY : RegionLevel.PROVINCE;
 
-		List<RegionInfo> regions = regionRepository.findAllCityRegionsByCoordinate(point, radius, regionLevel);
+		List<RegionInfo> regions = regionRepository.findAllCityRegionsByCoordinate(point, radius,
+			regionLevel.getLevel());
 		return regions.stream().map(region -> ClusteredPixelCount.from(
 			region.getRegionId(),
 			region.getName(),
