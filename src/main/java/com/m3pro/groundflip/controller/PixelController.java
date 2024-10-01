@@ -183,5 +183,39 @@ public class PixelController {
 		return Response.createSuccess(
 			regionService.getIndividualModeClusteredPixelCount(currentLatitude, currentLongitude, radius));
 	}
+
+	@Operation(summary = "개인기록 클러스터링된 픽셀 조회", description = "특정 좌표를 중심으로 반경 내 개인기록 클러스터링된 픽셀 정보 API")
+	@Parameters({
+		@Parameter(name = "current-latitude", description = "원의 중심 좌표의 위도", example = "37.503717"),
+		@Parameter(name = "current-longitude", description = "원의 중심 좌표의 경도", example = "127.044317"),
+		@Parameter(name = "radius", description = "미터 단위의 반경", example = "1000"),
+		@Parameter(name = "user-id", description = "찾고자 하는 user의 id", example = "127"),
+	})
+	@GetMapping("/individual-history/clustered")
+	public Response<List<ClusteredPixelCount>> getNearIndividualHistoryClusteredPixels(
+		@RequestParam(name = "current-latitude") @Min(-90) @Max(90) double currentLatitude,
+		@RequestParam(name = "current-longitude") @Min(-180) @Max(180) double currentLongitude,
+		@RequestParam(name = "radius") @Min(0) int radius,
+		@RequestParam(name = "user-id") @NotNull() Long userId) {
+
+		return Response.createSuccess(
+			regionService.getIndividualModeClusteredPixelCount(currentLatitude, currentLongitude, radius));
+	}
+
+	@Operation(summary = "그룹전 클러스터링된 픽셀 조회", description = "특정 좌표를 중심으로 반경 내 그룹전 클러스터링된 픽셀 정보를 조회 API")
+	@Parameters({
+		@Parameter(name = "current-latitude", description = "원의 중심 좌표의 위도", example = "37.503717"),
+		@Parameter(name = "current-longitude", description = "원의 중심 좌표의 경도", example = "127.044317"),
+		@Parameter(name = "radius", description = "미터 단위의 반경", example = "1000"),
+	})
+	@GetMapping("/community-mode/clustered")
+	public Response<List<ClusteredPixelCount>> getNearCommunityClusteredPixels(
+		@RequestParam(name = "current-latitude") @Min(-90) @Max(90) double currentLatitude,
+		@RequestParam(name = "current-longitude") @Min(-180) @Max(180) double currentLongitude,
+		@RequestParam(name = "radius") @Min(0) int radius) {
+
+		return Response.createSuccess(
+			regionService.getCommunityModeClusteredPixelCount(currentLatitude, currentLongitude, radius));
+	}
 }
 

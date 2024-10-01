@@ -38,10 +38,41 @@ public class RegionService {
 
 		List<RegionInfo> regions;
 		if (radius < CITY_LEVEL_THRESHOLD) {
-			regions = regionRepository.findAllCityRegionsByCoordinate(point, radius, DateUtils.getWeekOfDate(now),
+			regions = regionRepository.findAllIndividualCityRegionsByCoordinate(point, radius,
+				DateUtils.getWeekOfDate(now),
 				now.getYear());
 		} else {
-			regions = regionRepository.findAllProvinceRegionsByCoordinate(DateUtils.getWeekOfDate(now),
+			regions = regionRepository.findAllIndividualProvinceRegionsByCoordinate(DateUtils.getWeekOfDate(now),
+				now.getYear());
+		}
+
+		return regions.stream().map(region -> ClusteredPixelCount.from(
+			region.getRegionId(),
+			region.getName(),
+			region.getCount(),
+			region.getLatitude(),
+			region.getLongitude(),
+			regionLevel
+		)).toList();
+	}
+
+	public List<ClusteredPixelCount> getCommunityModeClusteredPixelCount(
+		double currentLatitude,
+		double currentLongitude,
+		int radius
+	) {
+		Point point = geometryFactory.createPoint(new Coordinate(currentLongitude, currentLatitude));
+		point.setSRID(WGS84_SRID);
+		RegionLevel regionLevel = radius < CITY_LEVEL_THRESHOLD ? RegionLevel.CITY : RegionLevel.PROVINCE;
+		LocalDate now = LocalDate.now();
+
+		List<RegionInfo> regions;
+		if (radius < CITY_LEVEL_THRESHOLD) {
+			regions = regionRepository.findAllCommunityCityRegionsByCoordinate(point, radius,
+				DateUtils.getWeekOfDate(now),
+				now.getYear());
+		} else {
+			regions = regionRepository.findAllCommunityProvinceRegionsByCoordinate(DateUtils.getWeekOfDate(now),
 				now.getYear());
 		}
 
