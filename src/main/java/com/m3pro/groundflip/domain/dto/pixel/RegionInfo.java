@@ -8,4 +8,6 @@ public interface RegionInfo {
 	double getLongitude();
 
 	String getName();
+
+	Integer getCount();
 }

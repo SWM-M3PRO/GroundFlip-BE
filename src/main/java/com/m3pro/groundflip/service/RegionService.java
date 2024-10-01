@@ -1,5 +1,6 @@
 package com.m3pro.groundflip.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.locationtech.jts.geom.Coordinate;
@@ -11,6 +12,7 @@ import com.m3pro.groundflip.domain.dto.pixel.ClusteredPixelCount;
 import com.m3pro.groundflip.domain.dto.pixel.RegionInfo;
 import com.m3pro.groundflip.enums.RegionLevel;
 import com.m3pro.groundflip.repository.RegionRepository;
+import com.m3pro.groundflip.util.DateUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,13 +34,21 @@ public class RegionService {
 		Point point = geometryFactory.createPoint(new Coordinate(currentLongitude, currentLatitude));
 		point.setSRID(WGS84_SRID);
 		RegionLevel regionLevel = radius < CITY_LEVEL_THRESHOLD ? RegionLevel.CITY : RegionLevel.PROVINCE;
+		LocalDate now = LocalDate.now();
 
-		List<RegionInfo> regions = regionRepository.findAllCityRegionsByCoordinate(point, radius,
-			regionLevel.getLevel());
+		List<RegionInfo> regions;
+		if (radius < CITY_LEVEL_THRESHOLD) {
+			regions = regionRepository.findAllCityRegionsByCoordinate(point, radius, DateUtils.getWeekOfDate(now),
+				now.getYear());
+		} else {
+			regions = regionRepository.findAllProvinceRegionsByCoordinate(DateUtils.getWeekOfDate(now),
+				now.getYear());
+		}
+
 		return regions.stream().map(region -> ClusteredPixelCount.from(
 			region.getRegionId(),
 			region.getName(),
-			(int)(Math.random() * 1500) + 1,
+			region.getCount(),
 			region.getLatitude(),
 			region.getLongitude(),
 			regionLevel
