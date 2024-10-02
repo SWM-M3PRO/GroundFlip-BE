@@ -199,7 +199,7 @@ public class PixelController {
 		@RequestParam(name = "user-id") @NotNull() Long userId) {
 
 		return Response.createSuccess(
-			regionService.getIndividualModeClusteredPixelCount(currentLatitude, currentLongitude, radius));
+			regionService.getIndividualHistoryClusteredPixelCount(currentLatitude, currentLongitude, radius, userId));
 	}
 
 	@Operation(summary = "그룹전 클러스터링된 픽셀 조회", description = "특정 좌표를 중심으로 반경 내 그룹전 클러스터링된 픽셀 정보를 조회 API")

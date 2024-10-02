@@ -85,4 +85,31 @@ public class RegionService {
 			regionLevel
 		)).toList();
 	}
+
+	public List<ClusteredPixelCount> getIndividualHistoryClusteredPixelCount(
+		double currentLatitude,
+		double currentLongitude,
+		int radius,
+		Long userId
+	) {
+		Point point = geometryFactory.createPoint(new Coordinate(currentLongitude, currentLatitude));
+		point.setSRID(WGS84_SRID);
+		RegionLevel regionLevel = radius < CITY_LEVEL_THRESHOLD ? RegionLevel.CITY : RegionLevel.PROVINCE;
+
+		List<RegionInfo> regions;
+		if (radius < CITY_LEVEL_THRESHOLD) {
+			regions = regionRepository.findAllIndividualHistoryCityRegionsByCoordinate(point, radius, userId);
+		} else {
+			regions = regionRepository.findAllIndividualHistoryProvinceRegionsByCoordinate(userId);
+		}
+
+		return regions.stream().map(region -> ClusteredPixelCount.from(
+			region.getRegionId(),
+			region.getName(),
+			region.getCount(),
+			region.getLatitude(),
+			region.getLongitude(),
+			regionLevel
+		)).toList();
+	}
 }
