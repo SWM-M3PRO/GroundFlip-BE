@@ -36,4 +36,12 @@ public class CompetitionCount {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "region_id")
 	private Region region;
+
+	public void increaseIndividualModeCount() {
+		this.individualModeCount++;
+	}
+
+	public void increaseCommunityModeCount() {
+		this.communityModeCount++;
+	}
 }
