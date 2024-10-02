@@ -17,7 +17,7 @@ public interface RegionRepository extends JpaRepository<Region, Long> {
 				ST_LATITUDE(r.coordinate) AS latitude,
 				ST_LONGITUDE(r.coordinate) AS longitude,
 				r.name,
-				SUM(cc.individual_mode_count) AS count
+				cc.individual_mode_count AS count
 			FROM
 				region r
 			JOIN competition_count cc
@@ -28,7 +28,6 @@ public interface RegionRepository extends JpaRepository<Region, Long> {
 				AND cc.week = :week
 				AND cc.year = :year
 				AND cc.individual_mode_count > 0
-			GROUP BY r.region_id
 		""", nativeQuery = true)
 	List<RegionInfo> findAllIndividualCityRegionsByCoordinate(
 		@Param("center") Point center,
@@ -69,7 +68,7 @@ public interface RegionRepository extends JpaRepository<Region, Long> {
 				ST_LATITUDE(r.coordinate) AS latitude,
 				ST_LONGITUDE(r.coordinate) AS longitude,
 				r.name,
-				SUM(cc.community_mode_count) AS count
+				cc.community_mode_count AS count
 			FROM
 				region r
 			JOIN competition_count cc
@@ -80,7 +79,6 @@ public interface RegionRepository extends JpaRepository<Region, Long> {
 				AND cc.week = :week
 				AND cc.year = :year
 				AND cc.community_mode_count > 0
-			GROUP BY r.region_id
 		""", nativeQuery = true)
 	List<RegionInfo> findAllCommunityCityRegionsByCoordinate(
 		@Param("center") Point center,
