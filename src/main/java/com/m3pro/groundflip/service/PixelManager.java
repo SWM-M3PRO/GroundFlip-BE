@@ -20,12 +20,15 @@ import com.m3pro.groundflip.domain.dto.pixel.naverApi.ReverseGeocodingResult;
 import com.m3pro.groundflip.domain.entity.CompetitionCount;
 import com.m3pro.groundflip.domain.entity.Pixel;
 import com.m3pro.groundflip.domain.entity.Region;
+import com.m3pro.groundflip.domain.entity.UserRegionCount;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.CompetitionCountRepository;
 import com.m3pro.groundflip.repository.PixelRepository;
 import com.m3pro.groundflip.repository.PixelUserRepository;
 import com.m3pro.groundflip.repository.RegionRepository;
+import com.m3pro.groundflip.repository.UserRegionCountRepository;
+import com.m3pro.groundflip.repository.UserRepository;
 import com.m3pro.groundflip.util.DateUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -53,6 +56,8 @@ public class PixelManager {
 	private final ReverseGeoCodingService reverseGeoCodingService;
 	private final RegionRepository regionRepository;
 	private final CompetitionCountRepository competitionCountRepository;
+	private final UserRegionCountRepository userRegionCountRepository;
+	private final UserRepository userRepository;
 
 	/**
 	 * 픽셀을 차지한다.
@@ -163,8 +168,28 @@ public class PixelManager {
 
 	private void updateUserAccumulatePixelCount(Pixel targetPixel, Long userId) {
 		if (!pixelUserRepository.existsByPixelIdAndUserId(targetPixel.getId(), userId)) {
+			updateUserRegionCount(targetPixel, userId);
 			userRankingService.updateAccumulatedRanking(userId);
 		}
+	}
+
+	private void updateUserRegionCount(Pixel targetPixel, Long userId) {
+		if (targetPixel.getRegion() == null) {
+			return;
+		}
+		UserRegionCount userRegionCount = userRegionCountRepository
+			.findByRegionAndUser(targetPixel.getRegion(), userId)
+			.orElseGet(() -> createUserRegionCount(targetPixel.getRegion(), userId));
+		userRegionCount.increaseCount();
+	}
+
+	private UserRegionCount createUserRegionCount(Region region, Long userId) {
+		UserRegionCount userRegionCount = UserRegionCount.builder()
+			.count(0)
+			.region(region)
+			.user(userRepository.getReferenceById(userId))
+			.build();
+		return userRegionCountRepository.save(userRegionCount);
 	}
 
 	private void updateCommunityCurrentPixelCount(Pixel targetPixel, Long communityId) {
