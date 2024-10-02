@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
-import com.m3pro.groundflip.domain.dto.pixel.event.PixelAddressUpdateEvent;
 import com.m3pro.groundflip.domain.dto.pixel.event.PixelUserInsertEvent;
 import com.m3pro.groundflip.domain.dto.pixel.naverApi.ReverseGeocodingResult;
 import com.m3pro.groundflip.domain.entity.CompetitionCount;
@@ -106,7 +105,6 @@ public class PixelManager {
 
 		pixelRepository.saveAndFlush(targetPixel);
 
-		// updatePixelAddress(targetPixel);
 		eventPublisher.publishEvent(
 			new PixelUserInsertEvent(targetPixel.getId(), occupyingUserId, occupyingCommunityId));
 	}
@@ -213,18 +211,6 @@ public class PixelManager {
 		if (!occupyingCommunityId.equals(DEFAULT_COMMUNITY_ID)) {
 			targetPixel.updateCommunityId(occupyingCommunityId);
 			targetPixel.updateCommunityOccupiedAtToNow();
-		}
-	}
-
-	/**
-	 * 픽셀의 주소를 업데이트한다..
-	 * @param targetPixel 주소를 얻기 위한 픽셀
-	 * @return
-	 * @author 김민욱
-	 */
-	private void updatePixelAddress(Pixel targetPixel) {
-		if (targetPixel.getAddress() == null) {
-			eventPublisher.publishEvent(new PixelAddressUpdateEvent(targetPixel));
 		}
 	}
 }
