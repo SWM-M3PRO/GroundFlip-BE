@@ -42,7 +42,7 @@ public class Pixel {
 
 	private Long communityId;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "region_id")
 	private Region region;
 
