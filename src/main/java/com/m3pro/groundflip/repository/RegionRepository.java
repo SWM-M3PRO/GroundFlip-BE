@@ -112,4 +112,51 @@ public interface RegionRepository extends JpaRepository<Region, Long> {
 		@Param("week") int week,
 		@Param("year") int year
 	);
+
+	@Query(value = """
+			SELECT
+				r.region_id,
+				ST_LATITUDE(r.coordinate) AS latitude,
+				ST_LONGITUDE(r.coordinate) AS longitude,
+				r.name,
+				urc.count AS count
+			FROM
+				region r
+			JOIN user_region_count urc
+			ON r.region_id = urc.region_id
+			WHERE
+				ST_CONTAINS((ST_Buffer(:center, :radius)), r.coordinate)
+				AND r.region_level = 'city'
+				AND urc.count > 0
+				AND urc.user_id = :user_id
+		""", nativeQuery = true)
+	List<RegionInfo> findAllIndividualHistoryCityRegionsByCoordinate(
+		@Param("center") Point center,
+		@Param("radius") int radius,
+		@Param("user_id") Long userId
+	);
+
+	@Query(value = """
+			SELECT
+				p.region_id,
+				ST_LATITUDE(p.coordinate) AS latitude,
+				ST_LONGITUDE(p.coordinate) AS longitude,
+				p.name,
+				SUM(urc.count) AS count
+			FROM
+				region p
+			JOIN region r
+			ON p.region_id = r.parent_id
+			JOIN user_region_count urc
+			ON r.region_id = urc.region_id
+			WHERE
+				p.region_level = 'province'
+				AND urc.count > 0
+				AND urc.user_id = :user_id
+			GROUP BY
+				p.region_id
+		""", nativeQuery = true)
+	List<RegionInfo> findAllIndividualHistoryProvinceRegionsByCoordinate(
+		@Param("user_id") Long userId
+	);
 }
