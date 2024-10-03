@@ -164,5 +164,15 @@ public class PixelController {
 		@RequestParam(name = "community-id") @NotNull() Long communityId) {
 		return Response.createSuccess(pixelReader.getCommunityPixelCount(communityId));
 	}
+
+	@Operation(summary = "주간 픽셀 개수 조회", description = "특정 유저의 주간 방문한 픽셀을 조회하는 api")
+	@GetMapping("/count/daily/{userId}")
+	public Response<List<Integer>> getDailyPixel(
+		@PathVariable(name = "userId") @NotNull() Long userId,
+		@RequestParam(name = "start-date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+		@RequestParam(name = "end-date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+	) {
+		return Response.createSuccess(pixelReader.getDailyPixel(userId, startDate, endDate));
+	}
 }
 

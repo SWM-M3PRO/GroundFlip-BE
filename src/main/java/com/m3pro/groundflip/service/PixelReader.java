@@ -29,6 +29,7 @@ import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.CommunityRepository;
+import com.m3pro.groundflip.repository.DailyPixelRepository;
 import com.m3pro.groundflip.repository.PixelRepository;
 import com.m3pro.groundflip.repository.PixelUserRepository;
 import com.m3pro.groundflip.repository.UserRepository;
@@ -51,6 +52,7 @@ public class PixelReader {
 	private final UserRankingService userRankingService;
 	private final CommunityRankingService communityRankingService;
 	private final CommunityRepository communityRepository;
+	private final DailyPixelRepository dailyPixelRepository;
 
 	/**
 	 * 사용자를 중심으로 일정한 반경 내에 개인전 픽셀들을 가져온다.
@@ -234,5 +236,9 @@ public class PixelReader {
 				});
 			return PixelOwnerCommunityResponse.from(ownerCommunity, currentPixelCount, accumulatePixelCount);
 		}
+	}
+
+	public List<Integer> getDailyPixel(Long userId, LocalDate startDate, LocalDate endDate) {
+		return dailyPixelRepository.findAllDailyPixel(userId, startDate, endDate);
 	}
 }
