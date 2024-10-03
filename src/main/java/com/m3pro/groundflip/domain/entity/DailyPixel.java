@@ -1,6 +1,6 @@
 package com.m3pro.groundflip.domain.entity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +31,7 @@ public class DailyPixel {
 
 	private Integer dailyPixelCount;
 
-	private LocalDate createdAt;
+	private LocalDateTime createdAt;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
