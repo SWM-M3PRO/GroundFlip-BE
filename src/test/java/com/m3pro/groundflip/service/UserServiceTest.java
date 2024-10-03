@@ -213,6 +213,7 @@ class UserServiceTest {
 		when(userRepository.findById(deleteUser.getId())).thenReturn(Optional.of(deleteUser));
 		doNothing().when(rankingHistoryRepository).deleteByUserIdAndYearAndWeek(1L, year, week);
 
+
 		userService.deleteUser(1L, new UserDeleteRequest("acessToken", "refreshToken"));
 
 		Calendar calendar = Calendar.getInstance();
