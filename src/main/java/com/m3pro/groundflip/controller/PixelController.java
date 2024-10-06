@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.m3pro.groundflip.domain.dto.Response;
+import com.m3pro.groundflip.domain.dto.pixel.ClusteredPixelCount;
 import com.m3pro.groundflip.domain.dto.pixel.CommunityModePixelResponse;
 import com.m3pro.groundflip.domain.dto.pixel.CommunityPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualHistoryPixelResponse;
@@ -23,6 +24,7 @@ import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
 import com.m3pro.groundflip.service.PixelManager;
 import com.m3pro.groundflip.service.PixelReader;
+import com.m3pro.groundflip.service.RegionService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -44,6 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PixelController {
 	private final PixelManager pixelManager;
 	private final PixelReader pixelReader;
+	private final RegionService regionService;
 
 	@Operation(summary = "개인전 픽셀 조회", description = "특정 좌표를 중심으로 반경 내 개인전 픽셀 정보를 조회 API")
 	@Parameters({
@@ -165,6 +168,56 @@ public class PixelController {
 		return Response.createSuccess(pixelReader.getCommunityPixelCount(communityId));
 	}
 
+	@Operation(summary = "개인전 클러스터링된 픽셀 조회", description = "특정 좌표를 중심으로 반경 내 개인전 클러스터링된 픽셀 정보 API")
+	@Parameters({
+		@Parameter(name = "current-latitude", description = "원의 중심 좌표의 위도", example = "37.503717"),
+		@Parameter(name = "current-longitude", description = "원의 중심 좌표의 경도", example = "127.044317"),
+		@Parameter(name = "radius", description = "미터 단위의 반경", example = "1000"),
+	})
+	@GetMapping("/individual-mode/clustered")
+	public Response<List<ClusteredPixelCount>> getNearIndividualClusteredPixels(
+		@RequestParam(name = "current-latitude") @Min(-90) @Max(90) double currentLatitude,
+		@RequestParam(name = "current-longitude") @Min(-180) @Max(180) double currentLongitude,
+		@RequestParam(name = "radius") @Min(0) int radius) {
+
+		return Response.createSuccess(
+			regionService.getIndividualModeClusteredPixelCount(currentLatitude, currentLongitude, radius));
+	}
+
+	@Operation(summary = "개인기록 클러스터링된 픽셀 조회", description = "특정 좌표를 중심으로 반경 내 개인기록 클러스터링된 픽셀 정보 API")
+	@Parameters({
+		@Parameter(name = "current-latitude", description = "원의 중심 좌표의 위도", example = "37.503717"),
+		@Parameter(name = "current-longitude", description = "원의 중심 좌표의 경도", example = "127.044317"),
+		@Parameter(name = "radius", description = "미터 단위의 반경", example = "1000"),
+		@Parameter(name = "user-id", description = "찾고자 하는 user의 id", example = "127"),
+	})
+	@GetMapping("/individual-history/clustered")
+	public Response<List<ClusteredPixelCount>> getNearIndividualHistoryClusteredPixels(
+		@RequestParam(name = "current-latitude") @Min(-90) @Max(90) double currentLatitude,
+		@RequestParam(name = "current-longitude") @Min(-180) @Max(180) double currentLongitude,
+		@RequestParam(name = "radius") @Min(0) int radius,
+		@RequestParam(name = "user-id") @NotNull() Long userId) {
+
+		return Response.createSuccess(
+			regionService.getIndividualHistoryClusteredPixelCount(currentLatitude, currentLongitude, radius, userId));
+	}
+
+	@Operation(summary = "그룹전 클러스터링된 픽셀 조회", description = "특정 좌표를 중심으로 반경 내 그룹전 클러스터링된 픽셀 정보를 조회 API")
+	@Parameters({
+		@Parameter(name = "current-latitude", description = "원의 중심 좌표의 위도", example = "37.503717"),
+		@Parameter(name = "current-longitude", description = "원의 중심 좌표의 경도", example = "127.044317"),
+		@Parameter(name = "radius", description = "미터 단위의 반경", example = "1000"),
+	})
+	@GetMapping("/community-mode/clustered")
+	public Response<List<ClusteredPixelCount>> getNearCommunityClusteredPixels(
+		@RequestParam(name = "current-latitude") @Min(-90) @Max(90) double currentLatitude,
+		@RequestParam(name = "current-longitude") @Min(-180) @Max(180) double currentLongitude,
+		@RequestParam(name = "radius") @Min(0) int radius) {
+
+		return Response.createSuccess(
+			regionService.getCommunityModeClusteredPixelCount(currentLatitude, currentLongitude, radius));
+	}
+	
 	@Operation(summary = "주간 픽셀 개수 조회", description = "특정 유저의 주간 방문한 픽셀을 조회하는 api")
 	@GetMapping("/count/daily/{userId}")
 	public Response<List<Integer>> getDailyPixel(

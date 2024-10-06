@@ -84,3 +84,6 @@ cloud:
 version:
   update: 1.0.3
   recommend: 1.0.0
+
+geocoding:
+  api: "http://localhost:3030/find_district"

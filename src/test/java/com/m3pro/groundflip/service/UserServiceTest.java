@@ -208,12 +208,11 @@ class UserServiceTest {
 			.status(UserStatus.COMPLETE)
 			.nickname("test")
 			.build();
-
+		int year = LocalDate.now().getYear();
+		int week = DateUtils.getWeekOfDate(LocalDate.now());
 		when(userRepository.findById(deleteUser.getId())).thenReturn(Optional.of(deleteUser));
+		doNothing().when(rankingHistoryRepository).deleteByUserIdAndYearAndWeek(1L, year, week);
 
-		LocalDate today = LocalDate.now();
-		doNothing().when(rankingHistoryRepository)
-			.deleteByUserIdAndYearAndWeek(1L, today.getYear(), DateUtils.getWeekOfDate(today));
 
 		userService.deleteUser(1L, new UserDeleteRequest("acessToken", "refreshToken"));
 
@@ -241,14 +240,12 @@ class UserServiceTest {
 			.status(UserStatus.COMPLETE)
 			.nickname("test")
 			.build();
-
+		int year = LocalDate.now().getYear();
+		int week = DateUtils.getWeekOfDate(LocalDate.now());
 		when(userRepository.findById(deleteUser.getId())).thenReturn(Optional.of(deleteUser));
 		when(appleRefreshTokenRepository.findByUserId(any())).thenReturn(
 			Optional.of(AppleRefreshToken.builder().refreshToken("test").build()));
-
-		LocalDate today = LocalDate.now();
-		doNothing().when(rankingHistoryRepository)
-			.deleteByUserIdAndYearAndWeek(1L, today.getYear(), DateUtils.getWeekOfDate(today));
+		doNothing().when(rankingHistoryRepository).deleteByUserIdAndYearAndWeek(1L, year, week);
 
 		userService.deleteUser(1L, new UserDeleteRequest("acessToken", "refreshToken"));
 

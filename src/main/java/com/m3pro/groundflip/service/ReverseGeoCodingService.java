@@ -10,6 +10,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.m3pro.groundflip.domain.dto.pixel.naverApi.NaverReverseGeoCodingApiResult;
+import com.m3pro.groundflip.domain.dto.pixel.naverApi.ReverseGeocodingResult;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +23,8 @@ public class ReverseGeoCodingService {
 	private String apiKeyId;
 	@Value("${naver.apiKey}")
 	private String apiKey;
+	@Value("${naver.apiKeyId}")
+	private String reverseGeocodingApiUrl;
 
 	/**
 	 * 특정 좌표의 주소를 얻어온다.
@@ -29,6 +32,24 @@ public class ReverseGeoCodingService {
 	 * @param latitude 위도
 	 * @return 주소 if 대한민국 주소가 없으면 null 반환
 	 */
+	public ReverseGeocodingResult getRegionFromCoordinates(double longitude, double latitude) {
+		return fetchReverseGeoCodingServer(longitude, latitude);
+	}
+
+	private ReverseGeocodingResult fetchReverseGeoCodingServer(double longitude, double latitude) {
+		URI uri = UriComponentsBuilder.fromHttpUrl(reverseGeocodingApiUrl)
+			.queryParam("lon", longitude)
+			.queryParam("lat", latitude)
+			.encode(StandardCharsets.UTF_8)
+			.build()
+			.toUri();
+
+		return restClient.get()
+			.uri(uri)
+			.retrieve()
+			.body(ReverseGeocodingResult.class);
+	}
+
 	public String getAddressFromCoordinates(double longitude, double latitude) {
 		NaverReverseGeoCodingApiResult naverReverseGeoCodingApiResult =
 			fetchNaverReverseGeoCodingApiResult(longitude, latitude);

@@ -1,5 +1,6 @@
 package com.m3pro.groundflip.service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -14,13 +15,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
-import com.m3pro.groundflip.domain.dto.pixel.event.PixelAddressUpdateEvent;
 import com.m3pro.groundflip.domain.dto.pixel.event.PixelUserInsertEvent;
+import com.m3pro.groundflip.domain.dto.pixel.naverApi.ReverseGeocodingResult;
+import com.m3pro.groundflip.domain.entity.CompetitionCount;
 import com.m3pro.groundflip.domain.entity.Pixel;
+import com.m3pro.groundflip.domain.entity.Region;
+import com.m3pro.groundflip.domain.entity.UserRegionCount;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
+import com.m3pro.groundflip.repository.CompetitionCountRepository;
 import com.m3pro.groundflip.repository.PixelRepository;
 import com.m3pro.groundflip.repository.PixelUserRepository;
+import com.m3pro.groundflip.repository.RegionRepository;
+import com.m3pro.groundflip.repository.UserRegionCountRepository;
+import com.m3pro.groundflip.repository.UserRepository;
+import com.m3pro.groundflip.util.DateUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +53,11 @@ public class PixelManager {
 	private final RedissonClient redissonClient;
 	private final PixelUserRepository pixelUserRepository;
 	private final GeometryFactory geometryFactory;
+	private final ReverseGeoCodingService reverseGeoCodingService;
+	private final RegionRepository regionRepository;
+	private final CompetitionCountRepository competitionCountRepository;
+	private final UserRegionCountRepository userRegionCountRepository;
+	private final UserRepository userRepository;
 
 	/**
 	 * 픽셀을 차지한다.
@@ -85,7 +99,7 @@ public class PixelManager {
 		Pixel targetPixel = pixelRepository.findByXAndY(pixelOccupyRequest.getX(),
 				pixelOccupyRequest.getY())
 			.orElseGet(() -> createPixel(pixelOccupyRequest.getX(), pixelOccupyRequest.getY()));
-
+		updateRegionCount(targetPixel, occupyingCommunityId != -1L);
 		userRankingService.updateCurrentPixelRanking(targetPixel, occupyingUserId);
 		updateUserAccumulatePixelCount(targetPixel, occupyingUserId);
 		updatePixelOwnerUser(targetPixel, occupyingUserId);
@@ -96,7 +110,6 @@ public class PixelManager {
 
 		pixelRepository.saveAndFlush(targetPixel);
 
-		updatePixelAddress(targetPixel);
 		eventPublisher.publishEvent(
 			new PixelUserInsertEvent(targetPixel.getId(), occupyingUserId, occupyingCommunityId));
 	}
@@ -108,7 +121,10 @@ public class PixelManager {
 	private Pixel createPixel(Long x, Long y) {
 		Long pixelId = getPixelId(x, y);
 		Point coordinate = getCoordinate(x, y);
+		ReverseGeocodingResult reverseGeocodingResult = getRegion(coordinate);
 		log.info("x: {}, y: {} pixel 생성", x, y);
+		Region region = reverseGeocodingResult.getRegionId() != null
+			? regionRepository.getReferenceById(reverseGeocodingResult.getRegionId()) : null;
 
 		Pixel pixel = Pixel.builder()
 			.id(pixelId)
@@ -116,8 +132,18 @@ public class PixelManager {
 			.y(y)
 			.coordinate(coordinate)
 			.createdAt(LocalDateTime.now())
+			.userOccupiedAt(LocalDateTime.of(2024, 6, 1, 0, 0))
+			.communityOccupiedAt(LocalDateTime.of(2024, 6, 1, 0, 0))
+			.region(region)
+			.address(reverseGeocodingResult.getRegionName())
 			.build();
 		return pixelRepository.save(pixel);
+	}
+
+	private ReverseGeocodingResult getRegion(Point coordinate) {
+		double longitude = coordinate.getX();
+		double latitude = coordinate.getY();
+		return reverseGeoCodingService.getRegionFromCoordinates(longitude, latitude);
 	}
 
 	private Point getCoordinate(Long x, Long y) {
@@ -142,8 +168,28 @@ public class PixelManager {
 
 	private void updateUserAccumulatePixelCount(Pixel targetPixel, Long userId) {
 		if (!pixelUserRepository.existsByPixelIdAndUserId(targetPixel.getId(), userId)) {
+			updateUserRegionCount(targetPixel, userId);
 			userRankingService.updateAccumulatedRanking(userId);
 		}
+	}
+
+	private void updateUserRegionCount(Pixel targetPixel, Long userId) {
+		if (targetPixel.getRegion() == null) {
+			return;
+		}
+		UserRegionCount userRegionCount = userRegionCountRepository
+			.findByRegionAndUser(targetPixel.getRegion(), userId)
+			.orElseGet(() -> createUserRegionCount(targetPixel.getRegion(), userId));
+		userRegionCount.increaseCount();
+	}
+
+	private UserRegionCount createUserRegionCount(Region region, Long userId) {
+		UserRegionCount userRegionCount = UserRegionCount.builder()
+			.count(0)
+			.region(region)
+			.user(userRepository.getReferenceById(userId))
+			.build();
+		return userRegionCountRepository.save(userRegionCount);
 	}
 
 	private void updateCommunityCurrentPixelCount(Pixel targetPixel, Long communityId) {
@@ -157,22 +203,39 @@ public class PixelManager {
 		targetPixel.updateUserOccupiedAtToNow();
 	}
 
+	private void updateRegionCount(Pixel targetPixel, boolean isCommunityUpdatable) {
+		if (targetPixel.getRegion() != null) {
+			LocalDate now = LocalDate.now();
+			int week = DateUtils.getWeekOfDate(now);
+			int year = now.getYear();
+			CompetitionCount competitionCount = competitionCountRepository
+				.findByRegion(targetPixel.getRegion(), week, year)
+				.orElseGet(() -> createCompetitionCount(targetPixel.getRegion(), week, year));
+			if (!DateUtils.isDateInCurrentWeek(targetPixel.getUserOccupiedAt().toLocalDate())) {
+				competitionCount.increaseIndividualModeCount();
+			}
+			if (isCommunityUpdatable && !DateUtils.isDateInCurrentWeek(
+				targetPixel.getCommunityOccupiedAt().toLocalDate())) {
+				competitionCount.increaseCommunityModeCount();
+			}
+		}
+	}
+
+	private CompetitionCount createCompetitionCount(Region region, int week, int year) {
+		CompetitionCount competitionCount = CompetitionCount.builder()
+			.individualModeCount(0)
+			.communityModeCount(0)
+			.region(region)
+			.week(week)
+			.year(year)
+			.build();
+		return competitionCountRepository.save(competitionCount);
+	}
+
 	private void updatePixelOwnerCommunity(Pixel targetPixel, Long occupyingCommunityId) {
 		if (!occupyingCommunityId.equals(DEFAULT_COMMUNITY_ID)) {
 			targetPixel.updateCommunityId(occupyingCommunityId);
 			targetPixel.updateCommunityOccupiedAtToNow();
-		}
-	}
-
-	/**
-	 * 픽셀의 주소를 업데이트한다..
-	 * @param targetPixel 주소를 얻기 위한 픽셀
-	 * @return
-	 * @author 김민욱
-	 */
-	private void updatePixelAddress(Pixel targetPixel) {
-		if (targetPixel.getAddress() == null) {
-			eventPublisher.publishEvent(new PixelAddressUpdateEvent(targetPixel));
 		}
 	}
 }
