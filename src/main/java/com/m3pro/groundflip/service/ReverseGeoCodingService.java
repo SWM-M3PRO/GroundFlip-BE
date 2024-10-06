@@ -18,13 +18,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReverseGeoCodingService {
 	private static final String NAVER_API_URL = "https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc";
-	private static final String REVERSE_GEOCODING_API_URL = "http://localhost:3030/find_district";
-
 	private final RestClient restClient;
 	@Value("${naver.apiKeyId}")
 	private String apiKeyId;
 	@Value("${naver.apiKey}")
 	private String apiKey;
+	@Value("${naver.apiKeyId}")
+	private String reverseGeocodingApiUrl;
 
 	/**
 	 * 특정 좌표의 주소를 얻어온다.
@@ -37,7 +37,7 @@ public class ReverseGeoCodingService {
 	}
 
 	private ReverseGeocodingResult fetchReverseGeoCodingServer(double longitude, double latitude) {
-		URI uri = UriComponentsBuilder.fromHttpUrl(REVERSE_GEOCODING_API_URL)
+		URI uri = UriComponentsBuilder.fromHttpUrl(reverseGeocodingApiUrl)
 			.queryParam("lon", longitude)
 			.queryParam("lat", latitude)
 			.encode(StandardCharsets.UTF_8)
