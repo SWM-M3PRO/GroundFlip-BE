@@ -1,6 +1,7 @@
 package com.m3pro.groundflip.domain.dto.pixelUser;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 import com.m3pro.groundflip.domain.entity.Pixel;
@@ -28,7 +29,7 @@ public class IndividualHistoryPixelInfoResponse {
 			if (addressArr[0].equals("대한민국")) {
 				realAddress = addressArr[0];
 			} else {
-				realAddress = addressArr[1] + ' ' + addressArr[2];
+				realAddress = String.join(" ", Arrays.copyOfRange(addressArr, 1, addressArr.length));
 			}
 		} else {
 			realAddress = null;

@@ -87,4 +87,5 @@ version:
   update: ${LATEST_VERSION}
   recommend: ${FORCE_UPDATE_VERSION}
 
-
+geocoding:
+  api: ${GEOCODING_API}

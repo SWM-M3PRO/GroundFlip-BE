@@ -26,17 +26,16 @@ import jakarta.transaction.Transactional;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class PixelUserRepositoryTest {
 	private static final int WGS84_SRID = 4326;
-
+	@Autowired
+	CommunityRepository communityRepository;
+	@Autowired
+	GeometryFactory geometryFactory;
 	@Autowired
 	private PixelUserRepository pixelUserRepository;
 	@Autowired
 	private PixelRepository pixelRepository;
 	@Autowired
 	private UserRepository userRepository;
-	@Autowired
-	CommunityRepository communityRepository;
-	@Autowired
-	GeometryFactory geometryFactory;
 
 	@BeforeEach
 	void setUp() {
@@ -55,6 +54,7 @@ public class PixelUserRepositoryTest {
 		);
 
 		Pixel savedPixel = pixelRepository.save(Pixel.builder()
+			.id(1L)
 			.coordinate(createPoint(37.0, 127.0))
 			.build());
 

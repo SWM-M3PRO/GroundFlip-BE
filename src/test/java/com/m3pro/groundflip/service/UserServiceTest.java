@@ -42,6 +42,7 @@ import com.m3pro.groundflip.repository.UserCommunityRepository;
 import com.m3pro.groundflip.repository.UserRankingRedisRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 import com.m3pro.groundflip.service.oauth.AppleApiClient;
+import com.m3pro.groundflip.util.DateUtils;
 import com.m3pro.groundflip.util.S3Uploader;
 
 @ExtendWith(MockitoExtension.class)
@@ -207,9 +208,11 @@ class UserServiceTest {
 			.status(UserStatus.COMPLETE)
 			.nickname("test")
 			.build();
-
+		int year = LocalDate.now().getYear();
+		int week = DateUtils.getWeekOfDate(LocalDate.now());
 		when(userRepository.findById(deleteUser.getId())).thenReturn(Optional.of(deleteUser));
-		doNothing().when(rankingHistoryRepository).deleteByUserIdAndYearAndWeek(1L, 2024, 39);
+		doNothing().when(rankingHistoryRepository).deleteByUserIdAndYearAndWeek(1L, year, week);
+
 
 		userService.deleteUser(1L, new UserDeleteRequest("acessToken", "refreshToken"));
 
@@ -237,11 +240,12 @@ class UserServiceTest {
 			.status(UserStatus.COMPLETE)
 			.nickname("test")
 			.build();
-
+		int year = LocalDate.now().getYear();
+		int week = DateUtils.getWeekOfDate(LocalDate.now());
 		when(userRepository.findById(deleteUser.getId())).thenReturn(Optional.of(deleteUser));
 		when(appleRefreshTokenRepository.findByUserId(any())).thenReturn(
 			Optional.of(AppleRefreshToken.builder().refreshToken("test").build()));
-		doNothing().when(rankingHistoryRepository).deleteByUserIdAndYearAndWeek(1L, 2024, 39);
+		doNothing().when(rankingHistoryRepository).deleteByUserIdAndYearAndWeek(1L, year, week);
 
 		userService.deleteUser(1L, new UserDeleteRequest("acessToken", "refreshToken"));
 
