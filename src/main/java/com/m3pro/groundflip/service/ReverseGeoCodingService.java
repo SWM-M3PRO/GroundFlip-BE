@@ -23,7 +23,7 @@ public class ReverseGeoCodingService {
 	private String apiKeyId;
 	@Value("${naver.apiKey}")
 	private String apiKey;
-	@Value("${naver.apiKeyId}")
+	@Value("${geocoding.api}")
 	private String reverseGeocodingApiUrl;
 
 	/**
