@@ -91,6 +91,8 @@ public class PixelManager {
 	private void occupyPixel(PixelOccupyRequest pixelOccupyRequest) {
 		Long occupyingUserId = pixelOccupyRequest.getUserId();
 		Long occupyingCommunityId = Optional.ofNullable(pixelOccupyRequest.getCommunityId()).orElse(-1L);
+		log.info("[Visit Pixel] x : {}, y: {}, user : {}", pixelOccupyRequest.getX(), pixelOccupyRequest.getY(),
+			occupyingUserId);
 
 		if (!isValidCoordinate(pixelOccupyRequest.getX(), pixelOccupyRequest.getY())) {
 			throw new AppException(ErrorCode.PIXEL_NOT_FOUND);
@@ -143,7 +145,13 @@ public class PixelManager {
 	private ReverseGeocodingResult getRegion(Point coordinate) {
 		double longitude = coordinate.getX();
 		double latitude = coordinate.getY();
-		return reverseGeoCodingService.getRegionFromCoordinates(longitude, latitude);
+		try {
+			return reverseGeoCodingService.getRegionFromCoordinates(longitude, latitude);
+		} catch (Exception e) {
+			String errorLog = "[Reverse Geocoding Error] longitude : " + longitude + ", latitude : " + latitude + "  ";
+			log.error("{}{}", errorLog, e.getMessage(), e);
+			return ReverseGeocodingResult.builder().regionId(null).regionName(null).build();
+		}
 	}
 
 	private Point getCoordinate(Long x, Long y) {
