@@ -3,16 +3,19 @@ package com.m3pro.groundflip.controller;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.m3pro.groundflip.domain.dto.Response;
+import com.m3pro.groundflip.domain.dto.announcement.AnnouncementInfoResponse;
 import com.m3pro.groundflip.domain.dto.announcement.AnnouncementResponse;
 import com.m3pro.groundflip.domain.dto.announcement.EventResponse;
 import com.m3pro.groundflip.service.AnnouncementService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -37,5 +40,14 @@ public class AnnouncementController {
 		@RequestParam(name = "cursor", defaultValue = "0") Long cursor
 	) {
 		return Response.createSuccess(announcementService.getAnnouncements(cursor));
+	}
+
+	@Operation(summary = "공지 목록을 조회한다.", description = "공지 목록을 조회한다. 커서 이후의 공지사항 30개를 불러온다.")
+	@GetMapping("/{announcementId}")
+	public Response<AnnouncementInfoResponse> getAnnouncementInfo(
+		@Parameter(description = "찾고자 하는 userId", required = true)
+		@PathVariable Long announcementId
+	) {
+		return Response.createSuccess(announcementService.getAnnouncementInfo(announcementId));
 	}
 }
