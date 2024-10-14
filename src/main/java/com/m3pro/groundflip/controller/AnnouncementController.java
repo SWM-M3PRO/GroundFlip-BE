@@ -4,9 +4,11 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.m3pro.groundflip.domain.dto.Response;
+import com.m3pro.groundflip.domain.dto.announcement.AnnouncementResponse;
 import com.m3pro.groundflip.domain.dto.announcement.EventResponse;
 import com.m3pro.groundflip.service.AnnouncementService;
 
@@ -27,5 +29,13 @@ public class AnnouncementController {
 	@GetMapping("/events")
 	public Response<List<EventResponse>> getUserInfo() {
 		return Response.createSuccess(announcementService.getEvents());
+	}
+
+	@Operation(summary = "공지 목록을 조회한다.", description = "공지 목록을 조회한다. 커서 이후의 공지사항 30개를 불러온다.")
+	@GetMapping("")
+	public Response<List<AnnouncementResponse>> getAnnouncements(
+		@RequestParam(name = "cursor", defaultValue = "0") Long cursor
+	) {
+		return Response.createSuccess(announcementService.getAnnouncements(cursor));
 	}
 }
