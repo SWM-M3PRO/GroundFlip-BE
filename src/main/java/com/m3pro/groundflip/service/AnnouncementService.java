@@ -5,8 +5,11 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.m3pro.groundflip.domain.dto.announcement.AnnouncementResponse;
 import com.m3pro.groundflip.domain.dto.announcement.EventResponse;
+import com.m3pro.groundflip.domain.entity.Announcement;
 import com.m3pro.groundflip.domain.entity.Event;
+import com.m3pro.groundflip.repository.AnnouncementRepository;
 import com.m3pro.groundflip.repository.EventRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -16,7 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class AnnouncementService {
+	private static final int PAGE_SIZE = 30;
 	private final EventRepository eventRepository;
+	private final AnnouncementRepository announcementRepository;
 
 	public List<EventResponse> getEvents() {
 		LocalDateTime today = LocalDateTime.now();
@@ -26,5 +31,17 @@ public class AnnouncementService {
 			.eventImageUrl(event.getEventImage())
 			.announcementId(event.getAnnouncementId())
 			.build())).toList();
+	}
+
+	public List<AnnouncementResponse> getAnnouncements(Long cursor) {
+		List<Announcement> announcements = announcementRepository.findAllAnnouncement(cursor, PAGE_SIZE);
+
+		return announcements.stream()
+			.map(announcement -> AnnouncementResponse.builder()
+				.announcementId(announcement.getId())
+				.title(announcement.getTitle())
+				.createdAt(announcement.getCreatedAt())
+				.build()
+			).toList();
 	}
 }
