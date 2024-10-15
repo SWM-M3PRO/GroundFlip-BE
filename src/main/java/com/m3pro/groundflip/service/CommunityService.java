@@ -1,5 +1,6 @@
 package com.m3pro.groundflip.service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,7 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.m3pro.groundflip.domain.dto.community.CommunityInfoRequest;
 import com.m3pro.groundflip.domain.dto.community.CommunityInfoResponse;
 import com.m3pro.groundflip.domain.dto.community.CommunitySearchResponse;
 import com.m3pro.groundflip.domain.dto.community.CommunitySignRequest;
@@ -18,11 +21,14 @@ import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.domain.entity.UserCommunity;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
+import com.m3pro.groundflip.repository.CommunityRankingRedisRepository;
 import com.m3pro.groundflip.repository.CommunityRepository;
 import com.m3pro.groundflip.repository.UserCommunityRepository;
 import com.m3pro.groundflip.repository.UserRankingRedisRepository;
 import com.m3pro.groundflip.repository.UserRepository;
+import com.m3pro.groundflip.util.S3Uploader;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -33,6 +39,8 @@ public class CommunityService {
 	private final CommunityRankingService communityRankingService;
 	private final UserRepository userRepository;
 	private final UserRankingRedisRepository userRankingRedisRepository;
+	private final CommunityRankingRedisRepository communityRankingRedisRepository;
+	private final S3Uploader s3Uploader;
 
 	/*
 	 * 그룹명을 검색한다
@@ -120,5 +128,31 @@ public class CommunityService {
 			}
 		}
 		return userRankingResponses;
+	}
+
+	@Transactional
+	public void createCommunity(CommunityInfoRequest communityInfoRequest, MultipartFile multipartFile) throws
+		IOException {
+		String fileS3Url;
+		Long communityId;
+
+		if (communityRepository.findByName(communityInfoRequest.getName()) != null) {
+			throw new AppException(ErrorCode.DUPLICATED_NICKNAME);
+		}
+
+		fileS3Url = s3Uploader.uploadCommunityFiles(multipartFile);
+
+		communityRepository.save(
+			Community.builder()
+				.name(communityInfoRequest.getName())
+				.backgroundImageUrl(fileS3Url)
+				.communityColor(communityInfoRequest.getCommunityColor())
+				.password(communityInfoRequest.getPassword())
+				.maxRanking(0)
+				.maxPixelCount(0)
+				.build()
+		);
+		communityId = communityRepository.findByName(communityInfoRequest.getName()).getId();
+		communityRankingRedisRepository.saveCommunityInRanking(communityId);
 	}
 }

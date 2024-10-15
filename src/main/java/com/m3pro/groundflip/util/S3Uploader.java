@@ -40,9 +40,33 @@ public class S3Uploader {
 		return imageUrl;
 	}
 
+	public String uploadCommunityFiles(MultipartFile multipartFile) throws IOException {
+		String originalFileName = multipartFile.getOriginalFilename();
+		String convertedFileName;
+		String imageUrl = "";
+		final String path = bucket.concat("/university_logo");
+
+		if (originalFileName != null) {
+			convertedFileName = convertFileNameToUuid2(originalFileName);
+			ObjectMetadata metadata = new ObjectMetadata();
+			metadata.setContentLength(multipartFile.getSize());
+			metadata.setContentType(multipartFile.getContentType());
+
+			amazonS3Client.putObject(path, convertedFileName, multipartFile.getInputStream(), metadata);
+			imageUrl = amazonS3Client.getUrl(path, convertedFileName).toString();
+		}
+
+		return imageUrl;
+	}
+
 	private String convertFileNameToUuid(String fileName, Long userId) {
 		String fileExtension = fileName.substring(fileName.lastIndexOf("."));
 		return UUID.randomUUID().toString().concat("###" + userId.toString()).concat(fileExtension);
+	}
+
+	private String convertFileNameToUuid2(String fileName) {
+		String fileExtension = fileName.substring(fileName.lastIndexOf("."));
+		return UUID.randomUUID().toString().concat(fileExtension);
 	}
 
 }

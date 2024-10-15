@@ -87,7 +87,7 @@ public class UserService {
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
 		if (checkNicknameExists(userInfoRequest, user)) {
-			throw new AppException(ErrorCode.DUPLICATED_NICKNAME);
+			throw new AppException(ErrorCode.DUPLICATED_NAME);
 		}
 
 		if (multipartFile != null) {
