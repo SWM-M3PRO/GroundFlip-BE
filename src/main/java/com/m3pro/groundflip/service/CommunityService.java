@@ -130,6 +130,16 @@ public class CommunityService {
 		return userRankingResponses;
 	}
 
+	public Long getCommunityId(String communityName) {
+		Community community = communityRepository.findByName(communityName);
+
+		if (community == null) {
+			throw new AppException(ErrorCode.COMMUNITY_NOT_FOUND);
+		}
+
+		return community.getId();
+	}
+
 	@Transactional
 	public void createCommunity(CommunityInfoRequest communityInfoRequest, MultipartFile multipartFile) throws
 		IOException {

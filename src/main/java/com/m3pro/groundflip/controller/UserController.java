@@ -40,7 +40,7 @@ public class UserController {
 	@GetMapping("/{userId}")
 	public Response<UserInfoResponse> getUserInfo(
 		@Parameter(description = "찾고자 하는 userId", required = true)
-		@PathVariable Long userId
+		@PathVariable("userId") Long userId
 	) {
 		return Response.createSuccess(userService.getUserInfo(userId));
 	}

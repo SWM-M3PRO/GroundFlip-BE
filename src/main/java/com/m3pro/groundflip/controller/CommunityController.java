@@ -95,4 +95,14 @@ public class CommunityController {
 		communityService.createCommunity(communityInfoRequest, multipartfile);
 		return Response.createSuccessWithNoData();
 	}
+
+	@Operation(summary = "그룹id 검색", description = "그룹 이름으로 그룹 id 검색")
+	@GetMapping("/id/{communityName}")
+	public Response<Long> getCommunityId(
+		@Parameter(description = "찾고자 하는 communityName", required = true)
+		@PathVariable("communityName") String communityName
+	) {
+		return Response.createSuccess(communityService.getCommunityId(communityName));
+	}
+
 }
