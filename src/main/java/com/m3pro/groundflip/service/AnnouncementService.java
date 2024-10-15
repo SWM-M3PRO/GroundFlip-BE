@@ -15,6 +15,7 @@ import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.AnnouncementRepository;
 import com.m3pro.groundflip.repository.EventRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -48,11 +49,12 @@ public class AnnouncementService {
 			).toList();
 	}
 
+	@Transactional
 	public AnnouncementInfoResponse getAnnouncementInfo(Long announcementId) {
 		Announcement announcement = announcementRepository.findById(announcementId)
 			.orElseThrow(() -> new AppException(
 				ErrorCode.INTERNAL_SERVER_ERROR));
-
+		announcement.incrementViewCount();
 		return AnnouncementInfoResponse.from(announcement);
 	}
 }

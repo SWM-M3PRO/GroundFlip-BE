@@ -26,7 +26,13 @@ public class Announcement {
 	@Column(name = "content", nullable = false, columnDefinition = "TEXT")
 	private String content;
 
+	private Long viewCount;
+
 	private LocalDateTime createdAt;
 
 	private LocalDateTime updatedAt;
+
+	public void incrementViewCount() {
+		this.viewCount++;
+	}
 }
