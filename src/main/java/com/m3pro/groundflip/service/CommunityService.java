@@ -145,9 +145,16 @@ public class CommunityService {
 		IOException {
 		String fileS3Url;
 		Long communityId;
+		String password;
 
 		if (communityRepository.findByName(communityInfoRequest.getName()) != null) {
 			throw new AppException(ErrorCode.DUPLICATED_NICKNAME);
+		}
+
+		if (communityInfoRequest.getPassword() == null) {
+			password = "";
+		} else {
+			password = communityInfoRequest.getPassword();
 		}
 
 		fileS3Url = s3Uploader.uploadCommunityFiles(multipartFile);
@@ -157,7 +164,7 @@ public class CommunityService {
 				.name(communityInfoRequest.getName())
 				.backgroundImageUrl(fileS3Url)
 				.communityColor(communityInfoRequest.getCommunityColor())
-				.password(communityInfoRequest.getPassword())
+				.password(password)
 				.maxRanking(0)
 				.maxPixelCount(0)
 				.build()
