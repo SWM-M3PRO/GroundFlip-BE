@@ -8,7 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum ErrorCode {
-	DUPLICATED_NICKNAME(HttpStatus.BAD_REQUEST, "중복된 닉네임입니다."),
+	DUPLICATED_NICKNAME(HttpStatus.BAD_REQUEST, "중복된 그룹명입니다."),
 	DUPLICATED_NAME(HttpStatus.BAD_REQUEST, "중복된 닉네임입니다."),
 	ALREADY_JOINED(HttpStatus.BAD_REQUEST, "이미 가입된 유저입니다."),
 	ALREADY_SIGNED_OUT(HttpStatus.BAD_REQUEST, "이미 탈퇴된 유저입니다."),

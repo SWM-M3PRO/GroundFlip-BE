@@ -141,11 +141,12 @@ public class CommunityService {
 	}
 
 	@Transactional
-	public void createCommunity(CommunityInfoRequest communityInfoRequest, MultipartFile multipartFile) throws
+	public Long createCommunity(CommunityInfoRequest communityInfoRequest, MultipartFile multipartFile) throws
 		IOException {
 		String fileS3Url;
 		Long communityId;
 		String password;
+		Community community;
 
 		if (communityRepository.findByName(communityInfoRequest.getName()) != null) {
 			throw new AppException(ErrorCode.DUPLICATED_NICKNAME);
@@ -159,7 +160,7 @@ public class CommunityService {
 
 		fileS3Url = s3Uploader.uploadCommunityFiles(multipartFile);
 
-		communityRepository.save(
+		community = communityRepository.saveAndFlush(
 			Community.builder()
 				.name(communityInfoRequest.getName())
 				.backgroundImageUrl(fileS3Url)
@@ -169,7 +170,8 @@ public class CommunityService {
 				.maxPixelCount(0)
 				.build()
 		);
-		communityId = communityRepository.findByName(communityInfoRequest.getName()).getId();
+		communityId = community.getId();
 		communityRankingRedisRepository.saveCommunityInRanking(communityId);
+		return communityId;
 	}
 }

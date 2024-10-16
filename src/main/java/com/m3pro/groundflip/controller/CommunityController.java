@@ -89,11 +89,10 @@ public class CommunityController {
 
 	@Operation(summary = "그룹 생성", description = "사용자가 직접 그룹을 생성한다.")
 	@PostMapping("")
-	public Response<?> createCommunity(
+	public Response<Long> createCommunity(
 		@RequestPart(value = "communityInfoRequest") CommunityInfoRequest communityInfoRequest,
 		@RequestPart(value = "profileImage", required = false) MultipartFile multipartfile) throws IOException {
-		communityService.createCommunity(communityInfoRequest, multipartfile);
-		return Response.createSuccessWithNoData();
+		return Response.createSuccess(communityService.createCommunity(communityInfoRequest, multipartfile));
 	}
 
 	@Operation(summary = "그룹id 검색", description = "그룹 이름으로 그룹 id 검색")

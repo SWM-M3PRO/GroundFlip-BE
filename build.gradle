@@ -73,11 +73,6 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-tasks.withType(JavaCompile).configureEach {
-    options.compilerArgs << "-parameters"
-}
-
-
 test {
     finalizedBy 'jacocoTestReport'
 }
