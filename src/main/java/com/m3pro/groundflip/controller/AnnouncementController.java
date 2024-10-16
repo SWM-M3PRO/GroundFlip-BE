@@ -34,6 +34,16 @@ public class AnnouncementController {
 		return Response.createSuccess(announcementService.getEvents());
 	}
 
+	@Operation(summary = "이벤트 조회수를 카운팅한다.", description = "특정 이벤트의 조회수를 올린다.")
+	@GetMapping("/events/{eventId}/views")
+	public Response<?> increaseEventViewCount(
+		@Parameter(description = "올리고자 하는 eventId", required = true)
+		@PathVariable Long eventId
+	) {
+		announcementService.increaseViewCount(eventId);
+		return Response.createSuccessWithNoData();
+	}
+
 	@Operation(summary = "공지 목록을 조회한다.", description = "공지 목록을 조회한다. 커서 이후의 공지사항 30개를 불러온다.")
 	@GetMapping("")
 	public Response<List<AnnouncementResponse>> getAnnouncements(
@@ -45,7 +55,7 @@ public class AnnouncementController {
 	@Operation(summary = "공지 목록을 조회한다.", description = "공지 목록을 조회한다. 커서 이후의 공지사항 30개를 불러온다.")
 	@GetMapping("/{announcementId}")
 	public Response<AnnouncementInfoResponse> getAnnouncementInfo(
-		@Parameter(description = "찾고자 하는 userId", required = true)
+		@Parameter(description = "찾고자 하는 announcementId", required = true)
 		@PathVariable Long announcementId
 	) {
 		return Response.createSuccess(announcementService.getAnnouncementInfo(announcementId));

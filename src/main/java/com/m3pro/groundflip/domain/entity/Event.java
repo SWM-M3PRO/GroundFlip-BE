@@ -28,4 +28,10 @@ public class Event {
 	private LocalDateTime startDate;
 
 	private LocalDateTime endDate;
+
+	private Long viewCount;
+
+	public void increaseViewCount() {
+		this.viewCount++;
+	}
 }

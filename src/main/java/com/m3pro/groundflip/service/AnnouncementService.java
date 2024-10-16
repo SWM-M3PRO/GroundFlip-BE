@@ -34,6 +34,7 @@ public class AnnouncementService {
 		return events.stream().map((event -> EventResponse.builder()
 			.eventImageUrl(event.getEventImage())
 			.announcementId(event.getAnnouncementId())
+			.eventId(event.getId())
 			.build())).toList();
 	}
 
@@ -56,5 +57,12 @@ public class AnnouncementService {
 				ErrorCode.INTERNAL_SERVER_ERROR));
 		announcement.incrementViewCount();
 		return AnnouncementInfoResponse.from(announcement);
+	}
+
+	@Transactional
+	public void increaseViewCount(Long eventId) {
+		Event event = eventRepository.findById(eventId)
+			.orElseThrow(() -> new AppException(ErrorCode.INTERNAL_SERVER_ERROR));
+		event.increaseViewCount();
 	}
 }

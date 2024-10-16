@@ -12,9 +12,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @Schema(title = "이벤트 정보")
 public class EventResponse {
-	@Schema(description = "사용자 닉네임", example = "홍길동")
+	@Schema(description = "이벤트 사진", example = "www.example.com")
 	private String eventImageUrl;
 
-	@Schema(description = "사용자 출생년도", example = "2000")
+	@Schema(description = "이벤트와 관련된 공지사항 id", example = "3")
 	private Long announcementId;
+
+	@Schema(description = "이벤트 id", example = "1")
+	private Long eventId;
 }
