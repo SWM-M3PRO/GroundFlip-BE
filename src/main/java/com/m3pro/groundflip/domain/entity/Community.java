@@ -34,6 +34,8 @@ public class Community extends BaseTimeEntity {
 
 	private String profileImageUrl;
 
+	private String password;
+
 	private String backgroundImageUrl;
 
 	private String description;

@@ -53,6 +53,11 @@ public class RankingRedisRepository {
 		}
 	}
 
+	public void saveCommunityInRanking(Long communityId) {
+		zSetOperations.add(currentPixelRankingKey, communityId.toString(), 0);
+		zSetOperations.add(accumulatePixelRankingKey, communityId.toString(), 0);
+	}
+
 	public void deleteUserInRanking(Long userId) {
 		Double currentPixelScore = zSetOperations.score(currentPixelRankingKey, userId.toString());
 		Double accumulatePixelScore = zSetOperations.score(accumulatePixelRankingKey, userId.toString());

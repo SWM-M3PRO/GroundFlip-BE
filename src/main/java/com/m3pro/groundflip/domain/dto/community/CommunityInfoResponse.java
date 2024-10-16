@@ -42,6 +42,9 @@ public class CommunityInfoResponse {
 	@Schema(description = "최고 랭킹", example = "1")
 	private int maxRanking;
 
+	@Schema(description = "비밀번호", example = "1234")
+	private String password;
+
 	public static CommunityInfoResponse from(Community community, Long communityRanking, Long memberCount,
 		Long currentPixelCount, Long accumulatePixelCount) {
 		return CommunityInfoResponse.builder()
@@ -54,6 +57,7 @@ public class CommunityInfoResponse {
 			.accumulatePixelCount(accumulatePixelCount)
 			.communityRanking(communityRanking)
 			.memberCount(memberCount)
+			.password(community.getPassword())
 			.build();
 	}
 }
