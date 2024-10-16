@@ -21,6 +21,7 @@ import com.m3pro.groundflip.enums.Device;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.FcmTokenRepository;
+import com.m3pro.groundflip.repository.UserActivityLogRepository;
 import com.m3pro.groundflip.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,6 +33,8 @@ class FcmServiceTest {
 	private UserRepository userRepository;
 	@Mock
 	private FcmTokenRepository fcmTokenRepository;
+	@Mock
+	private UserActivityLogRepository userActivityLogRepository;
 	@InjectMocks
 	private FcmService fcmService;
 
@@ -53,12 +56,14 @@ class FcmServiceTest {
 	@DisplayName("[registerFcmToken] fcm 토큰 새로 등록")
 	void registerFcmToken_RegisterNewToken() {
 		User user = User.builder().id(1L).email("test@test.com").build();
+
 		when(userRepository.findById(testUserId)).thenReturn(Optional.of(user));
 		when(fcmTokenRepository.findByUser(user)).thenReturn(Optional.empty());
 
 		fcmService.registerFcmToken(fcmTokenRequest);
 
 		verify(fcmTokenRepository, times(1)).save(any());
+		verify(userActivityLogRepository, times(1)).save(any());
 	}
 
 	@Test
@@ -72,5 +77,6 @@ class FcmServiceTest {
 		fcmService.registerFcmToken(fcmTokenRequest);
 
 		assertThat(fcmToken.getModifiedAt()).isNotNull();
+		verify(userActivityLogRepository, times(1)).save(any());
 	}
 }
