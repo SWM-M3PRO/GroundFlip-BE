@@ -41,7 +41,7 @@ public class MyPlaceController {
 	@GetMapping("/{userId}")
 	public Response<List<MyPlaceResponse>> getMyPlace(
 		@Parameter(description = "찾고자 하는 userId", required = true)
-		@PathVariable Long userId
+		@PathVariable("userId") Long userId
 	) {
 		return Response.createSuccess(myPlaceService.getMyPlace(userId));
 	}
