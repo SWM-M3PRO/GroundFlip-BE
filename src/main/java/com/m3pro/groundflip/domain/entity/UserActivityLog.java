@@ -1,7 +1,5 @@
 package com.m3pro.groundflip.domain.entity;
 
-import java.time.LocalDateTime;
-
 import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
 
 import jakarta.persistence.Column;
@@ -18,32 +16,17 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "community")
+@Table(name = "user_activity_log")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Community extends BaseTimeEntity {
+public class UserActivityLog extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "community_id")
+	@Column(name = "user_activity_log_id")
 	private Long id;
 
-	private String name;
+	private String activity;
 
-	private String communityColor;
-
-	private String profileImageUrl;
-
-	private String password;
-
-	private String backgroundImageUrl;
-
-	private String description;
-
-	private int maxPixelCount;
-
-	private int maxRanking;
-
-	private LocalDateTime deletedAt;
-
+	private Long userId;
 }

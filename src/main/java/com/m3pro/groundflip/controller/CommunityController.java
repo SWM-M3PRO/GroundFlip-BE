@@ -1,5 +1,6 @@
 package com.m3pro.groundflip.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -9,9 +10,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.m3pro.groundflip.domain.dto.Response;
+import com.m3pro.groundflip.domain.dto.community.CommunityInfoRequest;
 import com.m3pro.groundflip.domain.dto.community.CommunityInfoResponse;
 import com.m3pro.groundflip.domain.dto.community.CommunitySearchResponse;
 import com.m3pro.groundflip.domain.dto.community.CommunitySignRequest;
@@ -46,7 +50,7 @@ public class CommunityController {
 	@GetMapping("/{communityId}")
 	public Response<CommunityInfoResponse> getCommunityInfo(
 		@Parameter(description = "찾고자 하는 communityId", required = true)
-		@PathVariable Long communityId
+		@PathVariable("communityId") Long communityId
 	) {
 		return Response.createSuccess(communityService.getCommunityInfo(communityId));
 	}
@@ -77,9 +81,27 @@ public class CommunityController {
 	@GetMapping("/{communityId}/members")
 	public Response<List<UserRankingResponse>> getCommunityMemberList(
 		@Parameter(description = "찾고자 하는 communityId", required = true)
-		@PathVariable Long communityId,
+		@PathVariable("communityId") Long communityId,
 		@RequestParam(name = "count", defaultValue = "1000") int count
 	) {
 		return Response.createSuccess(communityService.getCommunityMembers(communityId, count));
 	}
+
+	@Operation(summary = "그룹 생성", description = "사용자가 직접 그룹을 생성한다.")
+	@PostMapping("")
+	public Response<Long> createCommunity(
+		@RequestPart(value = "communityInfoRequest") CommunityInfoRequest communityInfoRequest,
+		@RequestPart(value = "profileImage", required = false) MultipartFile multipartfile) throws IOException {
+		return Response.createSuccess(communityService.createCommunity(communityInfoRequest, multipartfile));
+	}
+
+	@Operation(summary = "그룹id 검색", description = "그룹 이름으로 그룹 id 검색")
+	@GetMapping("/id/{communityName}")
+	public Response<Long> getCommunityId(
+		@Parameter(description = "찾고자 하는 communityName", required = true)
+		@PathVariable("communityName") String communityName
+	) {
+		return Response.createSuccess(communityService.getCommunityId(communityName));
+	}
+
 }
