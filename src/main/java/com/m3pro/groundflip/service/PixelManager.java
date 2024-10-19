@@ -197,7 +197,7 @@ public class PixelManager {
 			.region(region)
 			.user(userRepository.getReferenceById(userId))
 			.build();
-		return userRegionCountRepository.save(userRegionCount);
+		return userRegionCountRepository.saveAndFlush(userRegionCount);
 	}
 
 	private void updateCommunityCurrentPixelCount(Pixel targetPixel, Long communityId) {
@@ -237,7 +237,7 @@ public class PixelManager {
 			.week(week)
 			.year(year)
 			.build();
-		return competitionCountRepository.save(competitionCount);
+		return competitionCountRepository.saveAndFlush(competitionCount);
 	}
 
 	private void updatePixelOwnerCommunity(Pixel targetPixel, Long occupyingCommunityId) {
