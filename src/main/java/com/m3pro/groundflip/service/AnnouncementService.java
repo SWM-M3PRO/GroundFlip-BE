@@ -39,7 +39,12 @@ public class AnnouncementService {
 	}
 
 	public List<AnnouncementResponse> getAnnouncements(Long cursor) {
-		List<Announcement> announcements = announcementRepository.findAllAnnouncement(cursor, PAGE_SIZE);
+		List<Announcement> announcements;
+		if (cursor == 0) {
+			announcements = announcementRepository.findAllRecentAnnouncement(PAGE_SIZE);
+		} else {
+			announcements = announcementRepository.findAllAnnouncement(cursor, PAGE_SIZE);
+		}
 
 		return announcements.stream()
 			.map(announcement -> AnnouncementResponse.builder()

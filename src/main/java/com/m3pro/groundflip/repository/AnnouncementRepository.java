@@ -11,4 +11,7 @@ import com.m3pro.groundflip.domain.entity.Announcement;
 public interface AnnouncementRepository extends JpaRepository<Announcement, Long> {
 	@Query("SELECT a FROM Announcement a WHERE a.id < :cursor ORDER BY a.id DESC LIMIT :size")
 	List<Announcement> findAllAnnouncement(@Param("cursor") Long cursor, @Param("size") int size);
+
+	@Query("SELECT a FROM Announcement a ORDER BY a.id DESC LIMIT :size")
+	List<Announcement> findAllRecentAnnouncement(@Param("size") int size);
 }
