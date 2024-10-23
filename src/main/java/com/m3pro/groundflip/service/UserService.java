@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,6 +48,9 @@ public class UserService {
 	private final S3Uploader s3Uploader;
 	private final JwtProvider jwtProvider;
 	private final AppleApiClient appleApiClient;
+
+	@Value("${image.default}")
+	private String defaultImagePath;
 
 	/**
 	 * 유저의 정보를 반환한다.
@@ -93,7 +97,7 @@ public class UserService {
 		if (multipartFile != null) {
 			fileS3Url = s3Uploader.uploadFiles(multipartFile, userId);
 		} else {
-			fileS3Url = user.getProfileImage();
+			fileS3Url = defaultImagePath;
 		}
 
 		user.updateGender(userInfoRequest.getGender());
