@@ -3,26 +3,24 @@ package com.m3pro.groundflip.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
-import com.m3pro.groundflip.domain.dto.pixel.event.PixelUserInsertEvent;
 import com.m3pro.groundflip.domain.dto.pixel.naverApi.ReverseGeocodingResult;
 import com.m3pro.groundflip.domain.entity.CompetitionCount;
 import com.m3pro.groundflip.domain.entity.Pixel;
+import com.m3pro.groundflip.domain.entity.PixelUser;
 import com.m3pro.groundflip.domain.entity.Region;
 import com.m3pro.groundflip.domain.entity.UserRegionCount;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
+import com.m3pro.groundflip.repository.CommunityRepository;
 import com.m3pro.groundflip.repository.CompetitionCountRepository;
 import com.m3pro.groundflip.repository.PixelRepository;
 import com.m3pro.groundflip.repository.PixelUserRepository;
@@ -38,7 +36,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class PixelManager {
-	private static final String REDISSON_LOCK_PREFIX = "LOCK:";
 	private static final Long DEFAULT_COMMUNITY_ID = -1L;
 	private static final int WGS84_SRID = 4326;
 	private static final double lat_per_pixel = 0.000724;
@@ -50,7 +47,6 @@ public class PixelManager {
 	private final UserRankingService userRankingService;
 	private final CommunityRankingService communityRankingService;
 	private final ApplicationEventPublisher eventPublisher;
-	private final RedissonClient redissonClient;
 	private final PixelUserRepository pixelUserRepository;
 	private final GeometryFactory geometryFactory;
 	private final ReverseGeoCodingService reverseGeoCodingService;
@@ -58,6 +54,7 @@ public class PixelManager {
 	private final CompetitionCountRepository competitionCountRepository;
 	private final UserRegionCountRepository userRegionCountRepository;
 	private final UserRepository userRepository;
+	private final CommunityRepository communityRepository;
 
 	/**
 	 * 픽셀을 차지한다.
@@ -65,30 +62,29 @@ public class PixelManager {
 	 * @return
 	 * @author 김민욱
 	 */
+	// public void occupyPixelWithLock(PixelOccupyRequest pixelOccupyRequest) {
+	// 	String lockName = REDISSON_LOCK_PREFIX + pixelOccupyRequest.getX() + pixelOccupyRequest.getY();
+	// 	RLock rLock = redissonClient.getLock(lockName);
+	//
+	// 	long waitTime = 5L;
+	// 	long leaseTime = 3L;
+	// 	TimeUnit timeUnit = TimeUnit.SECONDS;
+	// 	try {
+	// 		boolean available = rLock.tryLock(waitTime, leaseTime, timeUnit);
+	// 		if (!available) {
+	// 			throw new AppException(ErrorCode.LOCK_ACQUISITION_ERROR);
+	// 		}
+	//
+	// 		occupyPixel(pixelOccupyRequest);
+	//
+	// 	} catch (InterruptedException e) {
+	// 		throw new RuntimeException(e);
+	// 	} finally {
+	// 		rLock.unlock();
+	// 	}
+	// }
 	@Transactional
-	public void occupyPixelWithLock(PixelOccupyRequest pixelOccupyRequest) {
-		String lockName = REDISSON_LOCK_PREFIX + pixelOccupyRequest.getX() + pixelOccupyRequest.getY();
-		RLock rLock = redissonClient.getLock(lockName);
-
-		long waitTime = 5L;
-		long leaseTime = 3L;
-		TimeUnit timeUnit = TimeUnit.SECONDS;
-		try {
-			boolean available = rLock.tryLock(waitTime, leaseTime, timeUnit);
-			if (!available) {
-				throw new AppException(ErrorCode.LOCK_ACQUISITION_ERROR);
-			}
-
-			occupyPixel(pixelOccupyRequest);
-
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		} finally {
-			rLock.unlock();
-		}
-	}
-
-	private void occupyPixel(PixelOccupyRequest pixelOccupyRequest) {
+	public void occupyPixel(PixelOccupyRequest pixelOccupyRequest) {
 		Long occupyingUserId = pixelOccupyRequest.getUserId();
 		Long occupyingCommunityId = Optional.ofNullable(pixelOccupyRequest.getCommunityId()).orElse(-1L);
 		log.info("[Visit Pixel] x : {}, y: {}, user : {}", pixelOccupyRequest.getX(), pixelOccupyRequest.getY(),
@@ -110,10 +106,13 @@ public class PixelManager {
 		updateCommunityAccumulatePixelCount(targetPixel, occupyingCommunityId);
 		updatePixelOwnerCommunity(targetPixel, occupyingCommunityId);
 
-		pixelRepository.saveAndFlush(targetPixel);
-
-		eventPublisher.publishEvent(
-			new PixelUserInsertEvent(targetPixel.getId(), occupyingUserId, occupyingCommunityId));
+		pixelRepository.save(targetPixel);
+		PixelUser pixelUser = PixelUser.builder()
+			.pixel(targetPixel)
+			.user(userRepository.getReferenceById(occupyingUserId))
+			.community(communityRepository.getReferenceById(occupyingCommunityId))
+			.build();
+		pixelUserRepository.save(pixelUser);
 	}
 
 	private boolean isValidCoordinate(Long x, Long y) {
@@ -197,7 +196,7 @@ public class PixelManager {
 			.region(region)
 			.user(userRepository.getReferenceById(userId))
 			.build();
-		return userRegionCountRepository.saveAndFlush(userRegionCount);
+		return userRegionCountRepository.save(userRegionCount);
 	}
 
 	private void updateCommunityCurrentPixelCount(Pixel targetPixel, Long communityId) {
@@ -237,7 +236,7 @@ public class PixelManager {
 			.week(week)
 			.year(year)
 			.build();
-		return competitionCountRepository.saveAndFlush(competitionCount);
+		return competitionCountRepository.save(competitionCount);
 	}
 
 	private void updatePixelOwnerCommunity(Pixel targetPixel, Long occupyingCommunityId) {

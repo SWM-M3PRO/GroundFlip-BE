@@ -23,6 +23,7 @@ import com.m3pro.groundflip.domain.dto.pixel.PixelCountResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
 import com.m3pro.groundflip.service.PixelManager;
+import com.m3pro.groundflip.service.PixelManagerWithLock;
 import com.m3pro.groundflip.service.PixelReader;
 import com.m3pro.groundflip.service.RegionService;
 
@@ -45,6 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 @SecurityRequirement(name = "Authorization")
 public class PixelController {
 	private final PixelManager pixelManager;
+	private final PixelManagerWithLock pixelManagerWithLock
 	private final PixelReader pixelReader;
 	private final RegionService regionService;
 
@@ -149,7 +151,7 @@ public class PixelController {
 	@Operation(summary = "픽셀 차지", description = "특정 픽셀의 id, 사용자 id, 커뮤니티 id를 사용해 소유권을 바꾸는 API ")
 	@PostMapping("")
 	public Response<?> occupyPixel(@RequestBody PixelOccupyRequest pixelOccupyRequest) {
-		pixelManager.occupyPixelWithLock(pixelOccupyRequest);
+		pixelManagerWithLock.occupyPixelWithLock(pixelOccupyRequest);
 		return Response.createSuccessWithNoData();
 	}
 
