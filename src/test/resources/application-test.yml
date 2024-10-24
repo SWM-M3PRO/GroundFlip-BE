@@ -87,3 +87,6 @@ version:
 
 geocoding:
   api: "http://localhost:3030/find_district"
+
+image:
+  default: ${DEFAULT_IMAGE}

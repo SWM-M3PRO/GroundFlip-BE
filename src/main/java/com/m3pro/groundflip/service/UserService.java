@@ -97,7 +97,11 @@ public class UserService {
 		if (multipartFile != null) {
 			fileS3Url = s3Uploader.uploadFiles(multipartFile, userId);
 		} else {
-			fileS3Url = defaultImagePath;
+			if (userInfoRequest.getDefaultCheck() == 1) {
+				fileS3Url = defaultImagePath;
+			} else {
+				fileS3Url = user.getProfileImage();
+			}
 		}
 
 		user.updateGender(userInfoRequest.getGender());
