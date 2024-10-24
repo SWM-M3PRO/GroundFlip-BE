@@ -7,7 +7,6 @@ import java.util.Optional;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,7 +45,6 @@ public class PixelManager {
 	private final PixelRepository pixelRepository;
 	private final UserRankingService userRankingService;
 	private final CommunityRankingService communityRankingService;
-	private final ApplicationEventPublisher eventPublisher;
 	private final PixelUserRepository pixelUserRepository;
 	private final GeometryFactory geometryFactory;
 	private final ReverseGeoCodingService reverseGeoCodingService;
@@ -56,33 +54,6 @@ public class PixelManager {
 	private final UserRepository userRepository;
 	private final CommunityRepository communityRepository;
 
-	/**
-	 * 픽셀을 차지한다.
-	 * @param pixelOccupyRequest 픽셀을 차지하기 위해 필요한 정보
-	 * @return
-	 * @author 김민욱
-	 */
-	// public void occupyPixelWithLock(PixelOccupyRequest pixelOccupyRequest) {
-	// 	String lockName = REDISSON_LOCK_PREFIX + pixelOccupyRequest.getX() + pixelOccupyRequest.getY();
-	// 	RLock rLock = redissonClient.getLock(lockName);
-	//
-	// 	long waitTime = 5L;
-	// 	long leaseTime = 3L;
-	// 	TimeUnit timeUnit = TimeUnit.SECONDS;
-	// 	try {
-	// 		boolean available = rLock.tryLock(waitTime, leaseTime, timeUnit);
-	// 		if (!available) {
-	// 			throw new AppException(ErrorCode.LOCK_ACQUISITION_ERROR);
-	// 		}
-	//
-	// 		occupyPixel(pixelOccupyRequest);
-	//
-	// 	} catch (InterruptedException e) {
-	// 		throw new RuntimeException(e);
-	// 	} finally {
-	// 		rLock.unlock();
-	// 	}
-	// }
 	@Transactional
 	public void occupyPixel(PixelOccupyRequest pixelOccupyRequest) {
 		Long occupyingUserId = pixelOccupyRequest.getUserId();
@@ -106,7 +77,10 @@ public class PixelManager {
 		updateCommunityAccumulatePixelCount(targetPixel, occupyingCommunityId);
 		updatePixelOwnerCommunity(targetPixel, occupyingCommunityId);
 
-		pixelRepository.save(targetPixel);
+		savePixelUser(targetPixel, occupyingUserId, occupyingCommunityId);
+	}
+
+	private void savePixelUser(Pixel targetPixel, Long occupyingUserId, Long occupyingCommunityId) {
 		PixelUser pixelUser = PixelUser.builder()
 			.pixel(targetPixel)
 			.user(userRepository.getReferenceById(occupyingUserId))

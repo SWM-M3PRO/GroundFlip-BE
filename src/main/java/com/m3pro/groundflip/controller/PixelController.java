@@ -22,7 +22,6 @@ import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelCountResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelOccupyRequest;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
-import com.m3pro.groundflip.service.PixelManager;
 import com.m3pro.groundflip.service.PixelManagerWithLock;
 import com.m3pro.groundflip.service.PixelReader;
 import com.m3pro.groundflip.service.RegionService;
@@ -45,8 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 @Tag(name = "pixels", description = "픽셀 API")
 @SecurityRequirement(name = "Authorization")
 public class PixelController {
-	private final PixelManager pixelManager;
-	private final PixelManagerWithLock pixelManagerWithLock
+	private final PixelManagerWithLock pixelManagerWithLock;
 	private final PixelReader pixelReader;
 	private final RegionService regionService;
 
@@ -219,7 +217,7 @@ public class PixelController {
 		return Response.createSuccess(
 			regionService.getCommunityModeClusteredPixelCount(currentLatitude, currentLongitude, radius));
 	}
-	
+
 	@Operation(summary = "주간 픽셀 개수 조회", description = "특정 유저의 주간 방문한 픽셀을 조회하는 api")
 	@GetMapping("/count/daily/{userId}")
 	public Response<List<Integer>> getDailyPixel(
