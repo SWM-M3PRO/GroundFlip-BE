@@ -2,6 +2,7 @@ package com.m3pro.groundflip.domain.entity;
 
 import org.locationtech.jts.geom.Point;
 
+import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
 import com.m3pro.groundflip.enums.Place;
 
 import jakarta.persistence.Column;
@@ -27,7 +28,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class MyPlace {
+public class MyPlace extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "my_place_id")
