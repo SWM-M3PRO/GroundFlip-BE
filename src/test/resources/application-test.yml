@@ -89,4 +89,4 @@ geocoding:
   api: "http://localhost:3030/find_district"
 
 image:
-  default: ${DEFAULT_IMAGE}
+  default: "https://ground-flip-prod-storage.s3.ap-northeast-2.amazonaws.com/static/default_profile_image.png"
