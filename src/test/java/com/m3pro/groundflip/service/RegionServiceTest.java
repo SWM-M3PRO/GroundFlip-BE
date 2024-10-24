@@ -41,7 +41,6 @@ class RegionServiceTest {
 		Coordinate coordinate = new Coordinate(expectedLongitude, expectedLatitude);
 		Point mockPoint = new GeometryFactory().createPoint(coordinate);
 		mockPoint.setSRID(WGS84_SRID);
-
 		when(geometryFactory.createPoint(any(Coordinate.class))).thenReturn(mockPoint);
 
 		List<ClusteredPixelCount> result = regionService.getIndividualModeClusteredPixelCount(expectedLatitude,
@@ -66,5 +65,73 @@ class RegionServiceTest {
 			expectedLongitude, 70001);
 
 		verify(regionRepository, times(1)).findAllIndividualProvinceRegionsByCoordinate(anyInt(), anyInt());
+	}
+
+	@Test
+	@DisplayName("[getCommunityModeClusteredPixelCount] City 레벨의 클러스터링 집계 결과를 반환한다")
+	void testGetCommunityModeClusteredPixelCountCity() {
+		double expectedLongitude = upper_left_lon + (233L * lon_per_pixel);
+		double expectedLatitude = upper_left_lat - (213L * lat_per_pixel);
+		Coordinate coordinate = new Coordinate(expectedLongitude, expectedLatitude);
+		Point mockPoint = new GeometryFactory().createPoint(coordinate);
+		mockPoint.setSRID(WGS84_SRID);
+
+		when(geometryFactory.createPoint(any(Coordinate.class))).thenReturn(mockPoint);
+
+		regionService.getCommunityModeClusteredPixelCount(expectedLatitude,
+			expectedLongitude, 6000);
+
+		verify(regionRepository, times(1)).findAllCommunityCityRegionsByCoordinate(any(), anyInt(), anyInt(), anyInt());
+	}
+
+	@Test
+	@DisplayName("[getCommunityModeClusteredPixelCount] Province 레벨의 클러스터링 집계 결과를 반환한다")
+	void testGetCommunityModeClusteredPixelCountProvince() {
+		double expectedLongitude = upper_left_lon + (233L * lon_per_pixel);
+		double expectedLatitude = upper_left_lat - (213L * lat_per_pixel);
+		Coordinate coordinate = new Coordinate(expectedLongitude, expectedLatitude);
+		Point mockPoint = new GeometryFactory().createPoint(coordinate);
+		mockPoint.setSRID(WGS84_SRID);
+
+		when(geometryFactory.createPoint(any(Coordinate.class))).thenReturn(mockPoint);
+
+		regionService.getCommunityModeClusteredPixelCount(expectedLatitude,
+			expectedLongitude, 70001);
+
+		verify(regionRepository, times(1)).findAllCommunityProvinceRegionsByCoordinate(anyInt(), anyInt());
+	}
+
+	@Test
+	@DisplayName("[getIndividualHistoryClusteredPixelCount] City 레벨의 클러스터링 집계 결과를 반환한다")
+	void testGetIndividualHistoryClusteredPixelCountCity() {
+		double expectedLongitude = upper_left_lon + (233L * lon_per_pixel);
+		double expectedLatitude = upper_left_lat - (213L * lat_per_pixel);
+		Coordinate coordinate = new Coordinate(expectedLongitude, expectedLatitude);
+		Point mockPoint = new GeometryFactory().createPoint(coordinate);
+		mockPoint.setSRID(WGS84_SRID);
+
+		when(geometryFactory.createPoint(any(Coordinate.class))).thenReturn(mockPoint);
+
+		regionService.getIndividualHistoryClusteredPixelCount(expectedLatitude,
+			expectedLongitude, 6000, 1L);
+
+		verify(regionRepository, times(1)).findAllIndividualHistoryCityRegionsByCoordinate(any(), anyInt(), any());
+	}
+
+	@Test
+	@DisplayName("[getIndividualHistoryClusteredPixelCount] Province 레벨의 클러스터링 집계 결과를 반환한다")
+	void testGetIndividualHistoryClusteredPixelCountProvince() {
+		double expectedLongitude = upper_left_lon + (233L * lon_per_pixel);
+		double expectedLatitude = upper_left_lat - (213L * lat_per_pixel);
+		Coordinate coordinate = new Coordinate(expectedLongitude, expectedLatitude);
+		Point mockPoint = new GeometryFactory().createPoint(coordinate);
+		mockPoint.setSRID(WGS84_SRID);
+
+		when(geometryFactory.createPoint(any(Coordinate.class))).thenReturn(mockPoint);
+
+		regionService.getIndividualHistoryClusteredPixelCount(expectedLatitude,
+			expectedLongitude, 70001, 1L);
+
+		verify(regionRepository, times(1)).findAllIndividualHistoryProvinceRegionsByCoordinate(any());
 	}
 }
