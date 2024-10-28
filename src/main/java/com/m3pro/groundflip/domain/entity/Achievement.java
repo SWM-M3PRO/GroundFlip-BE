@@ -33,7 +33,7 @@ public class Achievement {
 
 	private Integer completionGoal;
 
-	private Long achievementCategoryId;
+	private Long categoryId;
 
 	private String description;
 
