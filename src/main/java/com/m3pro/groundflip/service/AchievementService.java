@@ -6,9 +6,11 @@ import java.util.Optional;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import com.m3pro.groundflip.domain.dto.achievement.AchievementCategoryInfoResponse;
 import com.m3pro.groundflip.domain.dto.achievement.AchievementResponse;
 import com.m3pro.groundflip.domain.dto.achievement.UserAchievementsResponse;
 import com.m3pro.groundflip.domain.entity.Achievement;
+import com.m3pro.groundflip.domain.entity.AchievementCategory;
 import com.m3pro.groundflip.domain.entity.UserAchievement;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
@@ -47,5 +49,16 @@ public class AchievementService {
 		} else {
 			return AchievementResponse.from(achievement);
 		}
+	}
+
+	public List<AchievementCategoryInfoResponse> getAchievementCategories() {
+		List<AchievementCategory> achievementCategories = achievementCategoryRepository.findAll();
+		return achievementCategories.stream()
+			.map((achievementCategory) -> AchievementCategoryInfoResponse.builder()
+				.categoryId(achievementCategory.getId())
+				.categoryName(achievementCategory.getName())
+				.categoryImageUrl(achievementCategory.getImageUrl())
+				.build()
+			).toList();
 	}
 }
