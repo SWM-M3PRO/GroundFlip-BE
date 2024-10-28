@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.m3pro.groundflip.domain.dto.Response;
 import com.m3pro.groundflip.domain.dto.achievement.AchievementCategoryInfoResponse;
 import com.m3pro.groundflip.domain.dto.achievement.AchievementResponse;
+import com.m3pro.groundflip.domain.dto.achievement.AchievementsByCategoryResponse;
 import com.m3pro.groundflip.domain.dto.achievement.UserAchievementsResponse;
 import com.m3pro.groundflip.service.AchievementService;
 
@@ -61,5 +62,18 @@ public class AchievementController {
 	@GetMapping("/category")
 	public Response<List<AchievementCategoryInfoResponse>> getAchievementCategories() {
 		return Response.createSuccess(achievementService.getAchievementCategories());
+	}
+
+	@Operation(summary = "개인 업적 목록 조회", description = "특정 유저가 획득한 업적 목록과 개수를 반환한다.")
+	@Parameters({
+		@Parameter(name = "user-id", description = "찾고자 하는 user의 id", example = "14"),
+	})
+	@GetMapping("/category/{categoryId}")
+	public Response<AchievementsByCategoryResponse> getAchievementsByCategory(
+		@RequestParam(name = "user-id") Long userId,
+		@Parameter(description = "찾고자 하는 categoryId", required = true)
+		@PathVariable("categoryId") Long categoryId
+	) {
+		return Response.createSuccess(achievementService.getAchievementsByCategory(categoryId, userId));
 	}
 }
