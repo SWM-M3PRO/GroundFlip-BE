@@ -1,6 +1,7 @@
 package com.m3pro.groundflip.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,11 +12,11 @@ import com.m3pro.groundflip.domain.entity.UserAchievement;
 
 public interface UserAchievementRepository extends JpaRepository<UserAchievement, Long> {
 	@Query("""
-		SELECT COUNT(*) FROM UserAchievement ua
-		WHERE ua.id = :user_id
+		SELECT COUNT(ua) FROM UserAchievement ua
+		WHERE ua.user.id = :user_id
 		AND ua.obtainedAt is not null
 		""")
-	Integer countByUserId(@Param("user_id") Long userId);
+	Long countByUserId(@Param("user_id") Long userId);
 
 	@Query("""
 		SELECT ua FROM UserAchievement ua
@@ -32,4 +33,6 @@ public interface UserAchievementRepository extends JpaRepository<UserAchievement
 			ORDER BY ua.obtainedAt DESC
 		""")
 	List<UserAchievement> findAllByUserId(Long userId);
+
+	Optional<UserAchievement> findByIdAndUserId(Long id, Long userId);
 }
