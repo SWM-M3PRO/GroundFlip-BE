@@ -45,7 +45,8 @@ public class AchievementService {
 	public AchievementResponse getAchievement(Long achievementId, Long userId) {
 		Achievement achievement = achievementRepository.findById(achievementId).orElseThrow(() -> new AppException(
 			ErrorCode.ACHIEVEMENT_NOT_FOUND));
-		Optional<UserAchievement> userAchievement = userAchievementRepository.findByIdAndUserId(achievementId, userId);
+		Optional<UserAchievement> userAchievement = userAchievementRepository.findByAchievementAndUserId(
+			achievementRepository.getReferenceById(achievementId), userId);
 		if (userAchievement.isPresent()) {
 			return AchievementResponse.from(achievement, userAchievement.get());
 		} else {

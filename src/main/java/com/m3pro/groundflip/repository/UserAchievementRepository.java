@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.m3pro.groundflip.domain.entity.Achievement;
 import com.m3pro.groundflip.domain.entity.UserAchievement;
 
 public interface UserAchievementRepository extends JpaRepository<UserAchievement, Long> {
@@ -34,5 +35,5 @@ public interface UserAchievementRepository extends JpaRepository<UserAchievement
 		""")
 	List<UserAchievement> findAllByUserId(Long userId);
 
-	Optional<UserAchievement> findByIdAndUserId(Long id, Long userId);
+	Optional<UserAchievement> findByAchievementAndUserId(Achievement achievement, Long userId);
 }
