@@ -27,7 +27,7 @@ public class UserAchievementsResponse {
 				.achievementName(achievement.getAchievement().getName())
 				.badgeImageUrl(achievement.getAchievement().getBadgeImageUrl())
 				.obtainedDate(achievement.getObtainedAt())
-				.categoryId(achievement.getAchievement().getAchievementCategory().getId())
+				.categoryId(achievement.getAchievement().getAchievementCategoryId())
 				.build()
 			).toList();
 
