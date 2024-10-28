@@ -1,5 +1,7 @@
 package com.m3pro.groundflip.controller;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -7,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.m3pro.groundflip.domain.dto.Response;
+import com.m3pro.groundflip.domain.dto.achievement.AchievementCategoryInfoResponse;
 import com.m3pro.groundflip.domain.dto.achievement.AchievementResponse;
 import com.m3pro.groundflip.domain.dto.achievement.UserAchievementsResponse;
 import com.m3pro.groundflip.service.AchievementService;
@@ -52,5 +55,11 @@ public class AchievementController {
 		@PathVariable("achievementId") Long achievementId
 	) {
 		return Response.createSuccess(achievementService.getAchievement(achievementId, userId));
+	}
+
+	@Operation(summary = "카테고리 목록 조회", description = "카테고리 목록을 조회한다.")
+	@GetMapping("/category")
+	public Response<List<AchievementCategoryInfoResponse>> getAchievementCategories() {
+		return Response.createSuccess(achievementService.getAchievementCategories());
 	}
 }
