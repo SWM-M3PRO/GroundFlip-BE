@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Schema(title = "내 업적 정보")
 public class UserAchievementsResponse {
-	@Schema(description = "공지 제목", example = "제목")
+	@Schema(description = "업적 개수", example = "6")
 	private Long achievementCount;
 	private List<AchievementElement> recentAchievements;
 
