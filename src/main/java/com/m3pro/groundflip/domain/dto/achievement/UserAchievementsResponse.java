@@ -17,10 +17,10 @@ import lombok.NoArgsConstructor;
 @Schema(title = "내 업적 정보")
 public class UserAchievementsResponse {
 	@Schema(description = "공지 제목", example = "제목")
-	private Integer achievementCount;
+	private Long achievementCount;
 	private List<AchievementElement> recentAchievements;
 
-	public static UserAchievementsResponse from(List<UserAchievement> achievements, Integer count) {
+	public static UserAchievementsResponse from(List<UserAchievement> achievements, Long count) {
 		List<AchievementElement> achievementElements = achievements.stream()
 			.map((achievement) -> AchievementElement.builder()
 				.achievementId(achievement.getAchievement().getId())
