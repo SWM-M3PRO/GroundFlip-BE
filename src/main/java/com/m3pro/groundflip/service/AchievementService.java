@@ -7,7 +7,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.m3pro.groundflip.domain.dto.achievement.AchievementCategoryInfoResponse;
+import com.m3pro.groundflip.domain.dto.achievement.AchievementElementInterface;
 import com.m3pro.groundflip.domain.dto.achievement.AchievementResponse;
+import com.m3pro.groundflip.domain.dto.achievement.AchievementsByCategoryResponse;
 import com.m3pro.groundflip.domain.dto.achievement.UserAchievementsResponse;
 import com.m3pro.groundflip.domain.entity.Achievement;
 import com.m3pro.groundflip.domain.entity.AchievementCategory;
@@ -60,5 +62,15 @@ public class AchievementService {
 				.categoryImageUrl(achievementCategory.getImageUrl())
 				.build()
 			).toList();
+	}
+
+	public AchievementsByCategoryResponse getAchievementsByCategory(Long achievementCategoryId, Long userId) {
+		AchievementCategory achievementCategory = achievementCategoryRepository
+			.findById(achievementCategoryId)
+			.orElseThrow(() -> new AppException(ErrorCode.ACHIEVEMENT_NOT_FOUND));
+		List<AchievementElementInterface> achievementElementsByCategory = achievementRepository.findAllByCategory(
+			achievementCategoryId, userId);
+
+		return AchievementsByCategoryResponse.from(achievementCategory, achievementElementsByCategory);
 	}
 }
