@@ -1,6 +1,7 @@
 package com.m3pro.groundflip.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -27,4 +28,7 @@ public interface AchievementRepository extends JpaRepository<Achievement, Long> 
 		@Param("achievement_category_id") Long achievementCategoryId,
 		@Param("user_id") Long userId
 	);
+
+	@Query("SELECT a FROM Achievement a WHERE a.categoryId = :categoryId ORDER BY a.id ASC")
+	Optional<Achievement> findByCategoryId(Long categoryId);
 }
