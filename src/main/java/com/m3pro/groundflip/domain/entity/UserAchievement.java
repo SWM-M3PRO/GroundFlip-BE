@@ -49,4 +49,11 @@ public class UserAchievement {
 	@Column(name = "is_reward_received")
 	private Boolean isRewardReceived;
 
+	public void increaseCurrentValue() {
+		this.currentValue++;
+	}
+
+	public void setObtainedAt() {
+		this.obtainedAt = LocalDateTime.now();
+	}
 }
