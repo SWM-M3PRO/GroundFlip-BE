@@ -17,6 +17,7 @@ import com.m3pro.groundflip.domain.entity.Pixel;
 import com.m3pro.groundflip.domain.entity.PixelUser;
 import com.m3pro.groundflip.domain.entity.Region;
 import com.m3pro.groundflip.domain.entity.UserRegionCount;
+import com.m3pro.groundflip.enums.AchievementCategoryId;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.CommunityRepository;
@@ -53,6 +54,7 @@ public class PixelManager {
 	private final UserRegionCountRepository userRegionCountRepository;
 	private final UserRepository userRepository;
 	private final CommunityRepository communityRepository;
+	private final AchievementManager achievementManager;
 
 	@Transactional
 	public void occupyPixel(PixelOccupyRequest pixelOccupyRequest) {
@@ -151,6 +153,7 @@ public class PixelManager {
 		if (!pixelUserRepository.existsByPixelIdAndUserId(targetPixel.getId(), userId)) {
 			updateUserRegionCount(targetPixel, userId);
 			userRankingService.updateAccumulatedRanking(userId);
+			achievementManager.updateAccumulateAchievement(userId, AchievementCategoryId.EXPLORER);
 		}
 	}
 
