@@ -2,6 +2,7 @@ package com.m3pro.groundflip.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.locationtech.jts.geom.Coordinate;
@@ -154,6 +155,9 @@ public class PixelManager {
 			updateUserRegionCount(targetPixel, userId);
 			userRankingService.updateAccumulatedRanking(userId);
 			achievementManager.updateAccumulateAchievement(userId, AchievementCategoryId.EXPLORER);
+		}
+		if (!pixelUserRepository.existsByUserIdAndPixelIdForToday(userId, LocalDateTime.now())) {
+			achievementManager.updateAccumulateAchievement(userId, AchievementCategoryId.STEADY);
 		}
 	}
 
