@@ -29,6 +29,6 @@ public interface AchievementRepository extends JpaRepository<Achievement, Long> 
 		@Param("user_id") Long userId
 	);
 
-	@Query("SELECT a FROM Achievement a WHERE a.categoryId = :categoryId ORDER BY a.id ASC")
+	@Query("SELECT a FROM Achievement a WHERE a.categoryId = :categoryId ORDER BY a.id ASC LIMIT 1")
 	Optional<Achievement> findByCategoryId(Long categoryId);
 }
