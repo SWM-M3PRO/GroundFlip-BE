@@ -183,8 +183,23 @@ public class PixelManager {
 	}
 
 	private void updatePixelOwnerUser(Pixel targetPixel, Long occupyingUserId) {
+		if (isLandTakenFromExistingUser(targetPixel, occupyingUserId)) {
+			achievementManager.updateAccumulateAchievement(occupyingUserId, AchievementCategoryId.CONQUEROR);
+		}
 		targetPixel.updateUserId(occupyingUserId);
 		targetPixel.updateUserOccupiedAtToNow();
+	}
+
+	private boolean isLandTakenFromExistingUser(Pixel targetPixel, Long occupyingUserId) {
+		Long originalOwnerUserId = targetPixel.getUserId();
+		LocalDateTime thisWeekStart = DateUtils.getThisWeekStartDate().atTime(0, 0);
+		LocalDateTime userOccupiedAt = targetPixel.getUserOccupiedAt();
+		if (!Objects.equals(originalOwnerUserId, occupyingUserId)) {
+			return originalOwnerUserId != null && !userOccupiedAt.isBefore(thisWeekStart);
+		} else {
+			return false;
+		}
+
 	}
 
 	private void updateRegionCount(Pixel targetPixel, boolean isCommunityUpdatable) {
