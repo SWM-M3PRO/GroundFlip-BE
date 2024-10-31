@@ -29,4 +29,7 @@ public class UserInfoRequest {
 	@Schema(description = "사용자 성별 (MALE, FEMALE)", example = "MALE")
 	private Gender gender;
 
+	@Schema(description = "프로필 이미지 default 체크", example = "1")
+	private int defaultCheck;
+
 }

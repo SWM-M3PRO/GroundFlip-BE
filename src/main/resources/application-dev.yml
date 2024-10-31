@@ -92,3 +92,5 @@ version:
 geocoding:
   api: ${GEOCODING_API}
 
+image:
+  default: ${DEFAULT_IMAGE}
