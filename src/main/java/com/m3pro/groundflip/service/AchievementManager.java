@@ -1,7 +1,9 @@
 package com.m3pro.groundflip.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.m3pro.groundflip.domain.entity.Achievement;
 import com.m3pro.groundflip.domain.entity.UserAchievement;
 import com.m3pro.groundflip.enums.AchievementCategoryId;
+import com.m3pro.groundflip.enums.SpecialAchievement;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.AchievementRepository;
@@ -69,6 +72,23 @@ public class AchievementManager {
 			return userAchievementRepository.save(nextAchievement);
 		} else {
 			return userAchievements.get(userAchievements.size() - 1);
+		}
+	}
+
+	@Transactional
+	public void updateSpecialAchievement(Long userId, SpecialAchievement specialAchievement) {
+		Optional<UserAchievement> userAchievement = userAchievementRepository.findByAchievementAndUserId(
+			achievementRepository.getReferenceById(specialAchievement.getAchievementId()), userId);
+
+		if (userAchievement.isEmpty()) {
+			UserAchievement newUserAchievement = UserAchievement.builder()
+				.achievement(achievementRepository.getReferenceById(specialAchievement.getAchievementId()))
+				.user(userRepository.getReferenceById(userId))
+				.currentValue(1)
+				.obtainedAt(LocalDateTime.now())
+				.isRewardReceived(false)
+				.build();
+			userAchievementRepository.save(newUserAchievement);
 		}
 	}
 }
