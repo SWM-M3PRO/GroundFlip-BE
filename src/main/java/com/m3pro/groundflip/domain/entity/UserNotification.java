@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 public class UserNotification extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "notification_id")
+	@Column(name = "user_notification_id")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
