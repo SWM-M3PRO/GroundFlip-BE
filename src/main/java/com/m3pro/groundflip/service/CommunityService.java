@@ -19,6 +19,7 @@ import com.m3pro.groundflip.domain.dto.ranking.UserRankingResponse;
 import com.m3pro.groundflip.domain.entity.Community;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.domain.entity.UserCommunity;
+import com.m3pro.groundflip.enums.SpecialAchievement;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.CommunityRankingRedisRepository;
@@ -37,6 +38,7 @@ public class CommunityService {
 	private final CommunityRepository communityRepository;
 	private final UserCommunityRepository userCommunityRepository;
 	private final CommunityRankingService communityRankingService;
+	private final AchievementManager achievementManager;
 	private final UserRepository userRepository;
 	private final UserRankingRedisRepository userRankingRedisRepository;
 	private final CommunityRankingRedisRepository communityRankingRedisRepository;
@@ -64,6 +66,7 @@ public class CommunityService {
 		return CommunityInfoResponse.from(community, rank, memberCount, currentPixel, accumulatePixel);
 	}
 
+	@Transactional
 	public void signInCommunity(Long communityId, CommunitySignRequest communitySignRequest) {
 		User user = userRepository.findById(communitySignRequest.getUserId())
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
@@ -83,6 +86,7 @@ public class CommunityService {
 			.build();
 
 		userCommunityRepository.save(userCommunity);
+		achievementManager.updateSpecialAchievement(user.getId(), SpecialAchievement.JOIN_GROUP);
 	}
 
 	public void signOutCommunity(Long communityId, CommunitySignRequest communitySignRequest) {

@@ -2,6 +2,7 @@ package com.m3pro.groundflip.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.locationtech.jts.geom.Coordinate;
@@ -17,6 +18,7 @@ import com.m3pro.groundflip.domain.entity.Pixel;
 import com.m3pro.groundflip.domain.entity.PixelUser;
 import com.m3pro.groundflip.domain.entity.Region;
 import com.m3pro.groundflip.domain.entity.UserRegionCount;
+import com.m3pro.groundflip.enums.AchievementCategoryId;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.CommunityRepository;
@@ -53,6 +55,7 @@ public class PixelManager {
 	private final UserRegionCountRepository userRegionCountRepository;
 	private final UserRepository userRepository;
 	private final CommunityRepository communityRepository;
+	private final AchievementManager achievementManager;
 
 	@Transactional
 	public void occupyPixel(PixelOccupyRequest pixelOccupyRequest) {
@@ -151,6 +154,10 @@ public class PixelManager {
 		if (!pixelUserRepository.existsByPixelIdAndUserId(targetPixel.getId(), userId)) {
 			updateUserRegionCount(targetPixel, userId);
 			userRankingService.updateAccumulatedRanking(userId);
+			achievementManager.updateAccumulateAchievement(userId, AchievementCategoryId.EXPLORER);
+		}
+		if (!pixelUserRepository.existsByUserIdAndPixelIdForToday(userId, LocalDateTime.now())) {
+			achievementManager.updateAccumulateAchievement(userId, AchievementCategoryId.STEADY);
 		}
 	}
 
@@ -180,8 +187,23 @@ public class PixelManager {
 	}
 
 	private void updatePixelOwnerUser(Pixel targetPixel, Long occupyingUserId) {
+		if (isLandTakenFromExistingUser(targetPixel, occupyingUserId)) {
+			achievementManager.updateAccumulateAchievement(occupyingUserId, AchievementCategoryId.CONQUEROR);
+		}
 		targetPixel.updateUserId(occupyingUserId);
 		targetPixel.updateUserOccupiedAtToNow();
+	}
+
+	private boolean isLandTakenFromExistingUser(Pixel targetPixel, Long occupyingUserId) {
+		Long originalOwnerUserId = targetPixel.getUserId();
+		LocalDateTime thisWeekStart = DateUtils.getThisWeekStartDate().atTime(0, 0);
+		LocalDateTime userOccupiedAt = targetPixel.getUserOccupiedAt();
+		if (!Objects.equals(originalOwnerUserId, occupyingUserId)) {
+			return originalOwnerUserId != null && !userOccupiedAt.isBefore(thisWeekStart);
+		} else {
+			return false;
+		}
+
 	}
 
 	private void updateRegionCount(Pixel targetPixel, boolean isCommunityUpdatable) {

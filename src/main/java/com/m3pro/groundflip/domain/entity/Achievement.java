@@ -4,12 +4,9 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -47,7 +44,5 @@ public class Achievement {
 
 	private LocalDateTime endAt;
 
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "next_achievement_id")
-	private Achievement nextAchievement;
+	private Long nextAchievementId;
 }

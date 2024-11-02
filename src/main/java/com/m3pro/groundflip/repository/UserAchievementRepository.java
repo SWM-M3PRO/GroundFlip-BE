@@ -35,5 +35,13 @@ public interface UserAchievementRepository extends JpaRepository<UserAchievement
 		""")
 	List<UserAchievement> findAllByUserId(Long userId);
 
+	@Query("""
+		SELECT ua FROM UserAchievement ua
+			JOIN FETCH ua.achievement a
+			WHERE ua.user.id = :userId AND a.categoryId = :categoryId
+			ORDER BY ua.obtainedAt DESC
+		""")
+	List<UserAchievement> findAllByUserIdAndCategoryId(Long userId, Long categoryId);
+
 	Optional<UserAchievement> findByAchievementAndUserId(Achievement achievement, Long userId);
 }

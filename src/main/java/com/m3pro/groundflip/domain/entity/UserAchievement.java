@@ -2,6 +2,8 @@ package com.m3pro.groundflip.domain.entity;
 
 import java.time.LocalDateTime;
 
+import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -21,7 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class UserAchievement {
+public class UserAchievement extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -37,16 +39,17 @@ public class UserAchievement {
 	@Column(name = "current_value")
 	private Integer currentValue;
 
-	@Column(name = "created_at")
-	private LocalDateTime createdAt;
-
-	@Column(name = "modified_at")
-	private LocalDateTime modifiedAt;
-
 	@Column(name = "obtained_at")
 	private LocalDateTime obtainedAt;
 
 	@Column(name = "is_reward_received")
 	private Boolean isRewardReceived;
 
+	public void increaseCurrentValue() {
+		this.currentValue++;
+	}
+
+	public void setObtainedAt() {
+		this.obtainedAt = LocalDateTime.now();
+	}
 }
