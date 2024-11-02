@@ -15,6 +15,7 @@ public interface UserNotificationRepository extends JpaRepository<UserNotificati
 		JOIN FETCH un.notification
 		WHERE un.userId = :user_id
 		AND un.createdAt > :lookup_date
+		ORDER BY un.createdAt DESC
 		""")
 	List<UserNotification> findAllByUserId(@Param("user_id") Long userId,
 		@Param("lookup_date") LocalDateTime lookupDate);

@@ -2,6 +2,7 @@ package com.m3pro.groundflip.domain.dto.notification;
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.m3pro.groundflip.domain.entity.Notification;
 import com.m3pro.groundflip.domain.entity.UserNotification;
 
@@ -39,6 +40,7 @@ public class NotificationResponse {
 	private String contents;
 
 	@Schema(description = "알림 읽었는지 여부", example = "1")
+	@JsonProperty("isRead")
 	private boolean isRead;
 
 	public static NotificationResponse from(UserNotification userNotification) {
