@@ -7,8 +7,11 @@ import org.springframework.stereotype.Service;
 
 import com.m3pro.groundflip.domain.dto.notification.NotificationResponse;
 import com.m3pro.groundflip.domain.entity.UserNotification;
+import com.m3pro.groundflip.exception.AppException;
+import com.m3pro.groundflip.exception.ErrorCode;
 import com.m3pro.groundflip.repository.UserNotificationRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,5 +26,13 @@ public class NotificationService {
 		List<UserNotification> userNotifications = userNotificationRepository.findAllByUserId(userId, lookupDate);
 
 		return userNotifications.stream().map((NotificationResponse::from)).toList();
+	}
+
+	@Transactional
+	public void markNotificationAsRead(Long notificationId) {
+		UserNotification userNotification = userNotificationRepository.findById(notificationId)
+			.orElseThrow(() -> new AppException(ErrorCode.NOTIFICATION_NOT_FOUND));
+
+		userNotification.markAsRead();
 	}
 }

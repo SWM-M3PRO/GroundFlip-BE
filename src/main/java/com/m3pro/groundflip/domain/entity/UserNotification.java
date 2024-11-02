@@ -36,4 +36,8 @@ public class UserNotification extends BaseTimeEntity {
 	private Long userId;
 
 	private LocalDateTime readAt;
+
+	public void markAsRead() {
+		this.readAt = LocalDateTime.now();
+	}
 }
