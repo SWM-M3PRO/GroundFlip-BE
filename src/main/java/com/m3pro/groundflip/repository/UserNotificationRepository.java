@@ -19,4 +19,13 @@ public interface UserNotificationRepository extends JpaRepository<UserNotificati
 		""")
 	List<UserNotification> findAllByUserId(@Param("user_id") Long userId,
 		@Param("lookup_date") LocalDateTime lookupDate);
+
+	@Query("""
+		SELECT count(un) > 0 FROM UserNotification un
+		WHERE un.userId = :user_id
+		AND un.createdAt > :lookup_date
+		AND un.readAt is null
+		""")
+	boolean existsByUserId(@Param("user_id") Long userId,
+		@Param("lookup_date") LocalDateTime lookupDate);
 }

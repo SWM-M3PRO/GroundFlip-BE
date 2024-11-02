@@ -35,4 +35,9 @@ public class NotificationService {
 
 		userNotification.markAsRead();
 	}
+
+	public boolean checkForUnreadNotifications(Long userId) {
+		LocalDateTime lookupDate = LocalDateTime.now().minusDays(14);
+		return userNotificationRepository.existsByUserId(userId, lookupDate);
+	}
 }

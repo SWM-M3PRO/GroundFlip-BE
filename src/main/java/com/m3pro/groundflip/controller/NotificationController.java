@@ -47,4 +47,15 @@ public class NotificationController {
 		notificationService.markNotificationAsRead(notificationId);
 		return Response.createSuccessWithNoData();
 	}
+
+	@Operation(summary = "유저 별 읽지 않은 알림이 있는 지 여부 조회", description = "특정 유저가 최근 14일 동안 읽지 않는 알림이 있다면 true 를 반환한다.")
+	@Parameters({
+		@Parameter(name = "user-id", description = "찾고자 하는 user의 id", example = "14"),
+	})
+	@GetMapping("/unread/check")
+	public Response<Boolean> checkForUnreadNotifications(
+		@RequestParam(name = "user-id") Long userId
+	) {
+		return Response.createSuccess(notificationService.checkForUnreadNotifications(userId));
+	}
 }
