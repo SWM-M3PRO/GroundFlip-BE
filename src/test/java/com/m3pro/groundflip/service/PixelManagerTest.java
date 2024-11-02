@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -41,6 +42,8 @@ class PixelManagerTest {
 	@Mock
 	private CommunityRepository communityRepository;
 	@Mock
+	private AchievementManager achievementManager;
+	@Mock
 	private PixelRepository pixelRepository;
 	@Mock
 	private PixelUserRepository pixelUserRepository;
@@ -66,6 +69,7 @@ class PixelManagerTest {
 			.x(222L)
 			.y(233L)
 			.userId(1L)
+			.userOccupiedAt(LocalDateTime.now())
 			.address("대한민국")
 			.build();
 		when(pixelRepository.findByXAndY(222L, 233L)).thenReturn(Optional.of(pixel));
@@ -88,6 +92,7 @@ class PixelManagerTest {
 			.x(222L)
 			.y(233L)
 			.userId(1L)
+			.userOccupiedAt(LocalDateTime.now())
 			.address("대한민국")
 			.build();
 		when(pixelRepository.findByXAndY(222L, 233L)).thenReturn(Optional.of(pixel));
@@ -108,6 +113,7 @@ class PixelManagerTest {
 			.x(222L)
 			.y(233L)
 			.userId(1L)
+			.userOccupiedAt(LocalDateTime.now())
 			.address(null)
 			.build();
 		when(pixelRepository.findByXAndY(222L, 233L)).thenReturn(Optional.of(pixel));
@@ -130,6 +136,7 @@ class PixelManagerTest {
 			.x(222L)
 			.y(233L)
 			.userId(1L)
+			.userOccupiedAt(LocalDateTime.now())
 			.address("대한민국 ")
 			.build();
 		when(pixelRepository.findByXAndY(222L, 233L)).thenReturn(Optional.of(pixel));
@@ -161,6 +168,7 @@ class PixelManagerTest {
 			.x(222L)
 			.y(233L)
 			.userId(1L)
+			.userOccupiedAt(LocalDateTime.now())
 			.address("대한민국 ")
 			.build();
 		double expectedLongitude = upper_left_lon + (233L * lon_per_pixel);
