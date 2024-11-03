@@ -28,6 +28,7 @@ public class AchievementManager {
 	private final AchievementRepository achievementRepository;
 	private final UserAchievementRepository userAchievementRepository;
 	private final UserRepository userRepository;
+	private final NotificationService notificationService;
 
 	@Transactional
 	public void updateAccumulateAchievement(Long userId, AchievementCategoryId categoryId) {
@@ -43,6 +44,8 @@ public class AchievementManager {
 
 	private void completeAchievement(UserAchievement achievementToUpdate, Long userId) {
 		achievementToUpdate.setObtainedAt();
+		notificationService.createAchievementNotification(userId, achievementToUpdate.getAchievement());
+
 		Long nextAchievementId = achievementToUpdate.getAchievement().getNextAchievementId();
 		if (nextAchievementId != null) {
 			UserAchievement nextAchievement = UserAchievement.builder()
@@ -81,6 +84,8 @@ public class AchievementManager {
 			achievementRepository.getReferenceById(specialAchievement.getAchievementId()), userId);
 
 		if (userAchievement.isEmpty()) {
+			Achievement achievementToUpdate = achievementRepository.getReferenceById(
+				specialAchievement.getAchievementId());
 			UserAchievement newUserAchievement = UserAchievement.builder()
 				.achievement(achievementRepository.getReferenceById(specialAchievement.getAchievementId()))
 				.user(userRepository.getReferenceById(userId))
@@ -89,6 +94,8 @@ public class AchievementManager {
 				.isRewardReceived(false)
 				.build();
 			userAchievementRepository.save(newUserAchievement);
+
+			notificationService.createAchievementNotification(userId, achievementToUpdate);
 		}
 	}
 }

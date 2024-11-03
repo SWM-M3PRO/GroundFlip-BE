@@ -6,9 +6,13 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.m3pro.groundflip.domain.dto.notification.NotificationResponse;
+import com.m3pro.groundflip.domain.entity.Achievement;
+import com.m3pro.groundflip.domain.entity.Notification;
 import com.m3pro.groundflip.domain.entity.UserNotification;
+import com.m3pro.groundflip.enums.NotificationCategory;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
+import com.m3pro.groundflip.repository.NotificationRepository;
 import com.m3pro.groundflip.repository.UserNotificationRepository;
 
 import jakarta.transaction.Transactional;
@@ -20,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NotificationService {
 	private final UserNotificationRepository userNotificationRepository;
+	private final NotificationRepository notificationRepository;
 
 	public List<NotificationResponse> getAllNotifications(Long userId) {
 		LocalDateTime lookupDate = LocalDateTime.now().minusDays(14);
@@ -39,5 +44,20 @@ public class NotificationService {
 	public boolean checkForUnreadNotifications(Long userId) {
 		LocalDateTime lookupDate = LocalDateTime.now().minusDays(14);
 		return userNotificationRepository.existsByUserId(userId, lookupDate);
+	}
+
+	@Transactional
+	public void createAchievementNotification(Long userId, Achievement achievement) {
+		Notification notification = notificationRepository.save(Notification.builder()
+			.title(achievement.getName() + " 획득!")
+			.category(NotificationCategory.ACHIEVEMENT.getCategoryName())
+			.categoryId(NotificationCategory.ACHIEVEMENT.getCategoryId())
+			.contentId(achievement.getId())
+			.build()
+		);
+		userNotificationRepository.save(UserNotification.builder()
+			.userId(userId)
+			.notification(notification)
+			.build());
 	}
 }
