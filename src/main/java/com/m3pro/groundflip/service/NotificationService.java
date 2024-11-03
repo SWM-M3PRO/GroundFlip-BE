@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class NotificationService {
 	private final UserNotificationRepository userNotificationRepository;
 	private final NotificationRepository notificationRepository;
+	private final FcmService fcmService;
 
 	public List<NotificationResponse> getAllNotifications(Long userId) {
 		LocalDateTime lookupDate = LocalDateTime.now().minusDays(14);
@@ -59,5 +60,6 @@ public class NotificationService {
 			.userId(userId)
 			.notification(notification)
 			.build());
+		fcmService.sendNotificationToUser(achievement.getName() + " 획득!", achievement.getName() + " 획득하였습니다!", userId);
 	}
 }
