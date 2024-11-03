@@ -26,6 +26,8 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+  firebase:
+    secret: ${FIREBASE_SECRET_KEY}
 
 logging:
   level:
