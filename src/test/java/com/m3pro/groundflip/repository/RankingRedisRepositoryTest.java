@@ -10,20 +10,32 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.m3pro.groundflip.config.FirebaseConfig;
 import com.m3pro.groundflip.domain.dto.ranking.Ranking;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@ComponentScan(
+	excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = FirebaseConfig.class)
+)
+@ImportAutoConfiguration(exclude = FirebaseConfig.class)
 class RankingRedisRepositoryTest {
 	private static final String CURRENT_RANKING_KEY = "current_pixel_ranking";
 	private static final String ACCUMULATE_RANKING_KEY = "accumulate_pixel_ranking";
 	RankingRedisRepository rankingRedisRepository;
+	@MockBean
+	private FirebaseMessaging firebaseMessaging;
 	@Autowired
 	private RedisTemplate<String, String> redisTemplate;
 

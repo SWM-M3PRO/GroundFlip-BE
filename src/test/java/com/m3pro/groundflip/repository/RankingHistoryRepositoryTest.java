@@ -9,8 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.m3pro.groundflip.domain.dto.ranking.UserRankingResponse;
 import com.m3pro.groundflip.domain.entity.RankingHistory;
 import com.m3pro.groundflip.domain.entity.User;
@@ -21,6 +23,8 @@ import jakarta.transaction.Transactional;
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class RankingHistoryRepositoryTest {
+	@MockBean
+	private FirebaseMessaging firebaseMessaging;
 	@Autowired
 	private RankingHistoryRepository rankingHistoryRepository;
 	@Autowired

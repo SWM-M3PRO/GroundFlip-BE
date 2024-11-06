@@ -25,6 +25,8 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+  firebase:
+    secret: 1234
 
 logging:
   level:
@@ -87,3 +89,6 @@ version:
 
 geocoding:
   api: "http://localhost:3030/find_district"
+
+firebase:
+  enabled: false

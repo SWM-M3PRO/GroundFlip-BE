@@ -10,6 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.m3pro.groundflip.domain.dto.pixel.event.PixelAddressUpdateEvent;
 import com.m3pro.groundflip.domain.dto.pixel.event.PixelUserInsertEvent;
 import com.m3pro.groundflip.domain.entity.Pixel;
@@ -20,6 +21,8 @@ import jakarta.transaction.Transactional;
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class PixelEventTest {
+	@MockBean
+	private FirebaseMessaging firebaseMessaging;
 	@Autowired
 	private ApplicationContext applicationContext;
 	@MockBean

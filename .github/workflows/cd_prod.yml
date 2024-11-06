@@ -39,6 +39,7 @@ jobs:
           echo "LATEST_VERSION=${{ secrets.LATEST_VERSION_PROD }}" >> .env
           echo "FORCE_UPDATE_VERSION=${{  secrets.FORCE_UPDATE_VERSION_PROD  }}" >> .env
           echo "GEOCODING_API=${{  secrets.GEOCODING_API  }}" >> .env
+          echo "FIREBASE_SECRET_KEY=${{  secrets.FIREBASE_SECRET_KEY  }}" >> .env
 
       - name: gradlew에 실행 권한 부여
         run: chmod +x ./gradlew
