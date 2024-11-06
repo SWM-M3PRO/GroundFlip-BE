@@ -12,8 +12,10 @@ import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.m3pro.groundflip.domain.entity.Community;
 import com.m3pro.groundflip.domain.entity.Pixel;
 import com.m3pro.groundflip.domain.entity.PixelUser;
@@ -30,6 +32,8 @@ public class PixelUserRepositoryTest {
 	CommunityRepository communityRepository;
 	@Autowired
 	GeometryFactory geometryFactory;
+	@MockBean
+	private FirebaseMessaging firebaseMessaging;
 	@Autowired
 	private PixelUserRepository pixelUserRepository;
 	@Autowired

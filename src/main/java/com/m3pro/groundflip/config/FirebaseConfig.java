@@ -7,6 +7,7 @@ import java.util.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
@@ -16,6 +17,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import jakarta.annotation.PostConstruct;
 
 @Configuration
+@Profile("!test")
 public class FirebaseConfig {
 	private FirebaseApp firebaseApp;
 	@Value("${spring.firebase.secret}")
