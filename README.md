@@ -1,8 +1,9 @@
-
 ## GroundFlip - 땅따먹기 게임 기반 걷기 앱
+
 <img width="224" alt="image" src="https://github.com/user-attachments/assets/dc88a049-bcf5-4d15-92e6-7b54bd0c3136">
 
 ### 👀 프로젝트 소개
+
 내가 가는 길이 내 것이 되는 즐거움, 그라운드 플립! <br>
 운동이 재미가 없어 꾸준히 하기 어려웠다구요?
 
@@ -13,23 +14,27 @@
 실시간 랭킹, 그룹 기능을 제공합니다. <br>
 
 ---
+
 ### 개발 환경
+
 - Java 17
 - Spring Boot 3.3.0
 
 ---
 
 ### 기술 세부 스택
+
 - Spring Boot
 
 - Spring Data JPA
 - Spring Data Redis
 - Spring Security
-그 외
+  그 외
 
 ---
 
 ### 📚 기능 소개 <br>
+
 BE Architecture <br>
 <img width="651" alt="image" src="https://github.com/user-attachments/assets/2336e475-1017-4d4c-bd47-fb3e17601cf7">
 
