@@ -18,16 +18,20 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.m3pro.groundflip.domain.dto.pixel.CommunityPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.IndividualPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixel.PixelCountResponse;
 import com.m3pro.groundflip.domain.dto.pixelUser.IndividualHistoryPixelInfoResponse;
 import com.m3pro.groundflip.domain.dto.pixelUser.PixelOwnerUser;
 import com.m3pro.groundflip.domain.dto.pixelUser.VisitedUser;
+import com.m3pro.groundflip.domain.entity.Community;
 import com.m3pro.groundflip.domain.entity.Pixel;
 import com.m3pro.groundflip.domain.entity.PixelUser;
 import com.m3pro.groundflip.domain.entity.User;
 import com.m3pro.groundflip.exception.AppException;
 import com.m3pro.groundflip.exception.ErrorCode;
+import com.m3pro.groundflip.repository.CommunityRepository;
+import com.m3pro.groundflip.repository.DailyPixelRepository;
 import com.m3pro.groundflip.repository.PixelRepository;
 import com.m3pro.groundflip.repository.PixelUserRepository;
 import com.m3pro.groundflip.repository.UserRepository;
@@ -43,6 +47,12 @@ public class PixelReaderTest {
 	private UserRepository userRepository;
 	@Mock
 	private UserRankingService userRankingService;
+	@Mock
+	private CommunityRankingService communityRankingService;
+	@Mock
+	private CommunityRepository communityRepository;
+	@Mock
+	private DailyPixelRepository dailyPixelRepository;
 	@InjectMocks
 	private PixelReader pixelReader;
 
@@ -323,4 +333,39 @@ public class PixelReaderTest {
 		assertEquals(pixelCount.getAccumulatePixelCount(), 5L);
 	}
 
+	@Test
+	@DisplayName("[getCommunityPixelCount] 그룹의 픽셀 개수를 반환")
+	void getCommunityPixelCountTest() {
+		Long communityId = 1L;
+		when(communityRankingService.getCurrentPixelCountFromCache(communityId)).thenReturn(3L);
+		PixelCountResponse pixelCountResponse = pixelReader.getCommunityPixelCount(communityId);
+		assertEquals(pixelCountResponse.getCurrentPixelCount(), 3L);
+	}
+
+	@Test
+	@DisplayName("[getCommunityModePixelInfo] 그룹 모드의 픽셀 정보를 반환한다")
+	void getCommunityModePixelInfoTest() {
+		Long pixelId = 1L;
+		Long communityId = 2L;
+		Pixel pixel = Pixel.builder().id(pixelId).communityId(communityId).build();
+		Community community = Community.builder().id(communityId).name("test").build();
+		when(pixelRepository.findById(pixelId)).thenReturn(Optional.of(pixel));
+		when(communityRankingService.getAccumulatePixelCount(communityId)).thenReturn(3L);
+		when(communityRankingService.getCurrentPixelCountFromCache(communityId)).thenReturn(3L);
+		when(communityRepository.findById(communityId)).thenReturn(Optional.of(community));
+
+		CommunityPixelInfoResponse communityPixelInfoResponse = pixelReader.getCommunityModePixelInfo(pixelId);
+
+		assertThat(communityPixelInfoResponse.getPixelOwnerCommunity().getCommunityId()).isEqualTo(communityId);
+	}
+
+	@Test
+	@DisplayName("[getDailyPixel] 그룹 모드의 픽셀 정보를 반환한다")
+	void getDailyPixelTest() {
+		Long userId = 1L;
+		LocalDate startDate = LocalDate.parse("2024-07-15");
+		LocalDate endDate = LocalDate.parse("2024-07-18");
+		pixelReader.getDailyPixel(userId, startDate, endDate);
+		verify(dailyPixelRepository).findAllDailyPixel(userId, startDate, endDate);
+	}
 }

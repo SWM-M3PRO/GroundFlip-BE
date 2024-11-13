@@ -37,6 +37,9 @@ class CommunityServiceTest {
 	private UserCommunityRepository userCommunityRepository;
 
 	@Mock
+	private AchievementManager achievementManager;
+
+	@Mock
 	private UserRepository userRepository;
 
 	@Mock

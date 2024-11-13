@@ -68,5 +68,11 @@ public interface PixelUserRepository extends JpaRepository<PixelUser, Long> {
 
 	boolean existsByPixelIdAndUserId(Long pixelId, Long userId);
 
+	@Query("SELECT COUNT(pu) > 0 FROM PixelUser pu WHERE pu.user.id = :userId AND FUNCTION('DATE', pu.createdAt) = FUNCTION('DATE', :currentDate)")
+	boolean existsByUserIdAndPixelIdForToday(
+		@Param("userId") Long userId,
+		@Param("currentDate") LocalDateTime currentDate
+	);
+
 	boolean existsByPixelIdAndCommunityId(Long pixelId, Long communityId);
 }
