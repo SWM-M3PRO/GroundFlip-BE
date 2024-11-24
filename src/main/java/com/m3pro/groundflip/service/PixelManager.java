@@ -93,7 +93,7 @@ public class PixelManager {
 	}
 
 	private boolean isValidCoordinate(Long x, Long y) {
-		return x >= 0 && x < 7000 && y >= 0 && y < 4156;
+		return x >= 0 && x < 9000 && y >= 0 && y < 8156;
 	}
 
 	private Pixel createPixel(Long x, Long y) {
