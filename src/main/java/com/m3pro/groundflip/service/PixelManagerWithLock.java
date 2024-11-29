@@ -39,7 +39,9 @@ public class PixelManagerWithLock {
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		} finally {
-			rLock.unlock();
+			if (rLock != null && rLock.isLocked()) {
+				rLock.unlock();
+			}
 		}
 	}
 }
