@@ -45,28 +45,28 @@ jobs:
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST_PROD }}
+          host: ${{ secrets.EC2_HOST_PROD_MIG }}
           username: ubuntu
-          key: ${{ secrets.EC2_PEM_KEY_PROD }}
+          key: ${{ secrets.EC2_PEM_KEY_PROD_MIG }}
           script: |
-            echo "DB_URI=${{ secrets.DB_URI_PROD }}" >> .env
-            echo "DB_USERNAME=${{ secrets.DB_USERNAME_PROD }}" >> .env
-            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD_PROD }}" >> .env
+            echo "DB_URI=${{ secrets.DB_URI_PROD_MIG }}" >> .env
+            echo "DB_USERNAME=${{ secrets.DB_USERNAME_PROD_MIG }}" >> .env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD_PROD_MIG }}" >> .env
             echo "SPRING_PROFILES_ACTIVE=prod" >> .env
             echo "X-NCP-APIGW-API-KEY-ID=${{ secrets.NAVER_APIKEYID }}" >> .env
             echo "X-NCP-APIGW-API-KEY=${{ secrets.NAVER_APIKEY }}" >> .env
             echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY_PROD }}" >> .env
             echo "KAKAO_APP_ID=${{ secrets.KAKAO_APP_ID }}" >> .env
-            echo "REDIS_HOST=${{ secrets.REDIS_HOST_TEST }}" >> .env
-            echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY_PROD }}" >> .env
-            echo "AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY_PROD }}" >> .env
-            echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET_PROD }}" >> .env
+            echo "REDIS_HOST=${{ secrets.REDIS_HOST_MIG }}" >> .env
+            echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY_PROD_MIG }}" >> .env
+            echo "AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY_PROD_MIG }}" >> .env
+            echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET_PROD_MIG }}" >> .env
             echo "APPLE_APP_ID=${{ secrets.APPLE_APP_ID }}" >> .env
             echo "APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}" >> .env
             echo "APPLE_KEY_ID=${{ secrets.APPLE_KEY_ID }}" >> .env
             echo "APPLE_PRIVATE_KEY=${{ secrets.APPLE_PRIVATE_KEY }}" >> .env
             echo "LATEST_VERSION=${{ secrets.LATEST_VERSION_PROD }}" >> .env
             echo "FORCE_UPDATE_VERSION=${{  secrets.FORCE_UPDATE_VERSION_PROD  }}" >> .env
-            echo "GEOCODING_API=${{  secrets.GEOCODING_API  }}" >> .env
+            echo "GEOCODING_API=${{  secrets.GEOCODING_API_MIG  }}" >> .env
             
             sudo sh deploy.sh
