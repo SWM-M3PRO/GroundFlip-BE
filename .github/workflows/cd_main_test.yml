@@ -49,7 +49,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_PEM_KEY_PROD_MIG }}
           script: |
-            echo "DB_URI=${{ secrets.DB_URI_PROD_MIG }}" >> .env
+            echo "DB_URI=${{ secrets.DB_URI_PROD_MIG }}" > .env
             echo "DB_USERNAME=${{ secrets.DB_USERNAME_PROD_MIG }}" >> .env
             echo "DB_PASSWORD=${{ secrets.DB_PASSWORD_PROD_MIG }}" >> .env
             echo "SPRING_PROFILES_ACTIVE=prod" >> .env
