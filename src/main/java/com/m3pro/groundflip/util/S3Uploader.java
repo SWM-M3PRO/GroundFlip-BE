@@ -77,13 +77,13 @@ public class S3Uploader {
 	public String uploadFiles(MultipartFile multipartFile, Long userId) throws IOException {
 		String originalFileName = multipartFile.getOriginalFilename();
 		String convertedFileName = convertFileNameToUuid(originalFileName, userId);
-		return uploadFile(multipartFile, "/static", convertedFileName);
+		return uploadFile(multipartFile, "/user_profile_image_resized", convertedFileName);
 	}
 
 	public String uploadCommunityFiles(MultipartFile multipartFile) throws IOException {
 		String originalFileName = multipartFile.getOriginalFilename();
 		String convertedFileName = convertFileNameToUuid2(originalFileName);
-		return uploadFile(multipartFile, "/university_logo", convertedFileName);
+		return uploadFile(multipartFile, "/community_profile_image_resized", convertedFileName);
 	}
 
 	private String convertFileNameToUuid(String fileName, Long userId) {
