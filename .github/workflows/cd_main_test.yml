@@ -2,7 +2,7 @@ name: Backend Migration Server CD
 
 on:
   push:
-    branches: [ "main-test" ]
+    branches: [ "main" ]
 
 permissions:
   contents: read
