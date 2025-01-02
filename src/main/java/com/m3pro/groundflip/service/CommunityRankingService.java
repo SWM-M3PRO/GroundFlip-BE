@@ -160,7 +160,7 @@ public class CommunityRankingService {
 			DateUtils.getWeekOfDate(lookUpDate)
 		);
 
-		if (rankingHistory.isPresent()) {
+		if (rankingHistory.isPresent() && rankingHistory.get().getCurrentPixelCount() > 0) {
 			return CommunityRankingResponse.from(
 				community,
 				rankingHistory.get().getRanking(),

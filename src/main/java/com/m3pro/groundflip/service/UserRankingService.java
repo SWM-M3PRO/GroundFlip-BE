@@ -171,7 +171,7 @@ public class UserRankingService {
 			DateUtils.getWeekOfDate(lookUpDate)
 		);
 
-		if (rankingHistory.isPresent()) {
+		if (rankingHistory.isPresent() && rankingHistory.get().getCurrentPixelCount() > 0) {
 			return UserRankingResponse.from(
 				user,
 				rankingHistory.get().getRanking(),
