@@ -171,7 +171,7 @@ public class UserRankingService {
 			DateUtils.getWeekOfDate(lookUpDate)
 		);
 
-		if (rankingHistory.isPresent()) {
+		if (rankingHistory.isPresent() && rankingHistory.get().getCurrentPixelCount() > 0) {
 			return UserRankingResponse.from(
 				user,
 				rankingHistory.get().getRanking(),
@@ -184,9 +184,14 @@ public class UserRankingService {
 	private UserRankingResponse getCurrentWeekCurrentPixelUserRanking(Long userId) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-		Long rank = getUserCurrentPixelRankFromCache(userId);
 		Long currentPixelCount = getCurrentPixelCountFromCache(userId);
-		return UserRankingResponse.from(user, rank, currentPixelCount);
+
+		if (currentPixelCount == 0) {
+			return UserRankingResponse.from(user, null, null);
+		} else {
+			Long rank = getUserCurrentPixelRankFromCache(userId);
+			return UserRankingResponse.from(user, rank, currentPixelCount);
+		}
 	}
 
 	/**

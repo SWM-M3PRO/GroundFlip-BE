@@ -2,6 +2,7 @@ package com.m3pro.groundflip.repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -89,7 +90,10 @@ public class RankingRedisRepository {
 		List<Ranking> rankings = new ArrayList<>();
 		long rank = 1;
 		for (ZSetOperations.TypedTuple<String> typedTuple : typedTuples) {
-			rankings.add(Ranking.from(typedTuple, rank++));
+			if (!Objects.equals(typedTuple.getScore(), (double)0)) {
+				rankings.add(Ranking.from(typedTuple, rank++));
+			}
+
 		}
 		return rankings;
 	}

@@ -16,7 +16,7 @@ public interface CommunityRankingHistoryRepository extends JpaRepository<Communi
 			(c.id, c.name, c.backgroundImageUrl, crh.currentPixelCount, crh.ranking)
 			FROM CommunityRankingHistory crh 
 			INNER JOIN Community c on c.id = crh.communityId 
-			WHERE crh.year = :requestYear AND crh.week = :requestWeek
+			WHERE crh.year = :requestYear AND crh.week = :requestWeek AND crh.currentPixelCount > 0
 			ORDER BY crh.ranking ASC 
 			LIMIT 30 
 		""")

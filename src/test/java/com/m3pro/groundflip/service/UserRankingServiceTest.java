@@ -177,22 +177,6 @@ class UserRankingServiceTest {
 	}
 
 	@Test
-	@DisplayName("[getUserRankFromCache] 사용자가 Redis에 존재하지 않는다면 500 에러를 발생시킨다.")
-	void getUserRankFromCacheUserCurrentPixelNotFoundInRedis() {
-		Long userId = 1L;
-		when(userRepository.findById(userId)).thenReturn(Optional.of(User.builder()
-			.id(1L)
-			.build()));
-
-		when(userRankingRedisRepository.getCurrentPixelRank(userId)).thenReturn(Optional.empty());
-
-		AppException exception = assertThrows(AppException.class,
-			() -> userRankingService.getUserCurrentPixelRankInfo(userId, LocalDate.now()));
-
-		assertEquals(ErrorCode.INTERNAL_SERVER_ERROR, exception.getErrorCode());
-	}
-
-	@Test
 	@DisplayName("[getAllUserRanking] 현재 상위 30명의 랭킹을 가져온다.")
 	void getAllCurrentWeekRankingTest() {
 		List<Ranking> rankings = Arrays.asList(
