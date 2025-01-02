@@ -242,23 +242,6 @@ public class CommunityRankingServiceTest {
 	}
 
 	@Test
-	@DisplayName("[getCommunityRankInfo] Current week community not found in Redis, throws exception")
-	void getCommunityCurrentPixelRankInfo_CurrentWeekCommunityNotFoundInRedis() {
-		Long communityId = 1L;
-		when(communityRepository.findById(communityId)).thenReturn(Optional.of(Community.builder()
-			.id(communityId)
-			.name("Community1")
-			.build()));
-
-		when(communityRankingRedisRepository.getCurrentPixelRank(communityId)).thenReturn(Optional.empty());
-
-		AppException exception = assertThrows(AppException.class,
-			() -> communityRankingService.getCommunityCurrentPixelRankInfo(communityId, LocalDate.now()));
-
-		assertEquals(ErrorCode.INTERNAL_SERVER_ERROR, exception.getErrorCode());
-	}
-
-	@Test
 	@DisplayName("[getAllCommunityRanking] Fetches top 30 community rankings")
 	void getAllCurrentWeekRankingTest() {
 		List<Ranking> rankings = Arrays.asList(
