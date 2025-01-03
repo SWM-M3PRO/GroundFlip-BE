@@ -96,6 +96,19 @@ public class UserRankingService {
 		}
 	}
 
+	public List<UserRankingResponse> getAccumulatePixelAllUserRankings(LocalDate lookUpDate) {
+		if (lookUpDate == null) {
+			lookUpDate = LocalDate.now();
+		}
+
+		if (DateUtils.isDateInCurrentWeek(lookUpDate)) {
+			return getCurrentWeekAccumulatePixelRankings();
+		} else {
+			// Todo 이전 주차 랭킹을 가져오는 메서드 구현 후 대체
+			return getPastWeekCurrentPixelRankingsByDate(lookUpDate);
+		}
+	}
+
 	private List<UserRankingResponse> getPastWeekCurrentPixelRankingsByDate(LocalDate lookUpDate) {
 		return rankingHistoryRepository.findAllByYearAndWeek(
 			lookUpDate.getYear(),
@@ -105,6 +118,15 @@ public class UserRankingService {
 
 	private List<UserRankingResponse> getCurrentWeekCurrentPixelRankings() {
 		List<Ranking> rankings = userRankingRedisRepository.getRankingsWithCurrentPixelCount();
+		return getCurrentWeekRankings(rankings);
+	}
+
+	private List<UserRankingResponse> getCurrentWeekAccumulatePixelRankings() {
+		List<Ranking> rankings = userRankingRedisRepository.getRankingsWithAccumulatePixelCount();
+		return getCurrentWeekRankings(rankings);
+	}
+
+	private List<UserRankingResponse> getCurrentWeekRankings(List<Ranking> rankings) {
 		Map<Long, User> users = getRankedUsers(rankings);
 
 		rankings = filterNotExistUsers(rankings, users);
