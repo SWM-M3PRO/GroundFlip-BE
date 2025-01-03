@@ -75,6 +75,10 @@ public class RankingRedisRepository {
 		return getRankings(currentPixelRankingKey, RANKING_END_INDEX);
 	}
 
+	public List<Ranking> getRankingsWithAccumulatePixelCount() {
+		return getRankings(accumulatePixelRankingKey, RANKING_END_INDEX);
+	}
+
 	public List<Ranking> getRankingsWithCurrentPixelCount(int endIndex) {
 		return getRankings(currentPixelRankingKey, -1);
 	}
