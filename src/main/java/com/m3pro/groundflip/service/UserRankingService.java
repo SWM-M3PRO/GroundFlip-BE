@@ -183,6 +183,19 @@ public class UserRankingService {
 		}
 	}
 
+	public UserRankingResponse getUserAccumulatePixelRankInfo(Long userId, LocalDate lookUpDate) {
+		if (lookUpDate == null) {
+			lookUpDate = LocalDate.now();
+		}
+
+		if (DateUtils.isDateInCurrentWeek(lookUpDate)) {
+			return getCurrentWeekAccumulatePixelUserRanking(userId);
+		} else {
+			// Todo 이전 주차 랭킹을 가져오는 메서드 구현 후 대체
+			return getPastWeekCurrentPixelUserRanking(userId, lookUpDate);
+		}
+	}
+
 	private UserRankingResponse getPastWeekCurrentPixelUserRanking(Long userId, LocalDate lookUpDate) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
@@ -216,6 +229,19 @@ public class UserRankingService {
 		}
 	}
 
+	private UserRankingResponse getCurrentWeekAccumulatePixelUserRanking(Long userId) {
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+		Long accumulatePixelCount = getAccumulatePixelCount(userId);
+
+		if (accumulatePixelCount == 0) {
+			return UserRankingResponse.from(user, null, null);
+		} else {
+			Long rank = getUserAccumulatePixelRankFromCache(userId);
+			return UserRankingResponse.from(user, rank, accumulatePixelCount);
+		}
+	}
+
 	/**
 	 * 유저의 순위를 반환한다
 	 * @param userId 사용자 Id
@@ -223,6 +249,14 @@ public class UserRankingService {
 	 */
 	private Long getUserCurrentPixelRankFromCache(Long userId) {
 		return userRankingRedisRepository.getCurrentPixelRank(userId)
+			.orElseThrow(() -> {
+				log.error("User {} not register at redis", userId);
+				return new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
+			});
+	}
+
+	private Long getUserAccumulatePixelRankFromCache(Long userId) {
+		return userRankingRedisRepository.getAccumulatePixelRank(userId)
 			.orElseThrow(() -> {
 				log.error("User {} not register at redis", userId);
 				return new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
