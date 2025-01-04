@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -104,13 +105,19 @@ public class UserRankingService {
 		if (DateUtils.isDateInCurrentWeek(lookUpDate)) {
 			return getCurrentWeekAccumulatePixelRankings();
 		} else {
-			// Todo 이전 주차 랭킹을 가져오는 메서드 구현 후 대체
-			return getPastWeekCurrentPixelRankingsByDate(lookUpDate);
+			return getPastWeekAccumulatePixelRankingsByDate(lookUpDate);
 		}
 	}
 
 	private List<UserRankingResponse> getPastWeekCurrentPixelRankingsByDate(LocalDate lookUpDate) {
 		return rankingHistoryRepository.findAllByYearAndWeek(
+			lookUpDate.getYear(),
+			DateUtils.getWeekOfDate(lookUpDate)
+		);
+	}
+
+	private List<UserRankingResponse> getPastWeekAccumulatePixelRankingsByDate(LocalDate lookUpDate) {
+		return rankingHistoryRepository.findAllAccumulateRankingByYearAndWeek(
 			lookUpDate.getYear(),
 			DateUtils.getWeekOfDate(lookUpDate)
 		);
@@ -191,12 +198,16 @@ public class UserRankingService {
 		if (DateUtils.isDateInCurrentWeek(lookUpDate)) {
 			return getCurrentWeekAccumulatePixelUserRanking(userId);
 		} else {
-			// Todo 이전 주차 랭킹을 가져오는 메서드 구현 후 대체
-			return getPastWeekCurrentPixelUserRanking(userId, lookUpDate);
+			return getPastWeekAccumulatePixelUserRanking(userId, lookUpDate);
 		}
 	}
 
-	private UserRankingResponse getPastWeekCurrentPixelUserRanking(Long userId, LocalDate lookUpDate) {
+	private UserRankingResponse getPastWeekPixelUserRanking(
+		Long userId,
+		LocalDate lookUpDate,
+		Function<RankingHistory, Long> pixelCountGetter,
+		Function<RankingHistory, Long> rankingGetter
+	) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -206,14 +217,33 @@ public class UserRankingService {
 			DateUtils.getWeekOfDate(lookUpDate)
 		);
 
-		if (rankingHistory.isPresent() && rankingHistory.get().getCurrentPixelCount() > 0) {
+		if (rankingHistory.isPresent() && pixelCountGetter.apply(rankingHistory.get()) > 0) {
 			return UserRankingResponse.from(
 				user,
-				rankingHistory.get().getRanking(),
-				rankingHistory.get().getCurrentPixelCount());
+				rankingGetter.apply(rankingHistory.get()),
+				pixelCountGetter.apply(rankingHistory.get())
+			);
 		} else {
 			return UserRankingResponse.from(user);
 		}
+	}
+
+	public UserRankingResponse getPastWeekCurrentPixelUserRanking(Long userId, LocalDate lookUpDate) {
+		return getPastWeekPixelUserRanking(
+			userId,
+			lookUpDate,
+			RankingHistory::getCurrentPixelCount,
+			RankingHistory::getRanking
+		);
+	}
+
+	public UserRankingResponse getPastWeekAccumulatePixelUserRanking(Long userId, LocalDate lookUpDate) {
+		return getPastWeekPixelUserRanking(
+			userId,
+			lookUpDate,
+			RankingHistory::getAccumulatePixelCount,
+			RankingHistory::getAccumulateRanking
+		);
 	}
 
 	private UserRankingResponse getCurrentWeekCurrentPixelUserRanking(Long userId) {
