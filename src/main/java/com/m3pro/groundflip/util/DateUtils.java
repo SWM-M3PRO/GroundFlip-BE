@@ -9,7 +9,8 @@ import java.util.Date;
 
 public class DateUtils {
 	public static boolean isDateInCurrentWeek(LocalDate date) {
-		return getWeekOfDate(LocalDate.now()) == getWeekOfDate(date);
+		return getWeekOfDate(LocalDate.now()) == getWeekOfDate(date)
+			&& LocalDate.now().getYear() == date.getYear();
 	}
 
 	public static int getWeekOfDate(LocalDate date) {
