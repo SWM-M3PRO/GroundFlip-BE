@@ -97,27 +97,12 @@ public class UserRankingService {
 		}
 	}
 
-	public List<UserRankingResponse> getAccumulatePixelAllUserRankings(LocalDate lookUpDate) {
-		if (lookUpDate == null) {
-			lookUpDate = LocalDate.now();
-		}
-
-		if (DateUtils.isDateInCurrentWeek(lookUpDate)) {
-			return getCurrentWeekAccumulatePixelRankings();
-		} else {
-			return getPastWeekAccumulatePixelRankingsByDate(lookUpDate);
-		}
+	public List<UserRankingResponse> getAccumulatePixelAllUserRankings() {
+		return getCurrentWeekAccumulatePixelRankings();
 	}
 
 	private List<UserRankingResponse> getPastWeekCurrentPixelRankingsByDate(LocalDate lookUpDate) {
 		return rankingHistoryRepository.findAllByYearAndWeek(
-			lookUpDate.getYear(),
-			DateUtils.getWeekOfDate(lookUpDate)
-		);
-	}
-
-	private List<UserRankingResponse> getPastWeekAccumulatePixelRankingsByDate(LocalDate lookUpDate) {
-		return rankingHistoryRepository.findAllAccumulateRankingByYearAndWeek(
 			lookUpDate.getYear(),
 			DateUtils.getWeekOfDate(lookUpDate)
 		);
@@ -190,16 +175,8 @@ public class UserRankingService {
 		}
 	}
 
-	public UserRankingResponse getUserAccumulatePixelRankInfo(Long userId, LocalDate lookUpDate) {
-		if (lookUpDate == null) {
-			lookUpDate = LocalDate.now();
-		}
-
-		if (DateUtils.isDateInCurrentWeek(lookUpDate)) {
-			return getCurrentWeekAccumulatePixelUserRanking(userId);
-		} else {
-			return getPastWeekAccumulatePixelUserRanking(userId, lookUpDate);
-		}
+	public UserRankingResponse getUserAccumulatePixelRankInfo(Long userId) {
+		return getCurrentWeekAccumulatePixelUserRanking(userId);
 	}
 
 	private UserRankingResponse getPastWeekPixelUserRanking(
@@ -234,15 +211,6 @@ public class UserRankingService {
 			lookUpDate,
 			RankingHistory::getCurrentPixelCount,
 			RankingHistory::getRanking
-		);
-	}
-
-	public UserRankingResponse getPastWeekAccumulatePixelUserRanking(Long userId, LocalDate lookUpDate) {
-		return getPastWeekPixelUserRanking(
-			userId,
-			lookUpDate,
-			RankingHistory::getAccumulatePixelCount,
-			RankingHistory::getAccumulateRanking
 		);
 	}
 

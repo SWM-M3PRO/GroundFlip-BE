@@ -22,19 +22,6 @@ public interface RankingHistoryRepository extends JpaRepository<RankingHistory, 
 		""")
 	List<UserRankingResponse> findAllByYearAndWeek(@Param("requestYear") int year, @Param("requestWeek") int week);
 
-	@Query("""
-			SELECT new com.m3pro.groundflip.domain.dto.ranking.UserRankingResponse
-			(u.id, u.nickname, u.profileImage, rh.accumulatePixelCount, rh.accumulateRanking)
-			FROM RankingHistory rh 
-			INNER JOIN User u on u.id = rh.userId 
-			WHERE rh.year = :requestYear AND rh.week = :requestWeek AND rh.accumulatePixelCount > 0
-			ORDER BY rh.ranking ASC 
-			LIMIT 100 
-		""")
-	List<UserRankingResponse> findAllAccumulateRankingByYearAndWeek(
-		@Param("requestYear") int year,
-		@Param("requestWeek") int week);
-
 	Optional<RankingHistory> findByUserIdAndYearAndWeek(
 		@Param("userId") Long userId,
 		@Param("requestYear") int year,

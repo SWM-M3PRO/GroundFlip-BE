@@ -30,10 +30,6 @@ public class RankingHistory extends BaseTimeEntity {
 
 	Long currentPixelCount;
 
-	Long accumulateRanking;
-
-	Long accumulatePixelCount;
-
 	Integer year;
 
 	Integer week;
