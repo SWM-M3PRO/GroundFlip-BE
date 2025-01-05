@@ -75,6 +75,10 @@ public class RankingRedisRepository {
 		return getRankings(currentPixelRankingKey, RANKING_END_INDEX);
 	}
 
+	public List<Ranking> getRankingsWithAccumulatePixelCount() {
+		return getRankings(accumulatePixelRankingKey, RANKING_END_INDEX);
+	}
+
 	public List<Ranking> getRankingsWithCurrentPixelCount(int endIndex) {
 		return getRankings(currentPixelRankingKey, -1);
 	}
@@ -98,18 +102,23 @@ public class RankingRedisRepository {
 		return rankings;
 	}
 
-	public Optional<Long> getCurrentPixelRank(Long userId) {
-		Long rank = zSetOperations.reverseRank(currentPixelRankingKey, userId.toString());
+	public Optional<Long> getCurrentPixelRank(Long id) {
+		Long rank = zSetOperations.reverseRank(currentPixelRankingKey, id.toString());
 		return Optional.ofNullable(rank).map(r -> r + 1);
 	}
 
-	public Optional<Long> getCurrentPixelCount(Long userId) {
-		Double currentPixelCount = zSetOperations.score(currentPixelRankingKey, userId.toString());
+	public Optional<Long> getCurrentPixelCount(Long id) {
+		Double currentPixelCount = zSetOperations.score(currentPixelRankingKey, id.toString());
 		return Optional.ofNullable(currentPixelCount).map(Double::longValue);
 	}
 
-	public Optional<Long> getAccumulatePixelCount(Long userId) {
-		Double accumulatePixelCount = zSetOperations.score(accumulatePixelRankingKey, userId.toString());
+	public Optional<Long> getAccumulatePixelRank(Long id) {
+		Long rank = zSetOperations.reverseRank(accumulatePixelRankingKey, id.toString());
+		return Optional.ofNullable(rank).map(r -> r + 1);
+	}
+
+	public Optional<Long> getAccumulatePixelCount(Long id) {
+		Double accumulatePixelCount = zSetOperations.score(accumulatePixelRankingKey, id.toString());
 		return Optional.ofNullable(accumulatePixelCount).map(Double::longValue);
 	}
 }

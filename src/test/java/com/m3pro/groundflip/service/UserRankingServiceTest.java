@@ -203,6 +203,32 @@ class UserRankingServiceTest {
 	}
 
 	@Test
+	@DisplayName("[getAccumulatePixelAllUserRankings] 현재 상위 30명의 랭킹을 가져온다.")
+	void getAccumulatePixelAllUserRankingsTest() {
+		List<Ranking> rankings = Arrays.asList(
+			new Ranking(1L, 10L, 3L),
+			new Ranking(2L, 20L, 1L),
+			new Ranking(3L, 15L, 2L)
+		);
+
+		List<User> users = Arrays.asList(
+			User.builder().id(1L).nickname("User1").profileImage("url1").build(),
+			User.builder().id(2L).nickname("User2").profileImage("url2").build(),
+			User.builder().id(3L).nickname("User3").profileImage("url3").build()
+		);
+
+		when(userRankingRedisRepository.getRankingsWithAccumulatePixelCount()).thenReturn(rankings);
+		when(userRepository.findAllById(anySet())).thenReturn(users);
+
+		List<UserRankingResponse> responses = userRankingService.getAccumulatePixelAllUserRankings();
+
+		assertEquals(3, responses.size());
+		assertEquals(1L, responses.get(0).getUserId());
+		assertEquals(2L, responses.get(1).getUserId());
+		assertEquals(3L, responses.get(2).getUserId());
+	}
+
+	@Test
 	@DisplayName("[getAllUserRanking] 레디스에서 찾은 유저가 DB 에서 찾아온 유저에 필터링된다.")
 	void getAllUserRankingTest_UserNotFound() {
 		List<Ranking> rankings = Arrays.asList(

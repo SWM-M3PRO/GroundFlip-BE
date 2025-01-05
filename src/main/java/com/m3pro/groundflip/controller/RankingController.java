@@ -63,4 +63,18 @@ public class RankingController {
 		return Response.createSuccess(
 			communityRankingService.getCommunityCurrentPixelRankInfo(communityId, lookUpDate));
 	}
+
+	@Operation(summary = "개인전 전체 누적 랭킹 조회", description = "현재 개인전 유저들의 지금 까지 차지한 누적 픽셀 기준으로 상위 100명의 랭킹을 반환한다.")
+	@GetMapping("/accumulate/user")
+	public Response<List<UserRankingResponse>> getAllUserAccumulateRanking() {
+		return Response.createSuccess(userRankingService.getAccumulatePixelAllUserRankings());
+	}
+
+	@Operation(summary = "개인전 개인 누적 랭킹 조회", description = "특정 유저의 현재 누적 픽셀 순위를 반환한다.")
+	@GetMapping("/accumulate/user/{userId}")
+	public Response<UserRankingResponse> getAccumulateRank(
+		@Parameter(description = "찾고자 하는 userID", required = true) @PathVariable("userId") Long userId
+	) {
+		return Response.createSuccess(userRankingService.getUserAccumulatePixelRankInfo(userId));
+	}
 }
