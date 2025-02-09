@@ -177,22 +177,6 @@ class UserRankingServiceTest {
 	}
 
 	@Test
-	@DisplayName("[getUserRankFromCache] 사용자가 Redis에 존재하지 않는다면 500 에러를 발생시킨다.")
-	void getUserRankFromCacheUserCurrentPixelNotFoundInRedis() {
-		Long userId = 1L;
-		when(userRepository.findById(userId)).thenReturn(Optional.of(User.builder()
-			.id(1L)
-			.build()));
-
-		when(userRankingRedisRepository.getCurrentPixelRank(userId)).thenReturn(Optional.empty());
-
-		AppException exception = assertThrows(AppException.class,
-			() -> userRankingService.getUserCurrentPixelRankInfo(userId, LocalDate.now()));
-
-		assertEquals(ErrorCode.INTERNAL_SERVER_ERROR, exception.getErrorCode());
-	}
-
-	@Test
 	@DisplayName("[getAllUserRanking] 현재 상위 30명의 랭킹을 가져온다.")
 	void getAllCurrentWeekRankingTest() {
 		List<Ranking> rankings = Arrays.asList(
@@ -211,6 +195,32 @@ class UserRankingServiceTest {
 		when(userRepository.findAllById(anySet())).thenReturn(users);
 
 		List<UserRankingResponse> responses = userRankingService.getCurrentPixelAllUserRankings(LocalDate.now());
+
+		assertEquals(3, responses.size());
+		assertEquals(1L, responses.get(0).getUserId());
+		assertEquals(2L, responses.get(1).getUserId());
+		assertEquals(3L, responses.get(2).getUserId());
+	}
+
+	@Test
+	@DisplayName("[getAccumulatePixelAllUserRankings] 현재 상위 30명의 랭킹을 가져온다.")
+	void getAccumulatePixelAllUserRankingsTest() {
+		List<Ranking> rankings = Arrays.asList(
+			new Ranking(1L, 10L, 3L),
+			new Ranking(2L, 20L, 1L),
+			new Ranking(3L, 15L, 2L)
+		);
+
+		List<User> users = Arrays.asList(
+			User.builder().id(1L).nickname("User1").profileImage("url1").build(),
+			User.builder().id(2L).nickname("User2").profileImage("url2").build(),
+			User.builder().id(3L).nickname("User3").profileImage("url3").build()
+		);
+
+		when(userRankingRedisRepository.getRankingsWithAccumulatePixelCount()).thenReturn(rankings);
+		when(userRepository.findAllById(anySet())).thenReturn(users);
+
+		List<UserRankingResponse> responses = userRankingService.getAccumulatePixelAllUserRankings();
 
 		assertEquals(3, responses.size());
 		assertEquals(1L, responses.get(0).getUserId());

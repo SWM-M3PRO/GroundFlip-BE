@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -96,6 +97,10 @@ public class UserRankingService {
 		}
 	}
 
+	public List<UserRankingResponse> getAccumulatePixelAllUserRankings() {
+		return getCurrentWeekAccumulatePixelRankings();
+	}
+
 	private List<UserRankingResponse> getPastWeekCurrentPixelRankingsByDate(LocalDate lookUpDate) {
 		return rankingHistoryRepository.findAllByYearAndWeek(
 			lookUpDate.getYear(),
@@ -105,6 +110,15 @@ public class UserRankingService {
 
 	private List<UserRankingResponse> getCurrentWeekCurrentPixelRankings() {
 		List<Ranking> rankings = userRankingRedisRepository.getRankingsWithCurrentPixelCount();
+		return getCurrentWeekRankings(rankings);
+	}
+
+	private List<UserRankingResponse> getCurrentWeekAccumulatePixelRankings() {
+		List<Ranking> rankings = userRankingRedisRepository.getRankingsWithAccumulatePixelCount();
+		return getCurrentWeekRankings(rankings);
+	}
+
+	private List<UserRankingResponse> getCurrentWeekRankings(List<Ranking> rankings) {
 		Map<Long, User> users = getRankedUsers(rankings);
 
 		rankings = filterNotExistUsers(rankings, users);
@@ -161,7 +175,16 @@ public class UserRankingService {
 		}
 	}
 
-	private UserRankingResponse getPastWeekCurrentPixelUserRanking(Long userId, LocalDate lookUpDate) {
+	public UserRankingResponse getUserAccumulatePixelRankInfo(Long userId) {
+		return getCurrentWeekAccumulatePixelUserRanking(userId);
+	}
+
+	private UserRankingResponse getPastWeekPixelUserRanking(
+		Long userId,
+		LocalDate lookUpDate,
+		Function<RankingHistory, Long> pixelCountGetter,
+		Function<RankingHistory, Long> rankingGetter
+	) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
@@ -171,22 +194,50 @@ public class UserRankingService {
 			DateUtils.getWeekOfDate(lookUpDate)
 		);
 
-		if (rankingHistory.isPresent()) {
+		if (rankingHistory.isPresent() && pixelCountGetter.apply(rankingHistory.get()) > 0) {
 			return UserRankingResponse.from(
 				user,
-				rankingHistory.get().getRanking(),
-				rankingHistory.get().getCurrentPixelCount());
+				rankingGetter.apply(rankingHistory.get()),
+				pixelCountGetter.apply(rankingHistory.get())
+			);
 		} else {
 			return UserRankingResponse.from(user);
 		}
 	}
 
+	public UserRankingResponse getPastWeekCurrentPixelUserRanking(Long userId, LocalDate lookUpDate) {
+		return getPastWeekPixelUserRanking(
+			userId,
+			lookUpDate,
+			RankingHistory::getCurrentPixelCount,
+			RankingHistory::getRanking
+		);
+	}
+
 	private UserRankingResponse getCurrentWeekCurrentPixelUserRanking(Long userId) {
 		User user = userRepository.findById(userId)
 			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-		Long rank = getUserCurrentPixelRankFromCache(userId);
 		Long currentPixelCount = getCurrentPixelCountFromCache(userId);
-		return UserRankingResponse.from(user, rank, currentPixelCount);
+
+		if (currentPixelCount == 0) {
+			return UserRankingResponse.from(user, null, null);
+		} else {
+			Long rank = getUserCurrentPixelRankFromCache(userId);
+			return UserRankingResponse.from(user, rank, currentPixelCount);
+		}
+	}
+
+	private UserRankingResponse getCurrentWeekAccumulatePixelUserRanking(Long userId) {
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+		Long accumulatePixelCount = getAccumulatePixelCount(userId);
+
+		if (accumulatePixelCount == 0) {
+			return UserRankingResponse.from(user, null, null);
+		} else {
+			Long rank = getUserAccumulatePixelRankFromCache(userId);
+			return UserRankingResponse.from(user, rank, accumulatePixelCount);
+		}
 	}
 
 	/**
@@ -196,6 +247,14 @@ public class UserRankingService {
 	 */
 	private Long getUserCurrentPixelRankFromCache(Long userId) {
 		return userRankingRedisRepository.getCurrentPixelRank(userId)
+			.orElseThrow(() -> {
+				log.error("User {} not register at redis", userId);
+				return new AppException(ErrorCode.INTERNAL_SERVER_ERROR);
+			});
+	}
+
+	private Long getUserAccumulatePixelRankFromCache(Long userId) {
+		return userRankingRedisRepository.getAccumulatePixelRank(userId)
 			.orElseThrow(() -> {
 				log.error("User {} not register at redis", userId);
 				return new AppException(ErrorCode.INTERNAL_SERVER_ERROR);

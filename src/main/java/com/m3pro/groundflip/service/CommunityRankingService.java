@@ -160,7 +160,7 @@ public class CommunityRankingService {
 			DateUtils.getWeekOfDate(lookUpDate)
 		);
 
-		if (rankingHistory.isPresent()) {
+		if (rankingHistory.isPresent() && rankingHistory.get().getCurrentPixelCount() > 0) {
 			return CommunityRankingResponse.from(
 				community,
 				rankingHistory.get().getRanking(),
@@ -173,10 +173,14 @@ public class CommunityRankingService {
 	private CommunityRankingResponse getCurrentWeekCurrentPixelCommunityRanking(Long communityId) {
 		Community community = communityRepository.findById(communityId)
 			.orElseThrow(() -> new AppException(ErrorCode.COMMUNITY_NOT_FOUND));
-
-		Long rank = getCommunityCurrentPixelRankFromCache(communityId);
 		Long currentPixelCount = getCurrentPixelCountFromCache(communityId);
-		return CommunityRankingResponse.from(community, rank, currentPixelCount);
+
+		if (currentPixelCount == 0) {
+			return CommunityRankingResponse.from(community, null, null);
+		} else {
+			Long rank = getCommunityCurrentPixelRankFromCache(communityId);
+			return CommunityRankingResponse.from(community, rank, currentPixelCount);
+		}
 	}
 
 	/**
