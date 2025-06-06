@@ -1,6 +1,11 @@
 package com.m3pro.groundflip.domain.entity;
 
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+
 import com.m3pro.groundflip.domain.entity.global.BaseTimeEntity;
+import com.m3pro.groundflip.scheduler.entity.RankingDetail;
+import com.m3pro.groundflip.util.DateUtils;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -33,4 +38,28 @@ public class CommunityRankingHistory extends BaseTimeEntity {
 	Integer year;
 
 	Integer week;
+
+	public static CommunityRankingHistory of(RankingDetail rankingDetail) {
+		LocalDateTime now = LocalDateTime.now();
+
+		int year = now.getYear();
+		int week = DateUtils.getWeekOfDate(now.toLocalDate());
+
+		if (now.getDayOfWeek() == DayOfWeek.MONDAY && now.getHour() == 0) {
+			week -= 1;
+		}
+
+		return CommunityRankingHistory.builder()
+			.communityId(rankingDetail.getId())
+			.ranking(rankingDetail.getRanking())
+			.currentPixelCount(rankingDetail.getCurrentPixelCount())
+			.year(year)
+			.week(week)
+			.build();
+	}
+
+	public void update(Long currentPixelCount, Long ranking) {
+		this.currentPixelCount = currentPixelCount;
+		this.ranking = ranking;
+	}
 }
