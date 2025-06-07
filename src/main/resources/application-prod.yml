@@ -27,6 +27,8 @@ spring:
       max-request-size: 10MB
   firebase:
     secret: ${FIREBASE_SECRET_KEY}
+  push:
+    secret: ${PUSH_SECRET_KEY}
 
 logging:
   level:
