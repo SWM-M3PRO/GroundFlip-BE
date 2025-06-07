@@ -69,5 +69,6 @@ jobs:
             echo "FORCE_UPDATE_VERSION=${{  secrets.FORCE_UPDATE_VERSION_PROD  }}" >> .env
             echo "GEOCODING_API=${{  secrets.GEOCODING_API_MIG  }}" >> .env
             echo "FIREBASE_SECRET_KEY=${{  secrets.FIREBASE_SECRET_KEY  }}" >> .env
+            echo "PUSH_SECRET_KEY=${{  secrets.PUSH_SECRET_KEY  }}" >> .env
             
             sudo sh deploy.sh
